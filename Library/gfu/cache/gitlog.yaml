@@ -1,0 +1,47 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &1
+MonoBehaviour:
+  m_ObjectHideFlags: 61
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -530159753, guid: 68c7e4565cde54155bb78d8e935f1dd4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  cacheType: 3
+  lastUpdatedAtString: 2018-07-24T00:11:22.881+03:00
+  initializedAtString: 2018-07-24T00:11:22.881+03:00
+  log:
+  - commitID: 8fb8cd54bb9daac0bbb8e1552430ad2cad4ac9bc
+    mergeA: 
+    mergeB: 
+    authorName: ferfelekis
+    authorEmail: king_dryad@hotmail.com
+    commitEmail: king_dryad@hotmail.com
+    commitName: ferfelekis
+    summary: Initial commit
+    description: Initial commit
+    timeString: 2018-07-23T23:24:53.000+03:00
+    commitTimeString: 2018-07-23T23:24:53.000+03:00
+    changes:
+    - path: .gitattributes
+      fullPath: E:\UnityProjects\2dProject\.gitattributes
+      projectPath: .gitattributes
+      originalPath: 
+      status: 4
+      staged: 0
+    - path: .gitignore
+      fullPath: E:\UnityProjects\2dProject\.gitignore
+      projectPath: .gitignore
+      originalPath: 
+      status: 4
+      staged: 0
+    - path: Assets\.gitignore
+      fullPath: E:\UnityProjects\2dProject\Assets\.gitignore
+      projectPath: Assets\.gitignore
+      originalPath: 
+      status: 4
+      staged: 0
