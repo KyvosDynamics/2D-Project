@@ -309,8 +309,6 @@
     <Compile Include="Assets\Scripts\Movement.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Assets\Plugins\GitHub\Editor\credits.txt" />
-    <None Include="Assets\Plugins\GitHub\Editor\eula.txt" />
     <None Include="Assets\_MK\MKGlowFree\Legacy_2_0_7\ReadMe.txt" />
     <None Include="Assets\_MK\MKGlowFree\Shader\Render\MKGlowBlur.shader" />
     <None Include="Assets\_MK\MKGlowFree\Shader\Render\MKGlowBlurInc.cginc" />
