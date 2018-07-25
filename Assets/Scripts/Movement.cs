@@ -2,7 +2,6 @@
 
 public class Movement : MonoBehaviour
 {
-
     public Rigidbody2D Player;
     public float Speed;
     public float JumpForce;
@@ -75,11 +74,11 @@ public class Movement : MonoBehaviour
 
 
         //player moving alone
-        Player.velocity = new Vector2( Speed, Player.velocity.y);
-        
-       
-        
-	}
+        Player.velocity = new Vector2(Speed, Player.velocity.y);
+
+
+
+    }
 
     void Update()
     {
@@ -122,7 +121,7 @@ public class Movement : MonoBehaviour
     void OnTriggerEnter2D(Collider2D collision)
     {
         //death check
-        if (collision.gameObject.tag=="BlueKiller"&&gameObject.tag!="BluePlayer")
+        if (collision.gameObject.tag == "BlueKiller" && gameObject.tag != "BluePlayer")
         {
             print("Game Over");
         }
@@ -131,17 +130,17 @@ public class Movement : MonoBehaviour
             print("Game Over");
         }
         //check ponger
-        if (collision.gameObject.name=="Ponger")
+        if (collision.gameObject.name == "Ponger")
         {
 
-            Player.velocity = new Vector2(Player.velocity.x, JumpForce*2);
+            Player.velocity = new Vector2(Player.velocity.x, JumpForce * 2);
         }
     }
     //COLLISSIONS ON COLLISION ENTER
     void OnCollisionEnter2D(Collision2D collision)
     {
         //death check
-        if(collision.gameObject.tag=="Killer")
+        if (collision.gameObject.tag == "Killer")
         {
             print("Game Over");
         }
