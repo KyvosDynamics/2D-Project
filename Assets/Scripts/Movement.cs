@@ -114,10 +114,12 @@ public class Movement : MonoBehaviour
         if (collision.gameObject.tag == "BlueKiller" && gameObject.tag != "BluePlayer")
         {
             print("Game Over");
+            Time.timeScale = 0f;
         }
         if (collision.gameObject.tag == "GreenKiller" && gameObject.tag != "GreenPlayer")
         {
             print("Game Over");
+            Time.timeScale = 0f;
         }
 
         //check ponger
