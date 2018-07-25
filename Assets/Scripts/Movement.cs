@@ -112,6 +112,7 @@ public class Movement : MonoBehaviour
     }
 
 
+
     void OnTriggerEnter2D(Collider2D collision)
     {
         //death check
@@ -123,6 +124,7 @@ public class Movement : MonoBehaviour
         {
             print("Game Over");
         }
+
         //check ponger
         if (collision.gameObject.name == "Ponger")
         {
