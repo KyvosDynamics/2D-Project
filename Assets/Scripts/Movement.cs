@@ -3,7 +3,6 @@
 public class Movement : MonoBehaviour
 {
     public bool ShowBoxBounds = false; //this is for debug purposes only, should be false when publishing
-    public Rigidbody2D Player;
     public float Speed;
     public float JumpForce;
     public Color colorBlue;
@@ -12,32 +11,34 @@ public class Movement : MonoBehaviour
     public Transform CeilingCheck;
     public LayerMask GroundLayer;
 
-    private SpriteRenderer m_SpriteRenderer;
-    private bool IsTouchingGround;
-    private bool IsTouchingCeiling;
-    private Collider2D col;
-    private Vector2 size;
+    //by convention private fields start with the underscore '_' character followed by a lower-case letter
+    private Rigidbody2D _player;
+    private SpriteRenderer _spriteRenderer;
+    private bool _isTouchingGround;
+    private bool _isTouchingCeiling;
+    private Collider2D _collider;
+    private Vector2 _size;
 
 
 
     void Start()
     {
-        Player = GetComponent<Rigidbody2D>();
-        m_SpriteRenderer = GetComponent<SpriteRenderer>();
+        _player = GetComponent<Rigidbody2D>();
+        _spriteRenderer = GetComponent<SpriteRenderer>();
 
-        col = GetComponent<Collider2D>();
-        size = new Vector2(col.bounds.size.x, col.bounds.size.y);
+        _collider = GetComponent<Collider2D>();
+        _size = new Vector2(_collider.bounds.size.x, _collider.bounds.size.y);
 
 
         //set color at the start
         if (IamBlue)
         {
-            m_SpriteRenderer.color = colorBlue;
+            _spriteRenderer.color = colorBlue;
             gameObject.tag = "BluePlayer";
         }
         else
         {
-            m_SpriteRenderer.color = colorGreen;
+            _spriteRenderer.color = colorGreen;
             gameObject.tag = "GreenPlayer";
         }
     }
@@ -48,35 +49,30 @@ public class Movement : MonoBehaviour
     {
         Vector2 pos = new Vector2(transform.position.x, transform.position.y);
         if (ShowBoxBounds)
-            DrawBoxForDebugPurposes(pos, size, transform.eulerAngles.z); //this draws a red rectangle to show the player's bounds
+            DrawBoxForDebugPurposes(pos, _size, transform.eulerAngles.z); //this draws a red rectangle to show the player's bounds
 
-        Collider2D[] colliders = Physics2D.OverlapBoxAll(pos, size, transform.eulerAngles.z, GroundLayer); //this checks for any colliders within the boxy-area
-        IsTouchingGround = colliders.Length != 0; //at least one groundlayer collider present so we are in contact
-
-
+        Collider2D[] colliders = Physics2D.OverlapBoxAll(pos, _size, transform.eulerAngles.z, GroundLayer); //this checks for any colliders within the boxy-area
+        _isTouchingGround = colliders.Length != 0; //at least one groundlayer collider present so we are in contact
 
 
 
-        //check groundcheck
-        //IsTouchingGround = Physics2D.OverlapCircle(GroundCheck.position, OverlapRadius, GroundLayer);
 
-        IsTouchingCeiling = Physics2D.Raycast(CeilingCheck.position, Vector2.up, 0.9f, GroundLayer);
+        _isTouchingCeiling = Physics2D.Raycast(CeilingCheck.position, Vector2.up, 0.9f, GroundLayer);
 
-        // IsTouchingGround = Physics2D.OverlapArea(new Vector2(transform.position.x-0.5f,transform.position.y-0.5f),new Vector2 (transform.position.x+0.5f,transform.position.y-0.51f),GroundLayer);
         //print(IsTouchingCeiling);
         // player moving by input
         // Player.velocity = new Vector2(Input.GetAxis("Horizontal") * Speed, Player.velocity.y);
 
 
         //player moving alone
-        Player.velocity = new Vector2(Speed, Player.velocity.y);
+        _player.velocity = new Vector2(Speed, _player.velocity.y);
 
     }
 
 
     void Update()
     {
-        Player.velocity = new Vector2(Speed, Player.velocity.y);
+        _player.velocity = new Vector2(Speed, _player.velocity.y);
 
         //check for key to change color
         if (Input.GetKeyDown(KeyCode.Q))
@@ -95,19 +91,19 @@ public class Movement : MonoBehaviour
         //change color and tag
         if (IamBlue)
         {
-            m_SpriteRenderer.color = colorBlue;
+            _spriteRenderer.color = colorBlue;
             gameObject.tag = "BluePlayer";
         }
         else
         {
-            m_SpriteRenderer.color = colorGreen;
+            _spriteRenderer.color = colorGreen;
             gameObject.tag = "GreenPlayer";
         }
         //jump check
-        if (Input.GetKey(KeyCode.Space) && IsTouchingGround && !IsTouchingCeiling)
+        if (Input.GetKey(KeyCode.Space) && _isTouchingGround && !_isTouchingCeiling)
         {
-            Player.velocity = new Vector2(Player.velocity.x, JumpForce);
-            IsTouchingGround = false;
+            _player.velocity = new Vector2(_player.velocity.x, JumpForce);
+            _isTouchingGround = false;
         }
     }
 
@@ -129,7 +125,7 @@ public class Movement : MonoBehaviour
         if (collision.gameObject.name == "Ponger")
         {
 
-            Player.velocity = new Vector2(Player.velocity.x, JumpForce * 2);
+            _player.velocity = new Vector2(_player.velocity.x, JumpForce * 2);
         }
     }
 
