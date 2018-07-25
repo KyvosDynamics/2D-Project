@@ -9,16 +9,15 @@ public class Movement : MonoBehaviour
     public Color colorGreen;
     SpriteRenderer m_SpriteRenderer;
     public bool IamBlue = true;
-    public Transform GroundCheck;
     public Transform CeilingCheck;
     public LayerMask GroundLayer;
     public float OverlapRadius;
     private bool IsTouchingGround;
     private bool IsTouchingCeiling;
-
     public bool ShowBoxBounds = false; //this is for debug purposes only, should be false when publishing
     private Collider2D col;
     private Vector2 size;
+
 
 
     //public float OverlapRadius;
@@ -167,25 +166,6 @@ public class Movement : MonoBehaviour
         Debug.DrawLine(bottomRight, bottomLeft, color);
         Debug.DrawLine(bottomLeft, topLeft, color);
     }
-
-
-
-
-
-    //COLLISSIONS ON COLLISION ENTER
-    // void OnCollisionEnter2D(Collision2D collision)
-    //{
-    //    if (collision.gameObject.tag=="Ground")
-    //    {
-    //        IsTouchingGround = true;
-    //       /Player.angularDrag = 0.05f;
-    //    }
-
-    //}
-    // void OnCollisionExit2D(Collision2D collision)
-    //{
-    //    IsTouchingGround = false;
-    //   /Player.angularDrag = 500;
 
 
 

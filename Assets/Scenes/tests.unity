@@ -188,7 +188,6 @@ Transform:
   m_LocalPosition: {x: -8.68, y: -3.23, z: 0}
   m_LocalScale: {x: 0.2, y: 0.2, z: 0.2}
   m_Children:
-  - {fileID: 833340064}
   - {fileID: 1624523738}
   m_Father: {fileID: 0}
   m_RootOrder: 1
@@ -255,7 +254,6 @@ MonoBehaviour:
   colorBlue: {r: 0, g: 0.45698714, b: 1, a: 1}
   colorGreen: {r: 0, g: 1, b: 0, a: 1}
   IamBlue: 1
-  GroundCheck: {fileID: 833340064}
   CeilingCheck: {fileID: 1624523738}
   GroundLayer:
     serializedVersion: 2
@@ -934,34 +932,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   RotSpeed: 5
---- !u!1 &833340063
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 833340064}
-  m_Layer: 0
-  m_Name: GrounCheck
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &833340064
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 833340063}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 101366995}
-  m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &950035970
 GameObject:
   m_ObjectHideFlags: 0
@@ -1634,7 +1604,7 @@ Transform:
   m_LocalScale: {x: 0.99999994, y: 0.99999994, z: 0.99999994}
   m_Children: []
   m_Father: {fileID: 101366995}
-  m_RootOrder: 1
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1685965805
 GameObject:
