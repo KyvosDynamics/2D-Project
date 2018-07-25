@@ -8,14 +8,12 @@ public class Movement : MonoBehaviour
     public Color colorBlue;
     public Color colorGreen;
     public bool IamBlue = true;
-    public Transform CeilingCheck;
     public LayerMask GroundLayer;
 
     //by convention private fields start with the underscore '_' character followed by a lower-case letter
     private Rigidbody2D _player;
     private SpriteRenderer _spriteRenderer;
     private bool _isTouchingGround;
-    private bool _isTouchingCeiling;
     private Collider2D _collider;
     private Vector2 _size;
 
@@ -57,7 +55,7 @@ public class Movement : MonoBehaviour
 
 
 
-        _isTouchingCeiling = Physics2D.Raycast(CeilingCheck.position, Vector2.up, 0.9f, GroundLayer);
+        //_isTouchingCeiling = Physics2D.Raycast(CeilingCheck.position, Vector2.up, 0.9f, GroundLayer);
 
         //print(IsTouchingCeiling);
         // player moving by input
@@ -99,11 +97,12 @@ public class Movement : MonoBehaviour
             _spriteRenderer.color = colorGreen;
             gameObject.tag = "GreenPlayer";
         }
+
         //jump check
-        if (Input.GetKey(KeyCode.Space) && _isTouchingGround && !_isTouchingCeiling)
+        if (Input.GetKey(KeyCode.Space) && _isTouchingGround)// && !_isTouchingCeiling)
         {
             _player.velocity = new Vector2(_player.velocity.x, JumpForce);
-            _isTouchingGround = false;
+            //_isTouchingGround = false;
         }
     }
 
