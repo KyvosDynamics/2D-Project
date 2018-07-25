@@ -67,7 +67,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1161221288958416}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 42, y: -4.91, z: 0}
+  m_LocalPosition: {x: 5.24, y: -4.6, z: 0}
   m_LocalScale: {x: 0.44282997, y: 0.44282997, z: 0.44282997}
   m_Children:
   - {fileID: 4237511081482532}
@@ -125,13 +125,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cf5c562498cc7a0429780cb6e5811b30, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _Player: {fileID: 0}
-  MaxDistToChange: 5
-  MinDistToChange: -5
+  Player: {fileID: 4160709532191474, guid: 97f7b7ed7743f9d4885f16317e5c90ca, type: 2}
+  range: 5
   colorBlue: {r: 0, g: 0.40211535, b: 1, a: 1}
   colorGreen: {r: 0.048704147, g: 1, b: 0, a: 1}
   IamBlue: 1
-  ChangerColor: 1
+  ChangeColor: 1
 --- !u!114 &114976942925225378
 MonoBehaviour:
   m_ObjectHideFlags: 1

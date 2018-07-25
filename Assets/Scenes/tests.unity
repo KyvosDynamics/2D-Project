@@ -161,6 +161,11 @@ Prefab:
       propertyPath: _Player
       value: 
       objectReference: {fileID: 1121266140}
+    - target: {fileID: 114851702971736644, guid: 65f801028ba35be4ea98fcbf8b9e43ea,
+        type: 2}
+      propertyPath: Player
+      value: 
+      objectReference: {fileID: 1121266140}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 65f801028ba35be4ea98fcbf8b9e43ea, type: 2}
   m_IsPrefabAsset: 0
@@ -502,13 +507,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cf5c562498cc7a0429780cb6e5811b30, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _Player: {fileID: 1121266140}
-  MaxDistToChange: 5
-  MinDistToChange: -5
+  Player: {fileID: 1121266140}
+  range: 0
   colorBlue: {r: 0, g: 0.2466259, b: 1, a: 1}
   colorGreen: {r: 0.06568074, g: 1, b: 0, a: 1}
   IamBlue: 1
-  ChangerColor: 0
+  ChangeColor: 1
 --- !u!61 &1584702538
 BoxCollider2D:
   m_ObjectHideFlags: 0
