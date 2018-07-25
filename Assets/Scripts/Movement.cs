@@ -134,6 +134,7 @@ public class Movement : MonoBehaviour
         if (collision.gameObject.tag == "Killer")
         {
             print("Game Over");
+            Time.timeScale = 0f;
         }
     }
 
