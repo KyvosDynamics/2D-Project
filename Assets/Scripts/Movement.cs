@@ -97,7 +97,7 @@ public class Movement : MonoBehaviour
             RemoveVertexWithSmallerY(verticesToRaycast);
         }
 
-        print(string.Format("Raycasting {0} vertices", verticesToRaycast.Count));
+        //print(string.Format("Raycasting {0} vertices", verticesToRaycast.Count));
 
 
 
