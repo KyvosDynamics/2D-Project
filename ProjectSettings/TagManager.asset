@@ -10,6 +10,7 @@ TagManager:
   - GreenKiller
   - BluePlayer
   - GreenPlayer
+  - Room
   layers:
   - Default
   - TransparentFX
@@ -22,8 +23,8 @@ TagManager:
   - Player
   - Ground
   - Glows
-  - 
-  - 
+  - RoomBackground
+  - RoomObjects
   - 
   - 
   - 
@@ -47,12 +48,12 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
-  - name: Background
-    uniqueID: 2926426751
-    locked: 0
-  - name: StageObjects
+  - name: RoomBackground
     uniqueID: 2577418493
     locked: 0
-  - name: Player
+  - name: RoomObjects
     uniqueID: 2231967073
+    locked: 0
+  - name: Player
+    uniqueID: 2500111881
     locked: 0
