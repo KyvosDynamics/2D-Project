@@ -2,21 +2,20 @@
 
 public class Enemy_Reactions : MonoBehaviour
 {
-    public Transform Player;
     public float range;
-    //public float MaxDistToChange;
-    //public float MinDistToChange;
     public Color colorBlue;
     public Color colorGreen;
     public bool IamBlue = false;
     public bool ChangeColor = true;
     SpriteRenderer e_SpriteRenderer;
-
+    private Transform Player;
 
 
 
     void Start()
     {
+        Player = GameObject.Find("Player").transform;
+
         e_SpriteRenderer = GetComponent<SpriteRenderer>();
 
         //set color at the start

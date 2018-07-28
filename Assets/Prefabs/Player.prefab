@@ -23,6 +23,7 @@ GameObject:
   - component: {fileID: 50687585712573714}
   - component: {fileID: 61093226520952918}
   - component: {fileID: 114898046598025904}
+  - component: {fileID: 114202579433214058}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -37,7 +38,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1271199044674592}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -8.68, y: -3.23, z: 0}
+  m_LocalPosition: {x: -8.8, y: -0.63, z: 0}
   m_LocalScale: {x: 0.2, y: 0.2, z: 0.2}
   m_Children: []
   m_Father: {fileID: 0}
@@ -88,6 +89,17 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 4.8248124, y: 4.8438478}
   m_EdgeRadius: 0
+--- !u!114 &114202579433214058
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1271199044674592}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d869e4ed8ddee4b4c9409dbf5fe449c5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &114898046598025904
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -99,12 +111,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c1c54b0ec74e6764eb5e5a7c2c56c26a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ShowBoxBounds: 0
-  Speed: 8
+  VisualizeRaycasting: 1
+  Speed: 1
   JumpForce: 10
   colorBlue: {r: 0, g: 0.45698714, b: 1, a: 1}
   colorGreen: {r: 0, g: 1, b: 0, a: 1}
-  IamBlue: 1
   GroundLayer:
     serializedVersion: 2
     m_Bits: 512
