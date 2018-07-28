@@ -24,9 +24,9 @@ GameObject:
   - component: {fileID: 61093226520952918}
   - component: {fileID: 114898046598025904}
   - component: {fileID: 114202579433214058}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Player
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -38,7 +38,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1271199044674592}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -8.8, y: -0.63, z: 0}
+  m_LocalPosition: {x: -21.18, y: 1.64, z: 0}
   m_LocalScale: {x: 0.2, y: 0.2, z: 0.2}
   m_Children: []
   m_Father: {fileID: 0}
@@ -100,6 +100,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d869e4ed8ddee4b4c9409dbf5fe449c5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  roomPrefab: {fileID: 1969975028501032, guid: ce6a87f6a8e194342b0543b84fa2d74b, type: 2}
+  currentRooms:
+  - {fileID: 0}
 --- !u!114 &114898046598025904
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -118,7 +121,7 @@ MonoBehaviour:
   colorGreen: {r: 0, g: 1, b: 0, a: 1}
   GroundLayer:
     serializedVersion: 2
-    m_Bits: 512
+    m_Bits: 4096
 --- !u!212 &212086137520373678
 SpriteRenderer:
   m_ObjectHideFlags: 1
@@ -151,7 +154,7 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: -2063000223
+  m_SortingLayerID: -1794855415
   m_SortingLayer: 3
   m_SortingOrder: 0
   m_Sprite: {fileID: 21300000, guid: b1e8814b28fefc848b597fd1a805ec5e, type: 3}
