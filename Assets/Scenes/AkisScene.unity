@@ -122,7 +122,7 @@ Prefab:
     m_Modifications:
     - target: {fileID: 4502359669117760, guid: 524bd526f634c7a4482357951820d897, type: 2}
       propertyPath: m_LocalPosition.x
-      value: -17.18
+      value: -17.05
       objectReference: {fileID: 0}
     - target: {fileID: 4502359669117760, guid: 524bd526f634c7a4482357951820d897, type: 2}
       propertyPath: m_LocalPosition.y
@@ -160,7 +160,7 @@ Prefab:
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 524bd526f634c7a4482357951820d897, type: 2}
   m_IsPrefabAsset: 0
---- !u!1001 &1076931633
+--- !u!1001 &1091521904
 Prefab:
   m_ObjectHideFlags: 0
   serializedVersion: 2
@@ -203,16 +203,6 @@ Prefab:
       propertyPath: m_Name
       value: Room
       objectReference: {fileID: 0}
-    - target: {fileID: 212804219942400818, guid: ce6a87f6a8e194342b0543b84fa2d74b,
-        type: 2}
-      propertyPath: m_SortingOrder
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 212519426806966968, guid: ce6a87f6a8e194342b0543b84fa2d74b,
-        type: 2}
-      propertyPath: m_SortingOrder
-      value: 0
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: ce6a87f6a8e194342b0543b84fa2d74b, type: 2}
   m_IsPrefabAsset: 0
@@ -223,11 +213,6 @@ Prefab:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 114202579433214058, guid: 97f7b7ed7743f9d4885f16317e5c90ca,
-        type: 2}
-      propertyPath: currentRooms.Array.size
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 4160709532191474, guid: 97f7b7ed7743f9d4885f16317e5c90ca, type: 2}
       propertyPath: m_LocalPosition.x
       value: -21.18
@@ -265,22 +250,6 @@ Prefab:
       propertyPath: currentRooms.Array.data[0]
       value: 
       objectReference: {fileID: 2076429870}
-    - target: {fileID: 114202579433214058, guid: 97f7b7ed7743f9d4885f16317e5c90ca,
-        type: 2}
-      propertyPath: roomPrefab
-      value: 
-      objectReference: {fileID: 1969975028501032, guid: ce6a87f6a8e194342b0543b84fa2d74b,
-        type: 2}
-    - target: {fileID: 114202579433214058, guid: 97f7b7ed7743f9d4885f16317e5c90ca,
-        type: 2}
-      propertyPath: currentRooms.Array.data[1]
-      value: 
-      objectReference: {fileID: 2076429870}
-    - target: {fileID: 114898046598025904, guid: 97f7b7ed7743f9d4885f16317e5c90ca,
-        type: 2}
-      propertyPath: GroundLayer.m_Bits
-      value: 4096
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 97f7b7ed7743f9d4885f16317e5c90ca, type: 2}
   m_IsPrefabAsset: 0
@@ -293,4 +262,4 @@ Transform:
 GameObject:
   m_CorrespondingSourceObject: {fileID: 1969975028501032, guid: ce6a87f6a8e194342b0543b84fa2d74b,
     type: 2}
-  m_PrefabInternal: {fileID: 1076931633}
+  m_PrefabInternal: {fileID: 1091521904}

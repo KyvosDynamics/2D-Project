@@ -24,7 +24,7 @@ GameObject:
   - component: {fileID: 61093226520952918}
   - component: {fileID: 114898046598025904}
   - component: {fileID: 114202579433214058}
-  m_Layer: 8
+  m_Layer: 10
   m_Name: Player
   m_TagString: Player
   m_Icon: {fileID: 0}
@@ -115,13 +115,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   VisualizeRaycasting: 1
-  Speed: 1
+  Speed: 5
   JumpForce: 10
   colorBlue: {r: 0, g: 0.45698714, b: 1, a: 1}
   colorGreen: {r: 0, g: 1, b: 0, a: 1}
   GroundLayer:
     serializedVersion: 2
-    m_Bits: 4096
+    m_Bits: 512
 --- !u!212 &212086137520373678
 SpriteRenderer:
   m_ObjectHideFlags: 1

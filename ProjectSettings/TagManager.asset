@@ -20,11 +20,11 @@ TagManager:
   - UI
   - 
   - 
-  - Player
-  - Ground
-  - Glows
   - RoomBackground
   - RoomObjects
+  - Player
+  - Glows
+  - 
   - 
   - 
   - 
