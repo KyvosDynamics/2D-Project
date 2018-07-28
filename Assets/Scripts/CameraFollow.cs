@@ -3,12 +3,20 @@
 public class CameraFollow : MonoBehaviour
 {
     public Transform Player;
-    public Vector3 Offset;
+    private float distanceToTarget;
 
+
+    private void Start()
+    {
+        distanceToTarget = transform.position.x - Player.position.x;
+    }
 
     void LateUpdate()
     {
-        transform.position = Player.position + Offset;
+        float targetObjectX = Player.position.x;
+        Vector3 newCameraPosition = transform.position;
+        newCameraPosition.x = targetObjectX + distanceToTarget;
+        transform.position = newCameraPosition;
     }
 
 

@@ -8,10 +8,10 @@ public class Movement : MonoBehaviour
     public float JumpForce;
     public Color colorBlue;
     public Color colorGreen;
-    public bool IamBlue = true;
     public LayerMask GroundLayer;
 
     //by convention private fields start with the underscore '_' character followed by a lower-case letter
+    private bool _iAmBlue = true;
     private Rigidbody2D _player;
     private SpriteRenderer _spriteRenderer;
     private bool _isTouchingGround;
@@ -31,7 +31,7 @@ public class Movement : MonoBehaviour
 
 
         //set color at the start
-        if (IamBlue)
+        if (_iAmBlue)
         {
             _spriteRenderer.color = colorBlue;
             gameObject.tag = "BluePlayer";
@@ -140,19 +140,19 @@ public class Movement : MonoBehaviour
         //check for key to change color
         if (Input.GetKeyDown(KeyCode.Q))
         {
-            if (IamBlue == true)
+            if (_iAmBlue == true)
             {
-                IamBlue = false;
+                _iAmBlue = false;
 
             }
             else
             {
-                IamBlue = true;
+                _iAmBlue = true;
 
             }
         }
         //change color and tag
-        if (IamBlue)
+        if (_iAmBlue)
         {
             _spriteRenderer.color = colorBlue;
             gameObject.tag = "BluePlayer";
