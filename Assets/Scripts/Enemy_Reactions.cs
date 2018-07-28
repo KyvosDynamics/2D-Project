@@ -33,9 +33,9 @@ public class Enemy_Reactions : MonoBehaviour
 
 
         //checks the distance between this and the player
-       // var distance = ;
+        // var distance = ;
 
-        if (Player.transform.position.x>=gameObject.transform.position.x - range)//>= distance <= MaxDistToChange && distance >= MinDistToChange)
+        if (Player.position.x >= gameObject.transform.position.x - range)//>= distance <= MaxDistToChange && distance >= MinDistToChange)
         {
             ChangeColor = false; //do not change again
             IamBlue = !IamBlue;

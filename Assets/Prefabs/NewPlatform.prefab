@@ -21,7 +21,7 @@ GameObject:
   - component: {fileID: 4864415444701054}
   - component: {fileID: 212055988240462660}
   - component: {fileID: 61911833761095344}
-  m_Layer: 12
+  m_Layer: 9
   m_Name: NewPlatform
   m_TagString: Ground
   m_Icon: {fileID: 0}
@@ -36,7 +36,7 @@ Transform:
   m_GameObject: {fileID: 1978104339873990}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.4635, y: 0.4635, z: 0.4635}
+  m_LocalScale: {x: 0.4635, y: 0.3, z: 0}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0

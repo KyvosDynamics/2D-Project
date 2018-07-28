@@ -2,20 +2,19 @@
 
 public class CameraFollow : MonoBehaviour
 {
-    public Transform Player;
-    private float distanceToTarget;
+    public float XOffsetFromPlayer = 0;
+    private Transform _playerTransform;
 
 
     private void Start()
     {
-        distanceToTarget = transform.position.x - Player.position.x;
+        _playerTransform = GameObject.Find("Player").transform;
     }
 
     void LateUpdate()
     {
-        float targetObjectX = Player.position.x;
         Vector3 newCameraPosition = transform.position;
-        newCameraPosition.x = targetObjectX + distanceToTarget;
+        newCameraPosition.x = _playerTransform.position.x + XOffsetFromPlayer;
         transform.position = newCameraPosition;
     }
 
