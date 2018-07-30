@@ -215,6 +215,12 @@ Prefab:
       propertyPath: Speed
       value: 5
       objectReference: {fileID: 0}
+    - target: {fileID: 114202579433214058, guid: 97f7b7ed7743f9d4885f16317e5c90ca,
+        type: 2}
+      propertyPath: roomPrefab
+      value: 
+      objectReference: {fileID: 1969975028501032, guid: ce6a87f6a8e194342b0543b84fa2d74b,
+        type: 2}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 97f7b7ed7743f9d4885f16317e5c90ca, type: 2}
   m_IsPrefabAsset: 0

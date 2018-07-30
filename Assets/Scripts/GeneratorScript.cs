@@ -3,51 +3,47 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
-
 public class Room
 {
     public GameObject MyGameObject;
     public GameObject[] MyEightPlatforms;
-    public  static float roomWidth = 50.25f; //because we are using 3 backgrounds each having a 1676 pixel width
+    public const float roomWidth = 50.25f; //because we are using 3 backgrounds each having a 1676 pixel width
+    public const float platformWidth = 6.28125f; //(notice platformWidth * 8 = roomWidth)
 
     public Room(GameObject myGameObject, GameObject platformPrefab)
     {
         MyGameObject = myGameObject;
 
+
+
         MyEightPlatforms = new GameObject[8];
-
-
-
-        float roomWidthDividedBy8 = roomWidth / 8;
 
         for (int i = 0; i < 8; i++)
         {
-            MyEightPlatforms[i] =
-      (GameObject)MonoBehaviour.Instantiate(platformPrefab);
-
-            MyEightPlatforms[i].transform.position = myGameObject.transform.position - new Vector3(roomWidth / 2 - roomWidthDividedBy8 / 2 - roomWidthDividedBy8 * i, 0);//
+            MyEightPlatforms[i] = Object.Instantiate(platformPrefab);
+            MyEightPlatforms[i].transform.position = myGameObject.transform.position - new Vector3(roomWidth / 2 - platformWidth / 2 - platformWidth * i, 0);
         }
     }
 
 }
+
 public class GeneratorScript : MonoBehaviour
 {
     public GameObject platformPrefab;
-    public GameObject roomPrefab;
-    public GameObject StartRoom;
-    private List<Room> currentRooms;
-    private float screenWidthInPoints;
-   
+    public GameObject roomPrefab; //for this we drag the room PREFAB to the inspector
+    public GameObject StartRoom; //for this we drag the existing room INSTANCE (in the hierarchy) to the inspector
+    private List<Room> _existingRooms;
+    private float _screenWidth;
+
 
 
     void Start()
     {
-        currentRooms = new List<Room> { new Room(StartRoom,platformPrefab) };
+        _existingRooms = new List<Room> { new Room(StartRoom, platformPrefab) };
 
-        float height = 2.0f * Camera.main.orthographicSize;
-        screenWidthInPoints = height * Camera.main.aspect;
-        print("screen width= " + screenWidthInPoints);
-
+        float screenHeight = 2.0f * Camera.main.orthographicSize;
+        _screenWidth = screenHeight * Camera.main.aspect;
+        //print("screen width= " + screenWidth);
 
 
         StartCoroutine(GeneratorCheck());
@@ -62,63 +58,53 @@ public class GeneratorScript : MonoBehaviour
         }
     }
 
-  
+
     private void GenerateRoomIfRequired()
     {
-        List<Room> roomsToRemove = new List<Room>();
+        List<Room> roomsToRemove = new List<Room>(); //(we remove a room from the game when it gets well behind the visible area)
         float playerX = transform.position.x;
-        float removeRoomX = playerX - screenWidthInPoints;
-        float addRoomX = playerX + screenWidthInPoints;
+        float removeRoomThresholdX = playerX - _screenWidth;
+        float addRoomThresholdX = playerX + _screenWidth;
         float farthestRoomEndX = 0;
 
         bool addRoom = true;
-        foreach (var room in currentRooms)
+        foreach (var room in _existingRooms)
         {
-        //    float roomWidth = room.transform.Find("floor").localScale.x;
-            float roomStartX = room.MyGameObject.transform.position.x - (Room.roomWidth * 0.5f);
+            float roomStartX = room.MyGameObject.transform.position.x - (Room.roomWidth * 0.5f); //for now we assume that all rooms have the same width. If we change that in the future we could do something like float roomWidth = room.transform.Find("floor").localScale.x;
             float roomEndX = roomStartX + Room.roomWidth;
-            //8
-            if (roomStartX > addRoomX)
-            {
+
+            if (roomStartX > addRoomThresholdX)
                 addRoom = false;
-            }
-            //9
-            if (roomEndX < removeRoomX)
-            {
+
+            if (roomEndX < removeRoomThresholdX)
                 roomsToRemove.Add(room);
-            }
-            //10
+
             farthestRoomEndX = Mathf.Max(farthestRoomEndX, roomEndX);
         }
 
-        //11
         foreach (var room in roomsToRemove)
         {
-            currentRooms.Remove(room);
+            _existingRooms.Remove(room);
             Destroy(room.MyGameObject);
         }
 
+
+
         if (addRoom)
-            AddRoom(farthestRoomEndX);
+        {
+            GameObject roomGameObject = Instantiate(roomPrefab);
+
+            float roomCenter = farthestRoomEndX + Room.roomWidth * 0.5f;
+
+            roomGameObject.transform.position = new Vector3(roomCenter, 0, 0);
+
+            Room room = new Room(roomGameObject, platformPrefab);
+
+            _existingRooms.Add(room);
+        }
     }
 
 
-    void AddRoom(float farthestRoomEndX)
-    {
-
-        //2
-        GameObject roomGO = (GameObject)Instantiate(roomPrefab);
-        //3
-       // float roomWidth = room.transform.Find("floor").localScale.x;
-        //4
-        float roomCenter = farthestRoomEndX + Room.roomWidth * 0.5f;
-        //5
-        roomGO.transform.position = new Vector3(roomCenter, 0, 0);
-        Room room = new Room(roomGO,platformPrefab);
-
-        //6
-        currentRooms.Add(room);
-    }
 
 
 }
