@@ -25,6 +25,13 @@ public class Room
         }
     }
 
+    public void Dispose()
+    {
+        Object.Destroy(MyGameObject);
+        foreach (GameObject platform in MyEightPlatforms)
+            Object.Destroy(platform);
+    }
+
 }
 
 public class GeneratorScript : MonoBehaviour
@@ -85,7 +92,7 @@ public class GeneratorScript : MonoBehaviour
         foreach (var room in roomsToRemove)
         {
             _existingRooms.Remove(room);
-            Destroy(room.MyGameObject);
+            room.Dispose();
         }
 
 
