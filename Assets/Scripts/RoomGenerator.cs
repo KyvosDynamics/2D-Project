@@ -10,9 +10,25 @@ public class Room
     public const float roomWidth = 50.25f; //because we are using 3 backgrounds each having a 1676 pixel width
     public const float platformWidth = 6.28125f; //(notice platformWidth * 8 = roomWidth)
 
-    public Room(GameObject myGameObject, GameObject platformPrefab)
+    public Room(//GameObject myGameObject, 
+        GameObject platformPrefab, GameObject roomPrefab, float roomStartX)
     {
-        MyGameObject = myGameObject;
+
+        GameObject roomGameObject = Object.Instantiate(roomPrefab);
+
+        float roomCenter = roomStartX + roomWidth * 0.5f;
+
+        roomGameObject.transform.position = new Vector3(roomCenter, 0, 0);
+
+
+
+
+
+
+
+
+
+        MyGameObject = roomGameObject;// myGameObject;
 
 
 
@@ -21,7 +37,7 @@ public class Room
         for (int i = 0; i < 8; i++)
         {
             MyEightPlatforms[i] = Object.Instantiate(platformPrefab);
-            MyEightPlatforms[i].transform.position = myGameObject.transform.position - new Vector3(roomWidth / 2 - platformWidth / 2 - platformWidth * i, 0);
+            MyEightPlatforms[i].transform.position = roomGameObject.transform.position - new Vector3(roomWidth / 2 - platformWidth / 2 - platformWidth * i, 0);
         }
     }
 
@@ -34,7 +50,7 @@ public class Room
 
 }
 
-public class GeneratorScript : MonoBehaviour
+public class RoomGenerator : MonoBehaviour
 {
     public GameObject platformPrefab;
     public GameObject roomPrefab; //for this we drag the room PREFAB to the inspector
@@ -46,7 +62,7 @@ public class GeneratorScript : MonoBehaviour
 
     void Start()
     {
-        _existingRooms = new List<Room> { new Room(StartRoom, platformPrefab) };
+        _existingRooms = new List<Room> { new Room(platformPrefab, roomPrefab, -25.14f) }; //-25.14 because -16.76 + -16.76/2
 
         float screenHeight = 2.0f * Camera.main.orthographicSize;
         _screenWidth = screenHeight * Camera.main.aspect;
@@ -99,13 +115,7 @@ public class GeneratorScript : MonoBehaviour
 
         if (addRoom)
         {
-            GameObject roomGameObject = Instantiate(roomPrefab);
-
-            float roomCenter = farthestRoomEndX + Room.roomWidth * 0.5f;
-
-            roomGameObject.transform.position = new Vector3(roomCenter, 0, 0);
-
-            Room room = new Room(roomGameObject, platformPrefab);
+            Room room = new Room(platformPrefab, roomPrefab, farthestRoomEndX);
 
             _existingRooms.Add(room);
         }
