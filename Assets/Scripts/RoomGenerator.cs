@@ -34,6 +34,7 @@ public class Room
         for (int i = 0; i < 8; i++)
         {
             MyEightPlatforms[i] = Object.Instantiate(platformPrefab);
+            MyEightPlatforms[i].transform.parent = roomGameObject.transform;
 
 
 
