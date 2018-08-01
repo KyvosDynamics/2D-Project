@@ -34,12 +34,12 @@ public class Movement : MonoBehaviour
         if (_iAmBlue)
         {
             _spriteRenderer.color = colorBlue;
-            gameObject.tag = "BluePlayer";
+            //gameObject.tag = "BluePlayer";
         }
         else
         {
             _spriteRenderer.color = colorGreen;
-            gameObject.tag = "GreenPlayer";
+            //gameObject.tag = "GreenPlayer";
         }
     }
 
@@ -103,12 +103,12 @@ public class Movement : MonoBehaviour
 
 
         float raycastingDistance = _size.x / 10;
-         _isTouchingCeiling = false;
+        _isTouchingCeiling = false;
         foreach (Vector2 v in verticesToRaycast)
         {
             bool vTouching = Physics2D.Raycast(v, Vector2.up, raycastingDistance, GroundLayer);
 
-            if(VisualizeRaycasting)
+            if (VisualizeRaycasting)
                 Debug.DrawLine(v, v + Vector2.up * raycastingDistance, vTouching ? Color.red : Color.green);
 
             _isTouchingCeiling = _isTouchingCeiling | vTouching;
@@ -155,12 +155,12 @@ public class Movement : MonoBehaviour
         if (_iAmBlue)
         {
             _spriteRenderer.color = colorBlue;
-            gameObject.tag = "BluePlayer";
+            //gameObject.tag = "BluePlayer";
         }
         else
         {
             _spriteRenderer.color = colorGreen;
-            gameObject.tag = "GreenPlayer";
+            //gameObject.tag = "GreenPlayer";
         }
 
         //jump check
@@ -175,40 +175,32 @@ public class Movement : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D collision)
     {
-        //death check
-        if (collision.gameObject.tag == "BlueKiller" && gameObject.tag != "BluePlayer")
+        switch (collision.gameObject.tag)
         {
-            print("Game Over");
-            Time.timeScale = 0f;
-        }
-        if (collision.gameObject.tag == "GreenKiller" && gameObject.tag != "GreenPlayer")
-        {
-            print("Game Over");
-            Time.timeScale = 0f;
-        }
+            case "BlueKiller":
+                if (!_iAmBlue) 
+                    Time.timeScale = 0f; //game over
+                break;
 
-        //check ponger
-        if (collision.gameObject.name == "Ponger")
-        {
+            case "GreenKiller":
+                if (_iAmBlue)
+                    Time.timeScale = 0f; //game over    
+                break;
 
-            _player.velocity = new Vector2(_player.velocity.x, JumpForce * 2);
+            case "Ponger":
+                _player.velocity = new Vector2(_player.velocity.x, JumpForce * 2);
+                break;
+
+            case "Killer":
+                Time.timeScale = 0f; //game over
+                break;
         }
     }
 
-    void OnCollisionEnter2D(Collision2D collision)
-    {
-        //death check
-        if (collision.gameObject.tag == "Killer")
-        {
-            print("Game Over");
-            Time.timeScale = 0f;
-        }
 
-
-
-
-    }
-
+    //    void OnCollisionEnter2D(Collision2D collision)
+    //  {
+    //}
 
 
 

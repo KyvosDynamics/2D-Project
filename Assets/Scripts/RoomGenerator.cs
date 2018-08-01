@@ -12,10 +12,11 @@ public class Room
     public float lastPlatformY;
 
 
-    public Room(GameObject platformPrefab, GameObject roomPrefab, float roomStartX, float yOfPreviousRoomsLastPlatform, bool isStartRoom = false)
+    public Room(//GameObject platformPrefab, GameObject roomPrefab, 
+        float roomStartX, float yOfPreviousRoomsLastPlatform, bool isStartRoom = false)
     {
 
-        GameObject roomGameObject = Object.Instantiate(roomPrefab);
+        GameObject roomGameObject = Object.Instantiate(RoomGenerator.StaticRoomPrefab);// roomPrefab);
 
         float roomCenter = roomStartX + roomWidth * 0.5f;
 
@@ -33,7 +34,7 @@ public class Room
 
         for (int i = 0; i < 8; i++)
         {
-            MyEightPlatforms[i] = Object.Instantiate(platformPrefab);
+            MyEightPlatforms[i] = Object.Instantiate(RoomGenerator.StaticPlatformPrefab);// platformPrefab);
             MyEightPlatforms[i].transform.parent = roomGameObject.transform;
 
 
@@ -84,17 +85,22 @@ public class RoomGenerator : MonoBehaviour
     public GameObject roomPrefab; //for this we drag the room PREFAB to the inspector
     private List<Room> _existingRooms;
     private float _screenWidth;
-
+    public static GameObject StaticPlatformPrefab;
+    public static GameObject StaticRoomPrefab;
 
 
     void Start()
     {
+        StaticPlatformPrefab = platformPrefab;
+        StaticRoomPrefab = roomPrefab;
+
         //find the scene room and destroy it. It is only there for visual reference for us developers. 
         var debugroom=GameObject.Find("DummyRoom");
         GameObject.Destroy(debugroom);
 
 
-        _existingRooms = new List<Room> { new Room(platformPrefab, roomPrefab, -25.14f, -1, true) }; //-25.14 because -16.76 + -16.76/2  ,  the -1 is ignored here
+        _existingRooms = new List<Room> { new Room(//platformPrefab, roomPrefab,
+            -25.14f, -1, true) }; //-25.14 because -16.76 + -16.76/2  ,  the -1 is ignored here
 
         float screenHeight = 2.0f * Camera.main.orthographicSize;
         _screenWidth = screenHeight * Camera.main.aspect;
@@ -149,7 +155,8 @@ public class RoomGenerator : MonoBehaviour
 
         if (addRoom)
         {
-            Room room = new Room(platformPrefab, roomPrefab, farthestRoomEndX, yOfPreviousRoomsLastPlatform);
+            Room room = new Room(//platformPrefab, roomPrefab, 
+                farthestRoomEndX, yOfPreviousRoomsLastPlatform);
 
             _existingRooms.Add(room);
         }
