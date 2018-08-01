@@ -72,8 +72,8 @@ public class Room
     public void Dispose()
     {
         Object.Destroy(MyGameObject);
-        foreach (GameObject platform in MyEightPlatforms)
-            Object.Destroy(platform);
+        //foreach (GameObject platform in MyEightPlatforms)
+          //  Object.Destroy(platform);
     }
 
 }
@@ -90,7 +90,7 @@ public class RoomGenerator : MonoBehaviour
     void Start()
     {
         //find the scene room and destroy it. It is only there for visual reference for us developers. 
-        var debugroom=GameObject.Find("Room");
+        var debugroom=GameObject.Find("DummyRoom");
         GameObject.Destroy(debugroom);
 
 
