@@ -11,7 +11,8 @@ public class Room
     public const float platformWidth = 6.28125f; //(notice platformWidth * 8 = roomWidth)
     public float lastPlatformY;
 
-    public Room(GameObject platformPrefab, GameObject roomPrefab, float roomStartX, float yOfPreviousRoomsLastPlatform, bool isStartRoom=false)
+
+    public Room(GameObject platformPrefab, GameObject roomPrefab, float roomStartX, float yOfPreviousRoomsLastPlatform, bool isStartRoom = false)
     {
 
         GameObject roomGameObject = Object.Instantiate(roomPrefab);
@@ -36,34 +37,34 @@ public class Room
 
 
 
-            Vector3 determinsticPosition= roomGameObject.transform.position - new Vector3(roomWidth / 2 - platformWidth / 2 - platformWidth * i, 0);
-            MyEightPlatforms[i].transform.position = determinsticPosition;
+            Vector3 deterministicPosition = roomGameObject.transform.position - new Vector3(roomWidth / 2 - platformWidth / 2 - platformWidth * i, 0);
+            MyEightPlatforms[i].transform.position = deterministicPosition;
 
-            if (isStartRoom && i==0)
+            if (isStartRoom && i == 0)
             {//we want the very first platform of our game to be at a fixed position
             }
             else
             {//for every other platform we want a y that is the y of the previous platform plus/minus a small random value
 
 
-                float randomDifference = Random.Range(-1f,1f);
+                float randomDifference = Random.Range(-1f, 1f);
 
                 float newY = yOfPreviousRoomsLastPlatform + randomDifference;
 
-                if(newY>3.4f || newY<-3.4f)
+                if (newY > 3.4f || newY < -3.4f)
                 {//out of allowed game bounds, go the other way
 
                     newY -= 2 * randomDifference;
                 }
 
-                MyEightPlatforms[i].transform.position = new Vector3(determinsticPosition.x, newY);
-                    
-                    //new Vector3(roomWidth / 2 - platformWidth / 2 - platformWidth * i, newY);
+                MyEightPlatforms[i].transform.position = new Vector3(deterministicPosition.x, newY);
+
+                //new Vector3(roomWidth / 2 - platformWidth / 2 - platformWidth * i, newY);
 
                 if (i == 7)
                     lastPlatformY = newY;
             }
-            
+
         }
     }
 
@@ -80,7 +81,6 @@ public class RoomGenerator : MonoBehaviour
 {
     public GameObject platformPrefab;
     public GameObject roomPrefab; //for this we drag the room PREFAB to the inspector
-    public GameObject StartRoom; //for this we drag the existing room INSTANCE (in the hierarchy) to the inspector
     private List<Room> _existingRooms;
     private float _screenWidth;
 
@@ -88,6 +88,11 @@ public class RoomGenerator : MonoBehaviour
 
     void Start()
     {
+        //find the scene room and destroy it. It is only there for visual reference for us developers. 
+        var debugroom=GameObject.Find("Room");
+        GameObject.Destroy(debugroom);
+
+
         _existingRooms = new List<Room> { new Room(platformPrefab, roomPrefab, -25.14f, -1, true) }; //-25.14 because -16.76 + -16.76/2  ,  the -1 is ignored here
 
         float screenHeight = 2.0f * Camera.main.orthographicSize;

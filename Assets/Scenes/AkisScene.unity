@@ -267,10 +267,6 @@ Prefab:
       propertyPath: m_Name
       value: Room
       objectReference: {fileID: 0}
-    - target: {fileID: 4835226068649724, guid: ce6a87f6a8e194342b0543b84fa2d74b, type: 2}
-      propertyPath: m_LocalPosition.x
-      value: -16.76
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: ce6a87f6a8e194342b0543b84fa2d74b, type: 2}
   m_IsPrefabAsset: 0
