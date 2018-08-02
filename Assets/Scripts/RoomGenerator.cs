@@ -5,13 +5,17 @@ using UnityEngine;
 
 public class Room
 {
+    public float LastPlatformY;
+    public float StartX;
+    public float EndX;
     private GameObject _gameObject;
     private GameObject[] _myEightPlatforms;
     private const float _width = 50.25f; //because we are using 3 backgrounds each having a 1676 pixel width
     private const float _platformWidth = 6.28125f; //(notice platformWidth * 8 = roomWidth)
-    public float LastPlatformY;
-    public float StartX;
-    public float EndX;
+
+    public float CenterX
+    { get { return _gameObject.transform.position.x; } }
+
 
     public Room(float roomStartX, float yOfPreviousRoomsLastPlatform, bool isStartRoom = false)
     {
@@ -25,13 +29,11 @@ public class Room
 
 
         _gameObject = Object.Instantiate(RoomGenerator.StaticRoomPrefab);
-
         _gameObject.transform.position = new Vector3(centerX, 0, 0);
 
 
 
         _myEightPlatforms = new GameObject[8];
-
 
         for (int i = 0; i < 8; i++)
         {
@@ -94,13 +96,13 @@ public class RoomGenerator : MonoBehaviour
     public GameObject platformPrefab;
     public GameObject spikePlatformPrefab;
     public GameObject roomPrefab;
-
-    private List<Room> _existingRooms;
-    private float _screenWidth;
     public static GameObject StaticPlatformPrefab;
     public static GameObject StaticRoomPrefab;
     public static GameObject StaticSpikePlatformPrefab;
     public static int NumOfRoomsCreated = 0; //this is not used for now but could be used in the future to adjust game difficulty. The larger the number of rooms created the more we have progressed in the game.
+
+    private List<Room> _existingRooms;
+    private float _screenWidth;
 
 
 
@@ -112,7 +114,7 @@ public class RoomGenerator : MonoBehaviour
 
         //find the scene room and destroy it. It is only there for visual reference for us developers. 
         var debugroom = GameObject.Find("DummyRoom");
-        GameObject.Destroy(debugroom);
+        Destroy(debugroom);
 
 
 
@@ -131,53 +133,40 @@ public class RoomGenerator : MonoBehaviour
         StartCoroutine(GeneratorCheck());
     }
 
+
+
+
     private IEnumerator GeneratorCheck()
     {
         while (true)
         {
-            GenerateRoomIfRequired();
+
+            Room firstRoom = _existingRooms[0];
+            float leftCameraBound = Camera.main.transform.position.x - _screenWidth / 2;
+
+            if (firstRoom.EndX < leftCameraBound)
+            {//remove the oldest room
+                firstRoom.Dispose();
+                _existingRooms.RemoveAt(0);
+            }
+
+
+            Room lastRoom = _existingRooms[_existingRooms.Count - 1];
+            float rightCameraBound = leftCameraBound + _screenWidth;// Camera.main.transform.position.x + _screenWidth / 2;
+
+            if (lastRoom.CenterX < rightCameraBound)// <= transform.position.x + _screenWidth)
+            {//add a new room
+                _existingRooms.Add(new Room(lastRoom.EndX, lastRoom.LastPlatformY)); //we want the new room to start at the end of the last room
+            }
+
+
+
+
             yield return new WaitForSeconds(0.25f);
         }
     }
 
 
-    private void GenerateRoomIfRequired()
-    {
-        List<Room> roomsToRemove = new List<Room>(); //(we remove a room from the game when it gets well behind the visible area)
-
-        float playerX = transform.position.x;
-        float removeRoomThresholdX = playerX - _screenWidth;
-        float addRoomThresholdX = playerX + _screenWidth;
-        float farthestRoomEndX = 0;
-        float yOfPreviousRoomsLastPlatform = -1;
-        bool addRoom = true;
-
-        foreach (var room in _existingRooms)
-        {
-
-            if (room.StartX > addRoomThresholdX)
-                addRoom = false;
-
-            if (room.EndX < removeRoomThresholdX)
-                roomsToRemove.Add(room);
-
-            farthestRoomEndX = Mathf.Max(farthestRoomEndX, room.EndX);
-
-            yOfPreviousRoomsLastPlatform = room.LastPlatformY;
-        }
-
-        foreach (var room in roomsToRemove)
-        {
-            _existingRooms.Remove(room);
-            room.Dispose();
-        }
-
-
-
-        if (addRoom)
-            _existingRooms.Add(new Room(farthestRoomEndX, yOfPreviousRoomsLastPlatform));
-
-    }
 
 
 

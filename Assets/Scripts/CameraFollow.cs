@@ -2,14 +2,14 @@
 
 public class CameraFollow : MonoBehaviour
 {
-    public float XOffsetFromPlayer = 0;
+    public static float XOffsetFromPlayer =6;
     private Transform _playerTransform;
-
 
     private void Start()
     {
         _playerTransform = GameObject.Find("Player").transform;
     }
+    
 
     void LateUpdate()
     {
