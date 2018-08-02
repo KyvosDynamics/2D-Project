@@ -31,16 +31,10 @@ public class Movement : MonoBehaviour
 
 
         //set color at the start
-        if (_iAmBlue)
-        {
-            _spriteRenderer.color = colorBlue;
-            //gameObject.tag = "BluePlayer";
-        }
-        else
-        {
-            _spriteRenderer.color = colorGreen;
-            //gameObject.tag = "GreenPlayer";
-        }
+        if (_iAmBlue)        
+            _spriteRenderer.color = colorBlue;        
+        else        
+            _spriteRenderer.color = colorGreen;        
     }
 
 
@@ -173,12 +167,13 @@ public class Movement : MonoBehaviour
 
 
 
+
     void OnTriggerEnter2D(Collider2D collision)
     {
         switch (collision.gameObject.tag)
         {
             case "BlueKiller":
-                if (!_iAmBlue) 
+                if (!_iAmBlue)
                     Time.timeScale = 0f; //game over
                 break;
 
@@ -196,13 +191,6 @@ public class Movement : MonoBehaviour
                 break;
         }
     }
-
-
-    //    void OnCollisionEnter2D(Collision2D collision)
-    //  {
-    //}
-
-
 
 
 

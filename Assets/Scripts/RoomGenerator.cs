@@ -5,42 +5,54 @@ using UnityEngine;
 
 public class Room
 {
-    public GameObject MyGameObject;
-    public GameObject[] MyEightPlatforms;
-    public const float roomWidth = 50.25f; //because we are using 3 backgrounds each having a 1676 pixel width
-    public const float platformWidth = 6.28125f; //(notice platformWidth * 8 = roomWidth)
-    public float lastPlatformY;
+    private GameObject _gameObject;
+    private GameObject[] _myEightPlatforms;
+    private const float _width = 50.25f; //because we are using 3 backgrounds each having a 1676 pixel width
+    private const float _platformWidth = 6.28125f; //(notice platformWidth * 8 = roomWidth)
+    public float LastPlatformY;
+    public float StartX;
+    public float EndX;
 
-
-    public Room(//GameObject platformPrefab, GameObject roomPrefab, 
-        float roomStartX, float yOfPreviousRoomsLastPlatform, bool isStartRoom = false)
+    public Room(float roomStartX, float yOfPreviousRoomsLastPlatform, bool isStartRoom = false)
     {
-
-        GameObject roomGameObject = Object.Instantiate(RoomGenerator.StaticRoomPrefab);// roomPrefab);
-
-        float roomCenter = roomStartX + roomWidth * 0.5f;
-
-        roomGameObject.transform.position = new Vector3(roomCenter, 0, 0);
+        StartX = roomStartX;
+        EndX = StartX + _width;
+        float centerX = StartX + _width * 0.5f;
 
 
-
-        MyGameObject = roomGameObject;
+        RoomGenerator.NumOfRoomsCreated++;
 
 
 
-        MyEightPlatforms = new GameObject[8];
+        _gameObject = Object.Instantiate(RoomGenerator.StaticRoomPrefab);
 
+        _gameObject.transform.position = new Vector3(centerX, 0, 0);
+
+
+
+        _myEightPlatforms = new GameObject[8];
 
 
         for (int i = 0; i < 8; i++)
         {
-            MyEightPlatforms[i] = Object.Instantiate(RoomGenerator.StaticPlatformPrefab);// platformPrefab);
-            MyEightPlatforms[i].transform.parent = roomGameObject.transform;
+
+
+            if (
+                RoomGenerator.NumOfRoomsCreated > 0 //don't add any dangers to the first room so the player adjusts to the gameplay mechanics
+                &&
+                Random.Range(0, 10) == 0 //let's say for now a 10% probability of spikeplatform
+               )
+                _myEightPlatforms[i] = Object.Instantiate(RoomGenerator.StaticSpikePlatformPrefab); //danger Will Robinson! :P
+            else
+                _myEightPlatforms[i] = Object.Instantiate(RoomGenerator.StaticPlatformPrefab); //simple platform
+
+
+            _myEightPlatforms[i].transform.parent = _gameObject.transform;
 
 
 
-            Vector3 deterministicPosition = roomGameObject.transform.position - new Vector3(roomWidth / 2 - platformWidth / 2 - platformWidth * i, 0);
-            MyEightPlatforms[i].transform.position = deterministicPosition;
+            Vector3 deterministicPosition = _gameObject.transform.position - new Vector3(_width / 2 - _platformWidth / 2 - _platformWidth * i, 0);
+            _myEightPlatforms[i].transform.position = deterministicPosition;
 
             if (isStartRoom && i == 0)
             {//we want the very first platform of our game to be at a fixed position
@@ -59,12 +71,12 @@ public class Room
                     newY -= 2 * randomDifference;
                 }
 
-                MyEightPlatforms[i].transform.position = new Vector3(deterministicPosition.x, newY);
+                _myEightPlatforms[i].transform.position = new Vector3(deterministicPosition.x, newY);
 
                 //new Vector3(roomWidth / 2 - platformWidth / 2 - platformWidth * i, newY);
 
                 if (i == 7)
-                    lastPlatformY = newY;
+                    LastPlatformY = newY;
             }
 
         }
@@ -72,9 +84,7 @@ public class Room
 
     public void Dispose()
     {
-        Object.Destroy(MyGameObject);
-        //foreach (GameObject platform in MyEightPlatforms)
-          //  Object.Destroy(platform);
+        Object.Destroy(_gameObject);
     }
 
 }
@@ -82,25 +92,36 @@ public class Room
 public class RoomGenerator : MonoBehaviour
 {
     public GameObject platformPrefab;
-    public GameObject roomPrefab; //for this we drag the room PREFAB to the inspector
+    public GameObject spikePlatformPrefab;
+    public GameObject roomPrefab;
+
     private List<Room> _existingRooms;
     private float _screenWidth;
     public static GameObject StaticPlatformPrefab;
     public static GameObject StaticRoomPrefab;
+    public static GameObject StaticSpikePlatformPrefab;
+    public static int NumOfRoomsCreated = 0; //this is not used for now but could be used in the future to adjust game difficulty. The larger the number of rooms created the more we have progressed in the game.
+
 
 
     void Start()
     {
         StaticPlatformPrefab = platformPrefab;
         StaticRoomPrefab = roomPrefab;
+        StaticSpikePlatformPrefab = spikePlatformPrefab;
 
         //find the scene room and destroy it. It is only there for visual reference for us developers. 
-        var debugroom=GameObject.Find("DummyRoom");
+        var debugroom = GameObject.Find("DummyRoom");
         GameObject.Destroy(debugroom);
 
 
-        _existingRooms = new List<Room> { new Room(//platformPrefab, roomPrefab,
-            -25.14f, -1, true) }; //-25.14 because -16.76 + -16.76/2  ,  the -1 is ignored here
+
+
+        _existingRooms = new List<Room> { new Room(-25.14f, -1, true) }; //-25.14 because -16.76 + -16.76/2  ,  the -1 is ignored here
+
+
+
+
 
         float screenHeight = 2.0f * Camera.main.orthographicSize;
         _screenWidth = screenHeight * Camera.main.aspect;
@@ -123,26 +144,26 @@ public class RoomGenerator : MonoBehaviour
     private void GenerateRoomIfRequired()
     {
         List<Room> roomsToRemove = new List<Room>(); //(we remove a room from the game when it gets well behind the visible area)
+
         float playerX = transform.position.x;
         float removeRoomThresholdX = playerX - _screenWidth;
         float addRoomThresholdX = playerX + _screenWidth;
         float farthestRoomEndX = 0;
         float yOfPreviousRoomsLastPlatform = -1;
         bool addRoom = true;
+
         foreach (var room in _existingRooms)
         {
-            float roomStartX = room.MyGameObject.transform.position.x - (Room.roomWidth * 0.5f); //for now we assume that all rooms have the same width. If we change that in the future we could do something like float roomWidth = room.transform.Find("floor").localScale.x;
-            float roomEndX = roomStartX + Room.roomWidth;
 
-            if (roomStartX > addRoomThresholdX)
+            if (room.StartX > addRoomThresholdX)
                 addRoom = false;
 
-            if (roomEndX < removeRoomThresholdX)
+            if (room.EndX < removeRoomThresholdX)
                 roomsToRemove.Add(room);
 
-            farthestRoomEndX = Mathf.Max(farthestRoomEndX, roomEndX);
+            farthestRoomEndX = Mathf.Max(farthestRoomEndX, room.EndX);
 
-            yOfPreviousRoomsLastPlatform = room.lastPlatformY;
+            yOfPreviousRoomsLastPlatform = room.LastPlatformY;
         }
 
         foreach (var room in roomsToRemove)
@@ -154,12 +175,8 @@ public class RoomGenerator : MonoBehaviour
 
 
         if (addRoom)
-        {
-            Room room = new Room(//platformPrefab, roomPrefab, 
-                farthestRoomEndX, yOfPreviousRoomsLastPlatform);
+            _existingRooms.Add(new Room(farthestRoomEndX, yOfPreviousRoomsLastPlatform));
 
-            _existingRooms.Add(room);
-        }
     }
 
 
