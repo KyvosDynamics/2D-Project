@@ -19,12 +19,28 @@ public class Room
     { get { return _gameObject.transform.position.x; } }
 
 
+    public GameObject LatestPlatform
+    { get { return _myEightPlatforms[7]; } }
 
 
 
-
-    public Room(float roomStartX, bool isStartRoom = false)
+    public Room(Room previousRoom)// float roomStartX, GameObject previousPlatform)//  bool isStartRoom = false)
     {
+        float roomStartX = 0.0f;
+        GameObject previousPlatform = null;
+
+        if (previousRoom == null)
+        {//this is the very first room of the game
+            roomStartX = -25.14f; //-25.14 because -16.76 + -16.76/2
+        }
+        else
+        {
+            roomStartX = previousRoom.EndX; //we want the new room to start at the end of the last room
+            previousPlatform = previousRoom.LatestPlatform;
+
+        }
+
+
         StaticIndex++;
         Index = StaticIndex;
 
@@ -64,7 +80,10 @@ public class Room
 
 
 
-            if (isStartRoom && i == 0)
+            if (
+                previousPlatform == null //it is only null in the first room
+                && i == 0
+                )
             {//we want the very first platform of our game to be at a fixed position
 
                 // _myEightPlatforms[i].transform.position = deterministicPosition;
@@ -98,10 +117,10 @@ public class Room
 
 
             if (
-                true
-               //   Index > 0 //don't add any dangers to the first room so the player adjusts to the gameplay mechanics
-               //             &&
-               //         Random.Range(0, 5) == 0 //let's say for now a 20% probability of dangerous platform
+
+                  Index > 0 //don't add any dangers to the first room so the player adjusts to the gameplay mechanics
+                            //             &&
+                            //         Random.Range(0, 5) == 0 //let's say for now a 20% probability of dangerous platform
                )
             {
 
@@ -170,8 +189,8 @@ public class Room
 
 public class RoomGenerator : MonoBehaviour
 {
-    public GameObject roomPrefab;
-    public GameObject platformPrefab;
+    public GameObject RoomPrefab;
+    public GameObject PlatformPrefab;
     public GameObject SpikePrefab;
     public GameObject SawPrefab;
     public static GameObject StaticRoomPrefab;
@@ -185,8 +204,8 @@ public class RoomGenerator : MonoBehaviour
 
     void Start()
     {
-        StaticRoomPrefab = roomPrefab;
-        StaticPlatformPrefab = platformPrefab;
+        StaticRoomPrefab = RoomPrefab;
+        StaticPlatformPrefab = PlatformPrefab;
         StaticSpikePrefab = SpikePrefab;
         StaticSawPrefab = SawPrefab;
 
@@ -195,7 +214,10 @@ public class RoomGenerator : MonoBehaviour
         Destroy(debugroom);
 
 
-        _rooms = new List<Room> { new Room(-25.14f, true) }; //-25.14 because -16.76 + -16.76/2
+
+
+        //Room room = ;//, _latestPlatform);
+        _rooms = new List<Room> { new Room(null) };
 
 
 
@@ -229,7 +251,10 @@ public class RoomGenerator : MonoBehaviour
 
             if (latestRoom.CenterX < rightCameraBound)
             {//add a new room
-                _rooms.Add(new Room(latestRoom.EndX)); //we want the new room to start at the end of the last room
+
+                //  Room room =;
+                //_latestPlatform = room.LatestPlatform;
+                _rooms.Add(new Room(latestRoom));
             }
 
 

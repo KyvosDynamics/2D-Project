@@ -170,23 +170,23 @@ public class Movement : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D collision)
     {
-        
+
 
 
         switch (collision.gameObject.tag)
         {
-         
 
 
 
-                
+
+
 
             case "BlueSaw":
                 if (!IAmBlue)
                     Time.timeScale = 0f; //game over
                 break;
-//
-  case "GreenSaw":
+            //
+            case "GreenSaw":
                 if (IAmBlue)
                     Time.timeScale = 0f; //game over    
                 break;

@@ -3,11 +3,9 @@
 public class Enemy_Reactions : MonoBehaviour
 {
     public float range;
-    //public Color colorBlue = Color.blue;
-    //public Color colorGreen=
     public bool IamBlue = false;
     public bool ChangeColor = true;
-    SpriteRenderer e_SpriteRenderer;
+    SpriteRenderer _spriteRenderer;
     private Transform Player;
 
 
@@ -16,10 +14,8 @@ public class Enemy_Reactions : MonoBehaviour
     {
         Player = GameObject.Find("Player").transform;
 
-        e_SpriteRenderer = GetComponent<SpriteRenderer>();
+        _spriteRenderer = GetComponent<SpriteRenderer>();
 
-        //set color at the start
-        //SetColor();
     }
 
 
@@ -39,32 +35,22 @@ public class Enemy_Reactions : MonoBehaviour
         {
             ChangeColor = false; //do not change again
             IamBlue = !IamBlue;
-            SetColor();
 
             Movement m = Player.GetComponent<Movement>();
             if (m.IAmBlue)
             {
-                e_SpriteRenderer.color = Color.green;// colorGreen;
+                _spriteRenderer.color = Color.green;// colorGreen;
                 gameObject.tag = "GreenSaw";
             }
             else
             {
-                e_SpriteRenderer.color = Color.blue;// colorBlue;
+                _spriteRenderer.color = Color.blue;// colorBlue;
                 gameObject.tag = "BlueSaw";
 
             }
         }
     }
 
-    private void SetColor()
-    {
-        if (IamBlue)
-        {
-        }
-        else
-        {
-        }
-    }
 
 
 
