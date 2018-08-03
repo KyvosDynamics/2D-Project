@@ -6,12 +6,12 @@ public class Movement : MonoBehaviour
     public bool VisualizeRaycasting = false; //this is for debug purposes only, should be false when releasing
     public float Speed;
     public float JumpForce;
-    public Color colorBlue;
-    public Color colorGreen;
+    //public Color colorBlue;
+    //public Color colorGreen;
     public LayerMask GroundLayer;
 
     //by convention private fields start with the underscore '_' character followed by a lower-case letter
-    private bool _iAmBlue = true;
+    public bool IAmBlue = true;
     private Rigidbody2D _player;
     private SpriteRenderer _spriteRenderer;
     private bool _isTouchingGround;
@@ -31,10 +31,10 @@ public class Movement : MonoBehaviour
 
 
         //set color at the start
-        if (_iAmBlue)        
-            _spriteRenderer.color = colorBlue;        
-        else        
-            _spriteRenderer.color = colorGreen;        
+        if (IAmBlue)
+            _spriteRenderer.color = Color.blue;// colorBlue;        
+        else
+            _spriteRenderer.color = Color.green;// colorGreen;        
     }
 
 
@@ -134,26 +134,26 @@ public class Movement : MonoBehaviour
         //check for key to change color
         if (Input.GetKeyDown(KeyCode.Q))
         {
-            if (_iAmBlue == true)
+            if (IAmBlue == true)
             {
-                _iAmBlue = false;
+                IAmBlue = false;
 
             }
             else
             {
-                _iAmBlue = true;
+                IAmBlue = true;
 
             }
         }
         //change color and tag
-        if (_iAmBlue)
+        if (IAmBlue)
         {
-            _spriteRenderer.color = colorBlue;
+            _spriteRenderer.color = Color.blue;// colorBlue;
             //gameObject.tag = "BluePlayer";
         }
         else
         {
-            _spriteRenderer.color = colorGreen;
+            _spriteRenderer.color = Color.green;// colorGreen;
             //gameObject.tag = "GreenPlayer";
         }
 
@@ -170,15 +170,24 @@ public class Movement : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D collision)
     {
+        
+
+
         switch (collision.gameObject.tag)
         {
-            case "BlueKiller":
-                if (!_iAmBlue)
+         
+
+
+
+                
+
+            case "BlueSaw":
+                if (!IAmBlue)
                     Time.timeScale = 0f; //game over
                 break;
-
-            case "GreenKiller":
-                if (_iAmBlue)
+//
+  case "GreenSaw":
+                if (IAmBlue)
                     Time.timeScale = 0f; //game over    
                 break;
 

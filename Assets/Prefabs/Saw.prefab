@@ -70,8 +70,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   range: 5
-  colorBlue: {r: 0, g: 0.35857058, b: 1, a: 0}
-  colorGreen: {r: 0, g: 1, b: 0.06273794, a: 0}
   IamBlue: 1
   ChangeColor: 1
 --- !u!114 &114187502060287592
@@ -122,7 +120,7 @@ SpriteRenderer:
   m_SortingLayer: 2
   m_SortingOrder: 0
   m_Sprite: {fileID: 21300000, guid: 5e06022fff612264bba82eb706192c92, type: 3}
-  m_Color: {r: 0, g: 0.4176395, b: 1, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0

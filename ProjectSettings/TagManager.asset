@@ -11,6 +11,9 @@ TagManager:
   - BluePlayer
   - GreenPlayer
   - Room
+  - Saw
+  - GreenSaw
+  - BlueSaw
   layers:
   - Default
   - TransparentFX

@@ -19,7 +19,7 @@ public class Enemy_Reactions : MonoBehaviour
         e_SpriteRenderer = GetComponent<SpriteRenderer>();
 
         //set color at the start
-        SetColor();
+        //SetColor();
     }
 
 
@@ -40,6 +40,19 @@ public class Enemy_Reactions : MonoBehaviour
             ChangeColor = false; //do not change again
             IamBlue = !IamBlue;
             SetColor();
+
+            Movement m = Player.GetComponent<Movement>();
+            if (m.IAmBlue)
+            {
+                e_SpriteRenderer.color = Color.green;// colorGreen;
+                gameObject.tag = "GreenSaw";
+            }
+            else
+            {
+                e_SpriteRenderer.color = Color.blue;// colorBlue;
+                gameObject.tag = "BlueSaw";
+
+            }
         }
     }
 
@@ -47,13 +60,9 @@ public class Enemy_Reactions : MonoBehaviour
     {
         if (IamBlue)
         {
-            e_SpriteRenderer.color = Color.blue;// colorBlue;
-            gameObject.tag = "BlueKiller";
         }
         else
         {
-            e_SpriteRenderer.color = Color.green;// colorGreen;
-            gameObject.tag = "GreenKiller";
         }
     }
 
