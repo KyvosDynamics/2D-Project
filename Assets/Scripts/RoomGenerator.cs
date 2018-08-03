@@ -2,6 +2,29 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+public class Platform
+{
+    public GameObject MyGameObject = null;
+    public bool HasDangerousObject = false;
+
+    public Platform(Transform parent)
+    {
+        MyGameObject = Object.Instantiate(RoomGenerator.StaticPlatformPrefab, parent);
+    }
+
+    public Vector3 Position
+    {
+        set
+        {
+            MyGameObject.transform.position = value;
+        }
+        get
+        {
+            return MyGameObject.transform.position;
+        }
+    }
+
+}
 
 public class Room
 {
@@ -11,7 +34,7 @@ public class Room
     public int Index;
     public static int StaticIndex = -1;
     private GameObject _gameObject;
-    private GameObject[] _myEightPlatforms;
+    private Platform[] _myEightPlatforms;
     private const float _width = 50.25f; //because we are using 3 backgrounds each having a 1676 pixel width
     private const float _platformWidth = 6.28125f; //(notice platformWidth * 8 = roomWidth)
 
@@ -19,7 +42,7 @@ public class Room
     { get { return _gameObject.transform.position.x; } }
 
 
-    public GameObject LatestPlatform
+    public Platform LatestPlatform
     { get { return _myEightPlatforms[7]; } }
 
 
@@ -27,7 +50,7 @@ public class Room
     public Room(Room previousRoom)// float roomStartX, GameObject previousPlatform)//  bool isStartRoom = false)
     {
         float roomStartX = 0.0f;
-        GameObject previousPlatform = null;
+        Platform previousPlatform = null;
 
         if (previousRoom == null)
         {//this is the very first room of the game
@@ -54,15 +77,22 @@ public class Room
 
 
 
-        _myEightPlatforms = new GameObject[8];
+        _myEightPlatforms = new Platform[8];
 
 
+        Transform myTransform = _gameObject.transform;
 
 
-
+        //   Platform p = null;
         for (int i = 0; i < 8; i++)
         {
-            _myEightPlatforms[i] = Object.Instantiate(RoomGenerator.StaticPlatformPrefab, _gameObject.transform);
+            if(i>0)
+            {
+                previousPlatform = _myEightPlatforms[i - 1];
+            }
+
+            _myEightPlatforms[i] = new Platform(myTransform);
+
             //_myEightPlatforms[i].transform.parent = _gameObject.transform;
 
 
@@ -110,20 +140,28 @@ public class Room
             }
 
 
-            _myEightPlatforms[i].transform.position = new Vector3(newestPlatformX, _newestPlatformY);
+            _myEightPlatforms[i].Position = (new Vector3(newestPlatformX, _newestPlatformY));
 
             //_newestPlatformY = _newestPlatformY;
 
 
 
+
+
+
+
+            //check if we should add a dangerous object on top of the platform
             if (
 
                   Index > 0 //don't add any dangers to the first room so the player adjusts to the gameplay mechanics
                             //             &&
                             //         Random.Range(0, 5) == 0 //let's say for now a 20% probability of dangerous platform
-               )
-            {
 
+
+               && previousPlatform.HasDangerousObject == false //don't add dangerous objects to two platform in a row
+               )
+            {//add dangerous object
+                _myEightPlatforms[i].HasDangerousObject = true;
 
 
                 GameObject dangerousObject = null;
@@ -146,11 +184,11 @@ public class Room
                     {//new platform is higher, so move the spike right
 
 
-                        dangerousObject.transform.position = _myEightPlatforms[i].transform.position + new Vector3(2, 0.8f, 0); //shift = new Vector3(2, 0, 0);
+                        dangerousObject.transform.position = _myEightPlatforms[i].Position + new Vector3(2, 0.8f, 0); //shift = new Vector3(2, 0, 0);
                     }
                     else
                     {//move spike left
-                        dangerousObject.transform.position = _myEightPlatforms[i].transform.position + new Vector3(-2, 0.8f, 0);// shift = new Vector3(-2, 0, 0);
+                        dangerousObject.transform.position = _myEightPlatforms[i].Position + new Vector3(-2, 0.8f, 0);// shift = new Vector3(-2, 0, 0);
                     }
 
 
@@ -167,7 +205,7 @@ public class Room
                     //
                     // saw.transform.parent = _myEightPlatforms[i].transform;
 
-                    dangerousObject.transform.position = _myEightPlatforms[i].transform.position + new Vector3(0, 1.32f, 0);
+                    dangerousObject.transform.position = _myEightPlatforms[i].Position + new Vector3(0, 1.32f, 0);
 
                 }
 
@@ -176,7 +214,7 @@ public class Room
 
 
 
-
+            //    _myEightPlatforms[i] = p;
         }//for platform
     }
 
