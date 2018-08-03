@@ -227,6 +227,24 @@ Prefab:
       value: 
       objectReference: {fileID: 1913767880831204, guid: d08752410127a1e47a0c197ed3431c4e,
         type: 2}
+    - target: {fileID: 114202579433214058, guid: 97f7b7ed7743f9d4885f16317e5c90ca,
+        type: 2}
+      propertyPath: sawPlatformPrefab
+      value: 
+      objectReference: {fileID: 1161221288958416, guid: 65f801028ba35be4ea98fcbf8b9e43ea,
+        type: 2}
+    - target: {fileID: 114202579433214058, guid: 97f7b7ed7743f9d4885f16317e5c90ca,
+        type: 2}
+      propertyPath: SawPrefab
+      value: 
+      objectReference: {fileID: 1513025892425984, guid: 0603ed106f1bc86488600fee1873d414,
+        type: 2}
+    - target: {fileID: 114202579433214058, guid: 97f7b7ed7743f9d4885f16317e5c90ca,
+        type: 2}
+      propertyPath: SpikePrefab
+      value: 
+      objectReference: {fileID: 1954259282176104, guid: 17f41ba6059c3a744ba9606cbb4b8ce2,
+        type: 2}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 97f7b7ed7743f9d4885f16317e5c90ca, type: 2}
   m_IsPrefabAsset: 0
@@ -272,6 +290,18 @@ Prefab:
     - target: {fileID: 1969975028501032, guid: ce6a87f6a8e194342b0543b84fa2d74b, type: 2}
       propertyPath: m_Name
       value: DummyRoom
+      objectReference: {fileID: 0}
+    - target: {fileID: 4835226068649724, guid: ce6a87f6a8e194342b0543b84fa2d74b, type: 2}
+      propertyPath: m_RootOrder
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4795204878758992, guid: ce6a87f6a8e194342b0543b84fa2d74b, type: 2}
+      propertyPath: m_RootOrder
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4830960329359600, guid: ce6a87f6a8e194342b0543b84fa2d74b, type: 2}
+      propertyPath: m_RootOrder
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: ce6a87f6a8e194342b0543b84fa2d74b, type: 2}

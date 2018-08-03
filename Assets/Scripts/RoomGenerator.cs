@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class Room
 {
-    private static float _latestPlatformY = 0;
+    private static float _newestPlatformY = 0;
     public float StartX;
     public float EndX;
     public int Index;
@@ -19,16 +19,19 @@ public class Room
     { get { return _gameObject.transform.position.x; } }
 
 
-    public Room(float roomStartX,  bool isStartRoom = false)
+
+
+
+
+    public Room(float roomStartX, bool isStartRoom = false)
     {
+        StaticIndex++;
+        Index = StaticIndex;
+
+
         StartX = roomStartX;
         EndX = StartX + _width;
         float centerX = StartX + _width * 0.5f;
-
-
-
-        StaticIndex++;
-        Index = StaticIndex;
 
         _gameObject = Object.Instantiate(RoomGenerator.StaticRoomPrefab);
         _gameObject.transform.position = new Vector3(centerX, 0, 0);
@@ -37,36 +40,35 @@ public class Room
 
         _myEightPlatforms = new GameObject[8];
 
+
+
+
+
         for (int i = 0; i < 8; i++)
         {
-
-            bool spike = false;
-
-            if (
-                Index>0 //don't add any dangers to the first room so the player adjusts to the gameplay mechanics
-                &&
-                Random.Range(0, 10) == 0 //let's say for now a 10% probability of spikeplatform
-               )
-            {
-                spike = true;
-                _myEightPlatforms[i] = Object.Instantiate(RoomGenerator.StaticSpikePlatformPrefab); //danger Will Robinson! :P
-            }
-            else
-            {
-                spike = false;
-                _myEightPlatforms[i] = Object.Instantiate(RoomGenerator.StaticPlatformPrefab); //simple platform
-            }
-
-
-            _myEightPlatforms[i].transform.parent = _gameObject.transform;
+            _myEightPlatforms[i] = Object.Instantiate(RoomGenerator.StaticPlatformPrefab, _gameObject.transform);
+            //_myEightPlatforms[i].transform.parent = _gameObject.transform;
 
 
 
-            Vector3 deterministicPosition = _gameObject.transform.position - new Vector3(_width / 2 - _platformWidth / 2 - _platformWidth * i, 0);
-            _myEightPlatforms[i].transform.position = deterministicPosition;
+
+
+            float previousPlatformY = _newestPlatformY;
+
+
+            //float platformY = 0;
+
+            //Vector3 deterministicPosition = _gameObject.transform.position - new Vector3(, platformY);
+            float newestPlatformX = _gameObject.transform.position.x - (_width / 2 - _platformWidth / 2 - _platformWidth * i);
+
+
+
 
             if (isStartRoom && i == 0)
             {//we want the very first platform of our game to be at a fixed position
+
+                // _myEightPlatforms[i].transform.position = deterministicPosition;
+
             }
             else
             {//for every other platform we want a y that is the y of the previous platform plus/minus a small random value
@@ -74,47 +76,89 @@ public class Room
 
                 float randomDifference = Random.Range(-1f, 1f);
 
-                float newY = _latestPlatformY + randomDifference;
+                _newestPlatformY = previousPlatformY + randomDifference;
 
-                if (newY > 3.4f || newY < -3.4f)
+                if (_newestPlatformY > 3.4f || _newestPlatformY < -3.4f)
                 {//out of allowed game bounds, go the other way
 
-                    newY -= 2 * randomDifference;
+                    _newestPlatformY -= 2 * randomDifference;
                 }
 
-               
-
-
-                //when we go to a spikeplatform that is higher than the previous one it is difficult to avoid the spike, so we move the spike to the right
-                //when we go to a spikeplatform that is lower than the previous one it is difficult to avoid the spike, so we move the spike to the left
-
-                if(spike)
-                {
-                    Vector3 shift = new Vector3(0, 0, 0);
-                    if(newY> _latestPlatformY)
-                    {//new platform is higher, so move the spike right
-
-
-                        shift = new Vector3(2, 0, 0);
-                    }
-                    else
-                    {//move spike left
-                        shift = new Vector3(-2, 0, 0);
-                    }
-
-
-                    _myEightPlatforms[i].transform.GetChild(0).transform.position = _myEightPlatforms[i].transform.GetChild(0).transform.position + shift;
-                }
-
-                _myEightPlatforms[i].transform.position = new Vector3(deterministicPosition.x, newY);
-                _latestPlatformY = newY;
 
 
                 //if (i == 7)
-                  //  LatestPlatformY = newY;
+                //  LatestPlatformY = newY;
             }
 
-        }
+
+            _myEightPlatforms[i].transform.position = new Vector3(newestPlatformX, _newestPlatformY);
+
+            //_newestPlatformY = _newestPlatformY;
+
+
+
+            if (
+                true
+               //   Index > 0 //don't add any dangers to the first room so the player adjusts to the gameplay mechanics
+               //             &&
+               //         Random.Range(0, 5) == 0 //let's say for now a 20% probability of dangerous platform
+               )
+            {
+
+
+
+                GameObject dangerousObject = null;
+
+
+                if (Random.Range(0, 2) == 0) //50% spike, 50% saw
+                {
+                    //pt = PlatformType.Spike;//  isSpike = true;
+                    dangerousObject = Object.Instantiate(RoomGenerator.StaticSpikePrefab, _gameObject.transform);
+                    //   dangerousObject.transform.parent = ;
+                    //
+
+                    //when we go to a spikeplatform that is higher than the previous one it is difficult to avoid the spike, so we move the spike to the right
+                    //when we go to a spikeplatform that is lower than the previous one it is difficult to avoid the spike, so we move the spike to the left
+
+                    // if (isSpike)
+                    // {
+                    //      Vector3 shift = new Vector3(0, 0, 0);
+                    if (_newestPlatformY > previousPlatformY)// newY > _latestPlatformY)
+                    {//new platform is higher, so move the spike right
+
+
+                        dangerousObject.transform.position = _myEightPlatforms[i].transform.position + new Vector3(2, 0.8f, 0); //shift = new Vector3(2, 0, 0);
+                    }
+                    else
+                    {//move spike left
+                        dangerousObject.transform.position = _myEightPlatforms[i].transform.position + new Vector3(-2, 0.8f, 0);// shift = new Vector3(-2, 0, 0);
+                    }
+
+
+                    //   dangerousObject.transform.position += shift;
+                    // }
+
+                }
+                else
+                {
+                    //  pt= 
+                    //   _myEightPlatforms[i] = Object.Instantiate(RoomGenerator.StaticPlatformPrefab);
+                    dangerousObject = Object.Instantiate(RoomGenerator.StaticSawPrefab, _gameObject.transform);
+                    //dangerousObject.transform.parent = _gameObject.transform;
+                    //
+                    // saw.transform.parent = _myEightPlatforms[i].transform;
+
+                    dangerousObject.transform.position = _myEightPlatforms[i].transform.position + new Vector3(0, 1.32f, 0);
+
+                }
+
+
+            }
+
+
+
+
+        }//for platform
     }
 
     public void Dispose()
@@ -126,13 +170,14 @@ public class Room
 
 public class RoomGenerator : MonoBehaviour
 {
-    public GameObject platformPrefab;
-    public GameObject spikePlatformPrefab;
     public GameObject roomPrefab;
-    public static GameObject StaticPlatformPrefab;
+    public GameObject platformPrefab;
+    public GameObject SpikePrefab;
+    public GameObject SawPrefab;
     public static GameObject StaticRoomPrefab;
-    public static GameObject StaticSpikePlatformPrefab;
-
+    public static GameObject StaticPlatformPrefab;
+    public static GameObject StaticSpikePrefab;
+    public static GameObject StaticSawPrefab;
     private List<Room> _rooms;
     private float _screenWidth;
 
@@ -140,20 +185,17 @@ public class RoomGenerator : MonoBehaviour
 
     void Start()
     {
-        StaticPlatformPrefab = platformPrefab;
         StaticRoomPrefab = roomPrefab;
-        StaticSpikePlatformPrefab = spikePlatformPrefab;
+        StaticPlatformPrefab = platformPrefab;
+        StaticSpikePrefab = SpikePrefab;
+        StaticSawPrefab = SawPrefab;
 
         //find the scene room and destroy it. It is only there for visual reference for us developers. 
         var debugroom = GameObject.Find("DummyRoom");
         Destroy(debugroom);
 
 
-
-
         _rooms = new List<Room> { new Room(-25.14f, true) }; //-25.14 because -16.76 + -16.76/2
-
-
 
 
 
@@ -192,19 +234,19 @@ public class RoomGenerator : MonoBehaviour
 
 
 
-            if(_rooms.Count==1)
+            if (_rooms.Count == 1)
             {
-                print("player is at room index " + _rooms[0].Index);
+                //                print("player is at room index " + _rooms[0].Index);
             }
             else
             {//two rooms
                 if (_rooms[0].EndX >= transform.position.x)
                 {
-                    print("player is at room index " + _rooms[0].Index);
+                    //                  print("player is at room index " + _rooms[0].Index);
                 }
                 else
                 {
-                    print("player is at room index " + _rooms[1].Index);
+                    //                print("player is at room index " + _rooms[1].Index);
                 }
 
 

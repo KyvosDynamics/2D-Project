@@ -3,8 +3,8 @@
 public class Enemy_Reactions : MonoBehaviour
 {
     public float range;
-    public Color colorBlue;
-    public Color colorGreen;
+    //public Color colorBlue = Color.blue;
+    //public Color colorGreen=
     public bool IamBlue = false;
     public bool ChangeColor = true;
     SpriteRenderer e_SpriteRenderer;
@@ -47,12 +47,12 @@ public class Enemy_Reactions : MonoBehaviour
     {
         if (IamBlue)
         {
-            e_SpriteRenderer.color = colorBlue;
+            e_SpriteRenderer.color = Color.blue;// colorBlue;
             gameObject.tag = "BlueKiller";
         }
         else
         {
-            e_SpriteRenderer.color = colorGreen;
+            e_SpriteRenderer.color = Color.green;// colorGreen;
             gameObject.tag = "GreenKiller";
         }
     }
