@@ -5,7 +5,7 @@ using UnityEngine;
 public class Platform
 {
     public GameObject MyGameObject = null;
-    public bool HasDangerousObject = false;
+    public bool HasObject = false;
 
     public Platform(Transform parent)
     {
@@ -83,17 +83,19 @@ public class Room
         Transform myTransform = _gameObject.transform;
 
 
-        //   Platform p = null;
+           Platform p = null;
         for (int i = 0; i < 8; i++)
         {
-            if(i>0)
+            if (i > 0)
             {
                 previousPlatform = _myEightPlatforms[i - 1];
             }
 
-            _myEightPlatforms[i] = new Platform(myTransform);
 
-            //_myEightPlatforms[i].transform.parent = _gameObject.transform;
+
+
+            p=_myEightPlatforms[i] = new Platform(myTransform);
+
 
 
 
@@ -105,7 +107,7 @@ public class Room
             //float platformY = 0;
 
             //Vector3 deterministicPosition = _gameObject.transform.position - new Vector3(, platformY);
-            float newestPlatformX = _gameObject.transform.position.x - (_width / 2 - _platformWidth / 2 - _platformWidth * i);
+            float newestPlatformX = myTransform.position.x - (_width / 2 - _platformWidth / 2 - _platformWidth * i);
 
 
 
@@ -140,7 +142,7 @@ public class Room
             }
 
 
-            _myEightPlatforms[i].Position = (new Vector3(newestPlatformX, _newestPlatformY));
+            p.Position = (new Vector3(newestPlatformX, _newestPlatformY));
 
             //_newestPlatformY = _newestPlatformY;
 
@@ -150,71 +152,71 @@ public class Room
 
 
 
+
+
             //check if we should add a dangerous object on top of the platform
             if (
-
-                  Index > 0 //don't add any dangers to the first room so the player adjusts to the gameplay mechanics
-                            //             &&
-                            //         Random.Range(0, 5) == 0 //let's say for now a 20% probability of dangerous platform
-
-
-               && previousPlatform.HasDangerousObject == false //don't add dangerous objects to two platform in a row
+                Index > 0 //don't add any objects to the first room so the player adjusts to the gameplay mechanics
+                && previousPlatform.HasObject == false //don't add objects to two platforms in a row
+                && Random.Range(0, 4) == 0 //25% probability of object
                )
-            {//add dangerous object
-                _myEightPlatforms[i].HasDangerousObject = true;
+            {//add object
+                _myEightPlatforms[i].HasObject = true;
 
 
-                GameObject dangerousObject = null;
+                GameObject obj = null;
 
 
-                if (Random.Range(0, 2) == 0) //50% spike, 50% saw
+
+                int type = Random.Range(0, 3);
+
+
+                switch (type)
                 {
-                    //pt = PlatformType.Spike;//  isSpike = true;
-                    dangerousObject = Object.Instantiate(RoomGenerator.StaticSpikePrefab, _gameObject.transform);
-                    //   dangerousObject.transform.parent = ;
-                    //
+                    case 0: //spike
 
-                    //when we go to a spikeplatform that is higher than the previous one it is difficult to avoid the spike, so we move the spike to the right
-                    //when we go to a spikeplatform that is lower than the previous one it is difficult to avoid the spike, so we move the spike to the left
+                        obj = Object.Instantiate(RoomGenerator.StaticSpikePrefab, myTransform);
 
-                    // if (isSpike)
-                    // {
-                    //      Vector3 shift = new Vector3(0, 0, 0);
-                    if (_newestPlatformY > previousPlatformY)// newY > _latestPlatformY)
-                    {//new platform is higher, so move the spike right
+                        //when we go to a spikeplatform that is higher than the previous one it is difficult to avoid the spike, so we move the spike to the right
+                        //when we go to a spikeplatform that is lower than the previous one it is difficult to avoid the spike, so we move the spike to the left
+
+                        if (_newestPlatformY > previousPlatformY)// newY > _latestPlatformY)
+                        {//new platform is higher, so move the spike right
 
 
-                        dangerousObject.transform.position = _myEightPlatforms[i].Position + new Vector3(2, 0.8f, 0); //shift = new Vector3(2, 0, 0);
-                    }
-                    else
-                    {//move spike left
-                        dangerousObject.transform.position = _myEightPlatforms[i].Position + new Vector3(-2, 0.8f, 0);// shift = new Vector3(-2, 0, 0);
-                    }
+                            obj.transform.position = p.Position + new Vector3(2, 0.8f, 0); //shift = new Vector3(2, 0, 0);
+                        }
+                        else
+                        {//move spike left
+                            obj.transform.position = p.Position + new Vector3(-2, 0.8f, 0);// shift = new Vector3(-2, 0, 0);
+                        }
 
 
-                    //   dangerousObject.transform.position += shift;
-                    // }
 
+                        break;
+
+                    case 1: //saw
+
+                        obj = Object.Instantiate(RoomGenerator.StaticSawPrefab, myTransform);
+
+                        obj.transform.position = p.Position + new Vector3(0, 1.32f, 0);
+
+                        break;
+
+                    case 2: //ponger
+
+                        obj = Object.Instantiate(RoomGenerator.StaticPongerPrefab, myTransform);
+                        obj.transform.position = p.Position + new Vector3(0, 1.04f, 0);
+                        
+                        break;
                 }
-                else
-                {
-                    //  pt= 
-                    //   _myEightPlatforms[i] = Object.Instantiate(RoomGenerator.StaticPlatformPrefab);
-                    dangerousObject = Object.Instantiate(RoomGenerator.StaticSawPrefab, _gameObject.transform);
-                    //dangerousObject.transform.parent = _gameObject.transform;
-                    //
-                    // saw.transform.parent = _myEightPlatforms[i].transform;
 
-                    dangerousObject.transform.position = _myEightPlatforms[i].Position + new Vector3(0, 1.32f, 0);
-
-                }
 
 
             }
 
 
 
-            //    _myEightPlatforms[i] = p;
         }//for platform
     }
 
@@ -231,10 +233,12 @@ public class RoomGenerator : MonoBehaviour
     public GameObject PlatformPrefab;
     public GameObject SpikePrefab;
     public GameObject SawPrefab;
+    public GameObject PongerPrefab;
     public static GameObject StaticRoomPrefab;
     public static GameObject StaticPlatformPrefab;
     public static GameObject StaticSpikePrefab;
     public static GameObject StaticSawPrefab;
+    public static GameObject StaticPongerPrefab;
     private List<Room> _rooms;
     private float _screenWidth;
 
@@ -246,6 +250,7 @@ public class RoomGenerator : MonoBehaviour
         StaticPlatformPrefab = PlatformPrefab;
         StaticSpikePrefab = SpikePrefab;
         StaticSawPrefab = SawPrefab;
+        StaticPongerPrefab = PongerPrefab;
 
         //find the scene room and destroy it. It is only there for visual reference for us developers. 
         var debugroom = GameObject.Find("DummyRoom");

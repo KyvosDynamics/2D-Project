@@ -200,7 +200,7 @@ public class Movement : MonoBehaviour
                 break;
 
             case "Ponger":
-                _player.velocity = new Vector2(_player.velocity.x, JumpForce * 2);
+                _player.velocity = new Vector2(_player.velocity.x, JumpForce * 1.5f);
                 break;
 
             case "Killer":

@@ -257,6 +257,12 @@ Prefab:
       value: 
       objectReference: {fileID: 1978104339873990, guid: c03114d99ddc66546b1f0469f6d05c54,
         type: 2}
+    - target: {fileID: 114202579433214058, guid: 97f7b7ed7743f9d4885f16317e5c90ca,
+        type: 2}
+      propertyPath: PongerPrefab
+      value: 
+      objectReference: {fileID: 1468171118249788, guid: 574cbd0f29e14514eb65935332ba8c31,
+        type: 2}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 97f7b7ed7743f9d4885f16317e5c90ca, type: 2}
   m_IsPrefabAsset: 0
@@ -314,6 +320,10 @@ Prefab:
     - target: {fileID: 4830960329359600, guid: ce6a87f6a8e194342b0543b84fa2d74b, type: 2}
       propertyPath: m_RootOrder
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1969975028501032, guid: ce6a87f6a8e194342b0543b84fa2d74b, type: 2}
+      propertyPath: m_TagString
+      value: Untagged
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: ce6a87f6a8e194342b0543b84fa2d74b, type: 2}
