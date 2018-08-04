@@ -24,7 +24,7 @@ GameObject:
   - component: {fileID: 61093226520952918}
   - component: {fileID: 114898046598025904}
   - component: {fileID: 114202579433214058}
-  m_Layer: 10
+  m_Layer: 11
   m_Name: Player
   m_TagString: Player
   m_Icon: {fileID: 0}
@@ -100,9 +100,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d869e4ed8ddee4b4c9409dbf5fe449c5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  roomPrefab: {fileID: 1969975028501032, guid: ce6a87f6a8e194342b0543b84fa2d74b, type: 2}
-  currentRooms:
-  - {fileID: 0}
+  RoomPrefab: {fileID: 0}
+  PlatformPrefab: {fileID: 0}
+  SpikePrefab: {fileID: 0}
+  SawPrefab: {fileID: 0}
 --- !u!114 &114898046598025904
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -117,11 +118,10 @@ MonoBehaviour:
   VisualizeRaycasting: 1
   Speed: 5
   JumpForce: 10
-  colorBlue: {r: 0, g: 0.45698714, b: 1, a: 1}
-  colorGreen: {r: 0, g: 1, b: 0, a: 1}
   GroundLayer:
     serializedVersion: 2
     m_Bits: 512
+  IAmBlue: 1
 --- !u!212 &212086137520373678
 SpriteRenderer:
   m_ObjectHideFlags: 1

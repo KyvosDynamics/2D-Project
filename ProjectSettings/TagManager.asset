@@ -24,10 +24,10 @@ TagManager:
   - 
   - 
   - RoomBackground
-  - RoomObjects
+  - RoomSolidObjects
+  - RoomOtherObjects
   - Player
   - Glows
-  - 
   - 
   - 
   - 

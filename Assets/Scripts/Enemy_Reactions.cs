@@ -44,7 +44,7 @@ public class Enemy_Reactions : MonoBehaviour
             }
             else
             {
-                _spriteRenderer.color = Color.blue;// colorBlue;
+                _spriteRenderer.color = Color.cyan;// colorBlue;
                 gameObject.tag = "BlueSaw";
 
             }

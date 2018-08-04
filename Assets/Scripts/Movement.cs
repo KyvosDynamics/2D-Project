@@ -6,8 +6,6 @@ public class Movement : MonoBehaviour
     public bool VisualizeRaycasting = false; //this is for debug purposes only, should be false when releasing
     public float Speed;
     public float JumpForce;
-    //public Color colorBlue;
-    //public Color colorGreen;
     public LayerMask GroundLayer;
 
     //by convention private fields start with the underscore '_' character followed by a lower-case letter
@@ -127,9 +125,16 @@ public class Movement : MonoBehaviour
     }
 
 
+
+
+
     void Update()
     {
         _player.velocity = new Vector2(Speed, _player.velocity.y);
+
+
+
+
 
         //check for key to change color
         if (Input.GetKeyDown(KeyCode.Q))
@@ -148,7 +153,7 @@ public class Movement : MonoBehaviour
         //change color and tag
         if (IAmBlue)
         {
-            _spriteRenderer.color = Color.blue;// colorBlue;
+            _spriteRenderer.color = Color.cyan;// colorBlue;
             //gameObject.tag = "BluePlayer";
         }
         else
@@ -156,6 +161,9 @@ public class Movement : MonoBehaviour
             _spriteRenderer.color = Color.green;// colorGreen;
             //gameObject.tag = "GreenPlayer";
         }
+
+
+
 
         //jump check
         if (Input.GetKey(KeyCode.Space) && _isTouchingGround && !_isTouchingCeiling)
