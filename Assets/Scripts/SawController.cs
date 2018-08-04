@@ -41,7 +41,7 @@ public class SawController : MonoBehaviour {
             ChangeColor = false; //do not change again
             IamBlue = !IamBlue;
 
-            Movement m = Player.GetComponent<Movement>();
+            PlayerController m = Player.GetComponent<PlayerController>();
             if (m.IAmBlue)
             {
                 _spriteRenderer.color = Color.green;// colorGreen;

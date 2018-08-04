@@ -1,14 +1,15 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-public class Movement : MonoBehaviour
+public class PlayerController : MonoBehaviour
 {
-    public bool VisualizeRaycasting = false; //this is for debug purposes only, should be false when releasing
+    private bool VisualizeRaycasting = false; //this is for debug purposes only, should be false when releasing
     public float Speed;
     public float JumpForce;
     public LayerMask GroundLayer;
 
     //by convention private fields start with the underscore '_' character followed by a lower-case letter
+    [HideInInspector]
     public bool IAmBlue = true;
     private Rigidbody2D _player;
     private SpriteRenderer _spriteRenderer;
