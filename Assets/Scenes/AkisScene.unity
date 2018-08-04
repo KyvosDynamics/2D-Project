@@ -213,7 +213,7 @@ Prefab:
     - target: {fileID: 114898046598025904, guid: 97f7b7ed7743f9d4885f16317e5c90ca,
         type: 2}
       propertyPath: Speed
-      value: 5
+      value: 9
       objectReference: {fileID: 0}
     - target: {fileID: 114202579433214058, guid: 97f7b7ed7743f9d4885f16317e5c90ca,
         type: 2}
@@ -225,7 +225,7 @@ Prefab:
         type: 2}
       propertyPath: spikePlatformPrefab
       value: 
-      objectReference: {fileID: 1913767880831204, guid: d08752410127a1e47a0c197ed3431c4e,
+      objectReference: {fileID: 1161221288958416, guid: 65f801028ba35be4ea98fcbf8b9e43ea,
         type: 2}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 97f7b7ed7743f9d4885f16317e5c90ca, type: 2}
