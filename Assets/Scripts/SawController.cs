@@ -1,13 +1,15 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
 
-public class Enemy_Reactions : MonoBehaviour
-{
+public class SawController : MonoBehaviour {
+
+    public float RotSpeed;
     public float range;
-    public bool IamBlue = false;
-    public bool ChangeColor = true;
+    private bool IamBlue = false;
+    private bool ChangeColor = true;
     SpriteRenderer _spriteRenderer;
     private Transform Player;
-
 
 
     void Start()
@@ -24,6 +26,9 @@ public class Enemy_Reactions : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        transform.Rotate(0, 0, RotSpeed);
+
+
         if (!ChangeColor)
             return; //(do not calculate distance for no reason)
 
@@ -53,5 +58,6 @@ public class Enemy_Reactions : MonoBehaviour
 
 
 
-
+ 
+	
 }

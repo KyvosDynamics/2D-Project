@@ -20,9 +20,8 @@ GameObject:
   m_Component:
   - component: {fileID: 4337674373037580}
   - component: {fileID: 212074297333483736}
-  - component: {fileID: 114187502060287592}
   - component: {fileID: 58232895189239876}
-  - component: {fileID: 114102941295570982}
+  - component: {fileID: 114292395345334004}
   m_Layer: 10
   m_Name: Saw
   m_TagString: Killer
@@ -58,7 +57,7 @@ CircleCollider2D:
   m_Offset: {x: 0, y: 0}
   serializedVersion: 2
   m_Radius: 2.56
---- !u!114 &114102941295570982
+--- !u!114 &114292395345334004
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
@@ -66,24 +65,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 1513025892425984}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cf5c562498cc7a0429780cb6e5811b30, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  range: 5
-  IamBlue: 1
-  ChangeColor: 1
---- !u!114 &114187502060287592
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1513025892425984}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3f23325f777bd04429cf717787a98e37, type: 3}
+  m_Script: {fileID: 11500000, guid: 94abc9f702b4b78438d45c5559e5c830, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   RotSpeed: 5
+  range: 5
 --- !u!212 &212074297333483736
 SpriteRenderer:
   m_ObjectHideFlags: 1
