@@ -10,7 +10,7 @@ public class PlayerController : MonoBehaviour
 
     //by convention private fields start with the underscore '_' character followed by a lower-case letter
     [HideInInspector]
-    public bool IAmBlue = true;
+    public bool IsBlue = true;
     private Rigidbody2D _player;
     private SpriteRenderer _spriteRenderer;
     private bool _isTouchingGround;
@@ -30,7 +30,7 @@ public class PlayerController : MonoBehaviour
 
 
         //set color at the start
-        if (IAmBlue)
+        if (IsBlue)
             _spriteRenderer.color = Color.blue;// colorBlue;        
         else
             _spriteRenderer.color = Color.green;// colorGreen;        
@@ -140,19 +140,19 @@ public class PlayerController : MonoBehaviour
         //check for key to change color
         if (Input.GetKeyDown(KeyCode.Q))
         {
-            if (IAmBlue == true)
+            if (IsBlue == true)
             {
-                IAmBlue = false;
+                IsBlue = false;
 
             }
             else
             {
-                IAmBlue = true;
+                IsBlue = true;
 
             }
         }
         //change color and tag
-        if (IAmBlue)
+        if (IsBlue)
         {
             _spriteRenderer.color = Color.cyan;// colorBlue;
             //gameObject.tag = "BluePlayer";
@@ -191,12 +191,12 @@ public class PlayerController : MonoBehaviour
 
 
             case "BlueSaw":
-                if (!IAmBlue)
+                if (!IsBlue)
                     Time.timeScale = 0f; //game over
                 break;
             //
             case "GreenSaw":
-                if (IAmBlue)
+                if (IsBlue)
                     Time.timeScale = 0f; //game over    
                 break;
 

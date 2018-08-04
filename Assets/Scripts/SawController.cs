@@ -1,55 +1,43 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
-public class SawController : MonoBehaviour {
+public class SawController : MonoBehaviour
+{
+    public float RotationSpeed;
+    public float Range;
+    private bool _changedColorOnce = false; //we want the Saw to only be able to change color once
+    private SpriteRenderer _spriteRenderer;
+    private Transform _playerTransform;
 
-    public float RotSpeed;
-    public float range;
-    private bool IamBlue = false;
-    private bool ChangeColor = true;
-    SpriteRenderer _spriteRenderer;
-    private Transform Player;
 
 
     void Start()
     {
-        Player = GameObject.Find("Player").transform;
-
+        _playerTransform = GameObject.Find("Player").transform;
         _spriteRenderer = GetComponent<SpriteRenderer>();
-
     }
-
 
 
 
     // Update is called once per frame
     void Update()
     {
-        transform.Rotate(0, 0, RotSpeed);
+        transform.Rotate(0, 0, RotationSpeed);
 
 
-        if (!ChangeColor)
-            return; //(do not calculate distance for no reason)
 
-
-        //checks the distance between this and the player
-        // var distance = ;
-
-        if (Player.position.x >= gameObject.transform.position.x - range)//>= distance <= MaxDistToChange && distance >= MinDistToChange)
+        if(_changedColorOnce==false && _playerTransform.position.x >= gameObject.transform.position.x - Range)
         {
-            ChangeColor = false; //do not change again
-            IamBlue = !IamBlue;
+            _changedColorOnce = true; //do not change again
 
-            PlayerController m = Player.GetComponent<PlayerController>();
-            if (m.IAmBlue)
+            PlayerController playerController = _playerTransform.GetComponent<PlayerController>();
+            if (playerController.IsBlue)
             {
-                _spriteRenderer.color = Color.green;// colorGreen;
+                _spriteRenderer.color = Color.green;
                 gameObject.tag = "GreenSaw";
             }
             else
             {
-                _spriteRenderer.color = Color.cyan;// colorBlue;
+                _spriteRenderer.color = Color.cyan;
                 gameObject.tag = "BlueSaw";
 
             }
@@ -58,6 +46,4 @@ public class SawController : MonoBehaviour {
 
 
 
- 
-	
 }

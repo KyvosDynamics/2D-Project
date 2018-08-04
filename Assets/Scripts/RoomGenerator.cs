@@ -4,37 +4,31 @@ using UnityEngine;
 
 public class Platform
 {
-    public GameObject MyGameObject = null;
     public bool HasObject = false;
+    private GameObject _gameObject = null;
+
 
     public Platform(Transform parent)
     {
-        MyGameObject = Object.Instantiate(RoomGenerator.StaticPlatformPrefab, parent);
+        _gameObject = Object.Instantiate(RoomGenerator.StaticPlatformPrefab, parent);
     }
 
     public Vector3 Position
     {
-        set
-        {
-            MyGameObject.transform.position = value;
-        }
-        get
-        {
-            return MyGameObject.transform.position;
-        }
+        set { _gameObject.transform.position = value; }
+        get { return _gameObject.transform.position; }
     }
-
 }
 
 public class Room
 {
-    private static float _newestPlatformY = 0;
+    private static float _newestPlatformY;
     public float StartX;
     public float EndX;
     public int Index;
-    public static int StaticIndex = -1;
+    public static int StaticIndex = -1; //it is important for this to be initialized minus one so that the first room is at index 0
     private GameObject _gameObject;
-    private Platform[] _myEightPlatforms;
+    private Platform[] _myEightPlatforms = new Platform[8];
     private const float _width = 50.25f; //because we are using 3 backgrounds each having a 1676 pixel width
     private const float _platformWidth = 6.28125f; //(notice platformWidth * 8 = roomWidth)
 
@@ -42,83 +36,62 @@ public class Room
     { get { return _gameObject.transform.position.x; } }
 
 
-    public Platform LatestPlatform
+    public Platform LastPlatform
     { get { return _myEightPlatforms[7]; } }
 
 
 
-    public Room(Room previousRoom)// float roomStartX, GameObject previousPlatform)//  bool isStartRoom = false)
+
+    public Room(Room previousRoom)
     {
-        float roomStartX = 0.0f;
-        Platform previousPlatform = null;
-
-        if (previousRoom == null)
-        {//this is the very first room of the game
-            roomStartX = -25.14f; //-25.14 because -16.76 + -16.76/2
-        }
-        else
-        {
-            roomStartX = previousRoom.EndX; //we want the new room to start at the end of the last room
-            previousPlatform = previousRoom.LatestPlatform;
-
-        }
-
-
         StaticIndex++;
         Index = StaticIndex;
 
 
-        StartX = roomStartX;
+        Platform previousPlatform = null;
+
+        if (previousRoom == null)
+        {//this is the very first room of the game
+            StartX = -25.14f; //-25.14 because -16.76 + -16.76/2
+        }
+        else
+        {
+            StartX = previousRoom.EndX; //we want the new room to start at the end of the previous room
+            previousPlatform = previousRoom.LastPlatform;  //the previous platform is the last platform of the previous room
+        }
         EndX = StartX + _width;
         float centerX = StartX + _width * 0.5f;
 
-        _gameObject = Object.Instantiate(RoomGenerator.StaticRoomPrefab);
-        _gameObject.transform.position = new Vector3(centerX, 0, 0);
+
+        _gameObject = Object.Instantiate(RoomGenerator.StaticRoomPrefab, new Vector3(centerX, 0, 0), Quaternion.identity);
 
 
 
-        _myEightPlatforms = new Platform[8];
 
 
-        Transform myTransform = _gameObject.transform;
+        Transform roomTransform = _gameObject.transform;
 
 
-           Platform p = null;
+        Platform p = null;
         for (int i = 0; i < 8; i++)
         {
             if (i > 0)
-            {
                 previousPlatform = _myEightPlatforms[i - 1];
-            }
 
 
-
-
-            p=_myEightPlatforms[i] = new Platform(myTransform);
-
-
-
-
+            p = _myEightPlatforms[i] = new Platform(roomTransform);
 
 
             float previousPlatformY = _newestPlatformY;
 
-
-            //float platformY = 0;
-
-            //Vector3 deterministicPosition = _gameObject.transform.position - new Vector3(, platformY);
-            float newestPlatformX = myTransform.position.x - (_width / 2 - _platformWidth / 2 - _platformWidth * i);
-
-
-
-
             if (
-                previousPlatform == null //it is only null in the first room
-                && i == 0
-                )
-            {//we want the very first platform of our game to be at a fixed position
+                previousPlatform == null //it is the very first room of the game (previousPlatform is only null in the first room)
+                &&
+                i == 0 //and it is the first platform of the first room
+               )
+            {//we want the very first platform of our game to be at at y zero
 
-                // _myEightPlatforms[i].transform.position = deterministicPosition;
+                _newestPlatformY = 0;
 
             }
             else
@@ -131,21 +104,17 @@ public class Room
 
                 if (_newestPlatformY > 3.4f || _newestPlatformY < -3.4f)
                 {//out of allowed game bounds, go the other way
-
                     _newestPlatformY -= 2 * randomDifference;
                 }
 
-
-
-                //if (i == 7)
-                //  LatestPlatformY = newY;
             }
 
 
-            p.Position = (new Vector3(newestPlatformX, _newestPlatformY));
+            //now we know y. For x it's easy as we know the position of the room and the relative position of the platform inside the room
+            float newestPlatformX = roomTransform.position.x - (_width / 2 - _platformWidth / 2 - _platformWidth * i);
 
-            //_newestPlatformY = _newestPlatformY;
-
+            //therefore:
+            p.Position = new Vector3(newestPlatformX, _newestPlatformY);
 
 
 
@@ -175,7 +144,7 @@ public class Room
                 {
                     case 0: //spike
 
-                        obj = Object.Instantiate(RoomGenerator.StaticSpikePrefab, myTransform);
+                        obj = Object.Instantiate(RoomGenerator.StaticSpikePrefab, roomTransform);
 
                         //when we go to a spikeplatform that is higher than the previous one it is difficult to avoid the spike, so we move the spike to the right
                         //when we go to a spikeplatform that is lower than the previous one it is difficult to avoid the spike, so we move the spike to the left
@@ -197,7 +166,7 @@ public class Room
 
                     case 1: //saw
 
-                        obj = Object.Instantiate(RoomGenerator.StaticSawPrefab, myTransform);
+                        obj = Object.Instantiate(RoomGenerator.StaticSawPrefab, roomTransform);
 
                         obj.transform.position = p.Position + new Vector3(0, 1.32f, 0);
 
@@ -205,9 +174,9 @@ public class Room
 
                     case 2: //ponger
 
-                        obj = Object.Instantiate(RoomGenerator.StaticPongerPrefab, myTransform);
+                        obj = Object.Instantiate(RoomGenerator.StaticPongerPrefab, roomTransform);
                         obj.transform.position = p.Position + new Vector3(0, 1.04f, 0);
-                        
+
                         break;
                 }
 
@@ -229,6 +198,7 @@ public class Room
 
 public class RoomGenerator : MonoBehaviour
 {
+    public static int PlayerIsInRoomIndex = -1; //this is not used yet but could be helpful if for example we want to increase game difficulty based on progress
     public GameObject RoomPrefab;
     public GameObject PlatformPrefab;
     public GameObject SpikePrefab;
@@ -252,21 +222,17 @@ public class RoomGenerator : MonoBehaviour
         StaticSawPrefab = SawPrefab;
         StaticPongerPrefab = PongerPrefab;
 
+
         //find the scene room and destroy it. It is only there for visual reference for us developers. 
-        var debugroom = GameObject.Find("DummyRoom");
-        Destroy(debugroom);
+        Destroy(GameObject.Find("DummyRoom"));
 
 
-
-
-        //Room room = ;//, _latestPlatform);
+        //let's add the first real room (we pass null because there is no previous room)
         _rooms = new List<Room> { new Room(null) };
-
 
 
         float screenHeight = 2.0f * Camera.main.orthographicSize;
         _screenWidth = screenHeight * Camera.main.aspect;
-        //print("screen width= " + screenWidth);
 
 
         StartCoroutine(GeneratorCheck());
@@ -294,37 +260,27 @@ public class RoomGenerator : MonoBehaviour
 
             if (latestRoom.CenterX < rightCameraBound)
             {//add a new room
-
-                //  Room room =;
-                //_latestPlatform = room.LatestPlatform;
                 _rooms.Add(new Room(latestRoom));
             }
 
 
-
             if (_rooms.Count == 1)
             {
-                //                print("player is at room index " + _rooms[0].Index);
+                PlayerIsInRoomIndex = _rooms[0].Index;
             }
             else
             {//two rooms
+
                 if (_rooms[0].EndX >= transform.position.x)
-                {
-                    //                  print("player is at room index " + _rooms[0].Index);
-                }
+                    PlayerIsInRoomIndex = _rooms[0].Index;
                 else
-                {
-                    //                print("player is at room index " + _rooms[1].Index);
-                }
-
-
+                    PlayerIsInRoomIndex = _rooms[1].Index;
             }
 
 
             yield return new WaitForSeconds(0.25f);
         }
     }
-
 
 
 
