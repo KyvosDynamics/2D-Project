@@ -4,13 +4,11 @@
 TagManager:
   serializedVersion: 2
   tags:
-  - Ground
   - Killer
-  - BlueKiller
-  - GreenKiller
-  - BluePlayer
-  - GreenPlayer
-  - Room
+  - GreenSaw
+  - BlueSaw
+  - Ponger
+  - Ground
   layers:
   - Default
   - TransparentFX
@@ -21,10 +19,10 @@ TagManager:
   - 
   - 
   - RoomBackground
-  - RoomObjects
+  - RoomSolidObjects
+  - RoomOtherObjects
   - Player
   - Glows
-  - 
   - 
   - 
   - 
