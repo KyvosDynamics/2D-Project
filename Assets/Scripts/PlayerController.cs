@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-    private bool VisualizeRaycasting = false; //this is for debug purposes only, should be false when releasing
+    private bool VisualizeRaycasting = true; //this is for debug purposes only, should be false when releasing
     public float Speed;
     public float JumpForce;
     public LayerMask GroundLayer;
@@ -38,25 +38,13 @@ public class PlayerController : MonoBehaviour
 
 
 
-    private void RemoveVertexWithSmallerY(List<Vector2> vertices)
-    {
-        float smallerY = float.MaxValue;
-        int smallerYIndex = -1;
-        for (int i = 0; i < vertices.Count; i++)
-        {
-            if (vertices[i].y <= smallerY)
-            {
-                smallerY = vertices[i].y;
-                smallerYIndex = i;
-            }
-        }
-
-        vertices.RemoveAt(smallerYIndex);
-    }
-
+ 
 
     void FixedUpdate()
     {
+
+
+        /*
         Vector2 pos = new Vector2(transform.position.x, transform.position.y);
 
         //let's find the four vertices
@@ -89,14 +77,20 @@ public class PlayerController : MonoBehaviour
 
             RemoveVertexWithSmallerY(verticesToRaycast);
         }
-
+        */
         //print(string.Format("Raycasting {0} vertices", verticesToRaycast.Count));
 
 
 
 
-        float raycastingDistance = _size.x / 10;
-        _isTouchingCeiling = false;
+        float verticalRaycastingDistance = 0.1f + _size.y / 2;// 10;// _size.x / 10;
+        float horizontalRaycastingDistance = 0.1f + _size.x / 2;// 10;// _size.x / 10;
+
+
+        _isTouchingCeiling = Physics2D.Raycast(transform.position, Vector2.up, verticalRaycastingDistance, GroundLayer);
+        Debug.DrawLine(transform.position, transform.position + Vector3.up * verticalRaycastingDistance, _isTouchingCeiling ? Color.red : Color.green);
+
+        /*
         foreach (Vector2 v in verticesToRaycast)
         {
             bool vTouching = Physics2D.Raycast(v, Vector2.up, raycastingDistance, GroundLayer);
@@ -106,25 +100,44 @@ public class PlayerController : MonoBehaviour
 
             _isTouchingCeiling = _isTouchingCeiling | vTouching;
         }
+        */
 
 
 
 
 
-
-        Collider2D[] colliders = Physics2D.OverlapBoxAll(pos, _size, transform.eulerAngles.z, GroundLayer); //this checks for any colliders within the boxy-area
-        _isTouchingGround = colliders.Length != 0; //at least one groundlayer collider present so we are in contact
-
+        //   Collider2D[] colliders = Physics2D.OverlapBoxAll(pos, _size, transform.eulerAngles.z, GroundLayer); //this checks for any colliders within the boxy-area
+        //  _isTouchingGround = colliders.Length != 0; //at least one groundlayer collider present so we are in contact
 
 
 
+
+        _isTouchingGround = Physics2D.Raycast(transform.position, Vector2.down, verticalRaycastingDistance, GroundLayer);
+        // if (VisualizeRaycasting)
+        Debug.DrawLine(transform.position, transform.position + Vector3.down * verticalRaycastingDistance, _isTouchingGround ? Color.red : Color.green);
+
+        //  _isTouchingGround = _isTouchingGround | vTouching;
+
+
+
+        _isTouchingWall = Physics2D.Raycast(transform.position + Vector3.down * _size.y / 2, Vector2.right, horizontalRaycastingDistance, GroundLayer);
+        Debug.DrawLine(transform.position + Vector3.down * _size.y / 2, transform.position + Vector3.down * _size.y / 2 + Vector3.right * horizontalRaycastingDistance, _isTouchingWall ? Color.red : Color.green);
+
+        float yVel = _player.velocity.y;
+
+        if (_isTouchingWall || goUp)
+        {
+            goUp = false;
+            yVel = JumpForce/1.5f;
+        }
+        //else
 
 
         //player moving alone
-        _player.velocity = new Vector2(Speed, _player.velocity.y);
+        _player.velocity = new Vector2(Speed, yVel);
 
     }
-
+    bool _isTouchingWall;
 
 
 
@@ -210,8 +223,25 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.GetContact(0).otherCollider.transform.gameObject.name == "RightSideCollider")
+        {
+            goUp = true;// _player.velocity = new Vector2(Speed, _player.velocity.y + 0.1f);
+            print("yeah");
+        }
 
+}
+    bool goUp = false;
 
+    private void OnCollisionStay2D(Collision2D collision)
+    {
+        if (collision.GetContact(0).otherCollider.transform.gameObject.name == "RightSideCollider")
+        {
+            goUp = true;// _player.velocity = new Vector2(Speed, _player.velocity.y + 0.1f);
+            print("yeah");
+        }
 
+    }
 
 }
