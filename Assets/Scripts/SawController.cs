@@ -12,7 +12,7 @@ public class SawController : MonoBehaviour
 
     void Start()
     {
-        _playerTransform = GameObject.Find("Player").transform;
+        _playerTransform = GameObject.Find("Runner").transform;
         _spriteRenderer = GetComponent<SpriteRenderer>();
     }
 

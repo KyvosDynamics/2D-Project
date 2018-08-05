@@ -8,7 +8,7 @@ public class CameraFollow : MonoBehaviour
 
     private void Start()
     {
-        _playerTransform = GameObject.Find("Player").transform;
+        _playerTransform = GameObject.Find("Runner").transform;
     }
 
 
