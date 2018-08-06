@@ -3,7 +3,7 @@
 public class PlayerController : MonoBehaviour
 {
     [HideInInspector]
-    public bool IsBlue = true;
+    public bool IsCyan = true;
     public float Speed;
     public float JumpSpeed;
     public LayerMask GroundLayer;
@@ -11,12 +11,17 @@ public class PlayerController : MonoBehaviour
     private Rigidbody2D _rigidbody;
     private SpriteRenderer _spriteRenderer;
     private bool _isTouchingGround;
-    //  private bool _isTouchingCeiling = false;
-    bool _isTouchingWall;
-    //  bool _isTouchingWall;
-    bool goUp = false;
+    private bool _isTouchingWall;
     private float _halfHeight;
     private float _halfWidth;
+    private int _numOfHorRaycasts;
+    private float _yIncr;
+    private bool _switchcolor = false;
+    private bool _jumpFromGround = false;
+    private bool _jumpFromWall = false;
+    private bool _jumpFromPonger = false;
+    private const float _raycastingDistance = 0.1f;
+    private const float _autoClimbSpeed = 2f;
 
 
 
@@ -25,207 +30,125 @@ public class PlayerController : MonoBehaviour
         _rigidbody = GetComponent<Rigidbody2D>();
         _spriteRenderer = GetComponent<SpriteRenderer>();
 
+        _spriteRenderer.color = IsCyan ? Color.cyan : Color.green;
+
         Collider2D _collider = GetComponent<Collider2D>();
-        //_halfHeight = / 2;
-        _halfWidth = _collider.bounds.size.x / 2;
-
-        //set color at the start
-        if (IsBlue)
-            _spriteRenderer.color = Color.blue;// colorBlue;        
-        else
-            _spriteRenderer.color = Color.green;// colorGreen;      
-
-
 
         //to see if the player has hit a wall let's create 4 horizontal raycasts (if we change either the player's or the platform's size 4 may be too few or too many)
-         numOfHorRaycasts = 4;
-        float fullHeight = _collider.bounds.size.y;// 2 * _halfHeight;
+        _numOfHorRaycasts = 4;
+        float fullHeight = _collider.bounds.size.y;
 
-         yIncr = fullHeight / (numOfHorRaycasts - 1);//minus one because for example 4 points form 3 intervals
-                                                     //lets do them from the bottom to the top
-
+        _yIncr = fullHeight / (_numOfHorRaycasts - 1);//minus one because for example 4 points form 3 intervals
+                                                    
         _halfHeight = fullHeight / 2;
+        _halfWidth = _collider.bounds.size.x / 2;
+
     }
 
 
-    int numOfHorRaycasts;
-    float yIncr;
 
 
 
     void FixedUpdate()
     {
-        Vector3 bottommostPoint = transform.position + Vector3.down * (_halfHeight +0.01f); //don't mind the 0.01f
+        Vector3 bottommostPoint = transform.position + Vector3.down * (_halfHeight + 0.01f); //don't mind the 0.01f
         Vector3 bottommostRightmostPoint = bottommostPoint + Vector3.right * _halfWidth;
 
 
-        float raycastingDistance = 0.1f;
 
-        _isTouchingGround = Physics2D.Raycast(bottommostPoint, Vector2.down, raycastingDistance, GroundLayer);
-        Debug.DrawLine(bottommostPoint, bottommostPoint + Vector3.down * raycastingDistance, _isTouchingGround ? Color.red : Color.green);
-
+        _isTouchingGround = Physics2D.Raycast(bottommostPoint, Vector2.down, _raycastingDistance, GroundLayer);
+        Debug.DrawLine(bottommostPoint, bottommostPoint + Vector3.down * _raycastingDistance, _isTouchingGround ? Color.red : Color.green);
 
 
-
-
-       
 
         _isTouchingWall = false;
-        for (int raycastIndex = 0; raycastIndex < numOfHorRaycasts && _isTouchingWall == false; raycastIndex++)
+        //lets do them from the bottom to the top
+        for (int raycastIndex = 0; raycastIndex < _numOfHorRaycasts && _isTouchingWall == false; raycastIndex++)
         {
-            Vector3 point = bottommostRightmostPoint + Vector3.up * raycastIndex * yIncr;
-            _isTouchingWall = Physics2D.Raycast(point, Vector2.right, raycastingDistance, GroundLayer);
-            Debug.DrawLine(point, point + Vector3.right * raycastingDistance, _isTouchingWall ? Color.red : Color.green);// Color.white);
+            Vector3 point = bottommostRightmostPoint + Vector3.up * raycastIndex * _yIncr;
+            _isTouchingWall = Physics2D.Raycast(point, Vector2.right, _raycastingDistance, GroundLayer);
+            Debug.DrawLine(point, point + Vector3.right * _raycastingDistance, _isTouchingWall ? Color.red : Color.green);
         }
-
-
-
-
-
-
-        //   bool 
-        //  _isTouchingWall =
-
-
-
-        //        if (_isTouchingWallMiddle == false)
-        //      {
-        //        _isTouchingWallLow = Physics2D.Raycast(bottommostRightmostPoint, Vector2.right, raycastingDistance, GroundLayer);
-        //      Debug.DrawLine(bottommostRightmostPoint, bottommostRightmostPoint + Vector3.right * raycastingDistance, _isTouchingWallLow ? Color.red : Color.green);
-        //}
-
-
-
 
 
 
 
         float yVel = _rigidbody.velocity.y;
-        if (jumpFromGround)
+        if (_jumpFromPonger)
         {
-            jumpFromGround = false;
+            _jumpFromPonger = false;
+            yVel = JumpSpeed * 1.5f;
+        }
+        else if (_jumpFromGround)
+        {
+            _jumpFromGround = false;
             yVel = JumpSpeed;
         }
-        else if(jumpFromWall)
+        else if (_jumpFromWall)
         {
-            jumpFromWall = false;
-            yVel = JumpSpeed - AutoClimbSpeed;
+            _jumpFromWall = false;
+            yVel = JumpSpeed - _autoClimbSpeed;
 
         }
-        else if(_isTouchingWall)
+        else if (_isTouchingWall)
         {//auto climb
 
-            yVel = AutoClimbSpeed;
-
+            yVel = _autoClimbSpeed;
         }
-
 
 
         _rigidbody.velocity = new Vector2(Speed, yVel);
 
 
 
-
-
-        //   if (_isTouchingWallLow || goUp)
-        // {
-        //   goUp = false;
-        // yVel = JumpForce / 1.5f;
-        // }
-
-
-
-
+        if (_switchcolor)
+        {
+            _switchcolor = false;
+            IsCyan = !IsCyan;
+            _spriteRenderer.color = IsCyan ? Color.cyan : Color.green;
+        }
 
 
     }
-    public float AutoClimbSpeed = 2f;
+   
 
 
-
-
-
-    bool switchcolor = false;
 
 
 
     void Update()
-    {
+    {//keyboard handling
 
-
-
-
-
-        //check for key to change color
         if (Input.GetKeyDown(KeyCode.Q))
-        {
-            if (IsBlue == true)
-            {
-                IsBlue = false;
+            _switchcolor = true;
 
-            }
-            else
-            {
-                IsBlue = true;
-
-            }
-        }
-        //change color and tag
-        if (IsBlue)
-        {
-            _spriteRenderer.color = Color.cyan;// colorBlue;
-            //gameObject.tag = "BluePlayer";
-        }
-        else
-        {
-            _spriteRenderer.color = Color.green;// colorGreen;
-            //gameObject.tag = "GreenPlayer";
-        }
-
-
-
-
-        //jump check
-        if (Input.GetKey(KeyCode.Space))// && _isTouchingWall==false)// && !_isTouchingCeiling)
+        if (Input.GetKey(KeyCode.Space))
         {
             if (_isTouchingGround)
-                jumpFromGround = true;
+                _jumpFromGround = true;
             else if (_isTouchingWall)
-                jumpFromWall = true;
-            //_isTouchingGround = false;
+                _jumpFromWall = true;
         }
     }
 
-    bool jumpFromGround = false;
-    bool jumpFromWall = false;
 
 
 
     void OnTriggerEnter2D(Collider2D collision)
     {
-
-
-
         switch (collision.gameObject.tag)
         {
-
-
-
-
-
-
             case "BlueSaw":
-                if (!IsBlue)
+                if (!IsCyan)
                     Time.timeScale = 0f; //game over
                 break;
-            //
             case "GreenSaw":
-                if (IsBlue)
+                if (IsCyan)
                     Time.timeScale = 0f; //game over    
                 break;
 
             case "Ponger":
-                _rigidbody.velocity = new Vector2(_rigidbody.velocity.x, JumpSpeed * 1.5f);
+                _jumpFromPonger = true;
                 break;
 
             case "Killer":
