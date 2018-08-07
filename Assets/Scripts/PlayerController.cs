@@ -12,10 +12,9 @@ public class PlayerController : MonoBehaviour
     private SpriteRenderer _spriteRenderer;
     private bool _isTouchingGround;
     private bool _isTouchingWall;
-    private float _halfHeight;
-    private float _halfWidth;
+
     private int _numOfHorRaycasts;
-    private float _yIncr;
+    private float _rayYIncr;
     private bool _switchcolor = false;
     private bool _jumpFromGround = false;
     private bool _jumpFromWall = false;
@@ -29,35 +28,32 @@ public class PlayerController : MonoBehaviour
     {
         _rigidbody = GetComponent<Rigidbody2D>();
         _spriteRenderer = GetComponent<SpriteRenderer>();
-
         _spriteRenderer.color = IsCyan ? Color.cyan : Color.green;
 
-        Collider2D _collider = GetComponent<Collider2D>();
+        Vector3 size = GetComponent<Collider2D>().bounds.size;
 
         //to see if the player has hit a wall let's create 4 horizontal raycasts (if we change either the player's or the platform's size 4 may be too few or too many)
         _numOfHorRaycasts = 4;
-        float fullHeight = _collider.bounds.size.y;
+        _rayYIncr = size.y / (_numOfHorRaycasts - 1);//minus one because for example 4 points form 3 intervals
 
-        _yIncr = fullHeight / (_numOfHorRaycasts - 1);//minus one because for example 4 points form 3 intervals
-                                                    
-        _halfHeight = fullHeight / 2;
-        _halfWidth = _collider.bounds.size.x / 2;
-
+        _downVectorWithMagnitude = Vector3.down * (size.y / 2 + 0.01f); //don't mind the 0.01f
+        _rightVectorWithMagnitude = Vector3.right * size.x / 2;
     }
 
 
-
+    Vector3 _downVectorWithMagnitude;
+    Vector3 _rightVectorWithMagnitude;
 
 
     void FixedUpdate()
     {
-        Vector3 bottommostPoint = transform.position + Vector3.down * (_halfHeight + 0.01f); //don't mind the 0.01f
-        Vector3 bottommostRightmostPoint = bottommostPoint + Vector3.right * _halfWidth;
+        Vector3 bottommostPoint = transform.position + _downVectorWithMagnitude;
+        Vector3 bottommostRightmostPoint = bottommostPoint + _rightVectorWithMagnitude;
 
 
 
         _isTouchingGround = Physics2D.Raycast(bottommostPoint, Vector2.down, _raycastingDistance, GroundLayer);
-        Debug.DrawLine(bottommostPoint, bottommostPoint + Vector3.down * _raycastingDistance, _isTouchingGround ? Color.red : Color.green);
+        //enabled this for debugging: Debug.DrawLine(bottommostPoint, bottommostPoint + Vector3.down * _raycastingDistance, _isTouchingGround ? Color.red : Color.green);
 
 
 
@@ -65,9 +61,9 @@ public class PlayerController : MonoBehaviour
         //lets do them from the bottom to the top
         for (int raycastIndex = 0; raycastIndex < _numOfHorRaycasts && _isTouchingWall == false; raycastIndex++)
         {
-            Vector3 point = bottommostRightmostPoint + Vector3.up * raycastIndex * _yIncr;
+            Vector3 point = bottommostRightmostPoint + Vector3.up * raycastIndex * _rayYIncr;
             _isTouchingWall = Physics2D.Raycast(point, Vector2.right, _raycastingDistance, GroundLayer);
-            Debug.DrawLine(point, point + Vector3.right * _raycastingDistance, _isTouchingWall ? Color.red : Color.green);
+            //enabled this for debugging: Debug.DrawLine(point, point + Vector3.right * _raycastingDistance, _isTouchingWall ? Color.red : Color.green);
         }
 
 
@@ -110,7 +106,7 @@ public class PlayerController : MonoBehaviour
 
 
     }
-   
+
 
 
 

@@ -153,7 +153,7 @@ public class Room
                         {//new platform is higher, so move the spike right
 
 
-                            obj.transform.position = p.Position + new Vector3(2, 0.8f, 0); //shift = new Vector3(2, 0, 0);
+                            obj.transform.position = p.Position + new Vector3(2.5f, 0.8f, 0); //shift = new Vector3(2, 0, 0);
                         }
                         else
                         {//move spike left

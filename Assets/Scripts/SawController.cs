@@ -9,7 +9,6 @@ public class SawController : MonoBehaviour
     private Transform _playerTransform;
 
 
-
     void Start()
     {
         _playerTransform = GameObject.Find("Runner").transform;
@@ -18,19 +17,17 @@ public class SawController : MonoBehaviour
 
 
 
-    // Update is called once per frame
     void Update()
     {
         transform.Rotate(0, 0, RotationSpeed);
 
 
 
-        if(_changedColorOnce==false && _playerTransform.position.x >= gameObject.transform.position.x - Range)
+        if (_changedColorOnce == false && _playerTransform.position.x >= gameObject.transform.position.x - Range)
         {
             _changedColorOnce = true; //do not change again
 
-            PlayerController playerController = _playerTransform.GetComponent<PlayerController>();
-            if (playerController.IsCyan)
+            if (_playerTransform.GetComponent<PlayerController>().IsCyan)
             {
                 _spriteRenderer.color = Color.green;
                 gameObject.tag = "GreenSaw";
@@ -39,11 +36,9 @@ public class SawController : MonoBehaviour
             {
                 _spriteRenderer.color = Color.cyan;
                 gameObject.tag = "BlueSaw";
-
             }
         }
     }
-
 
 
 }
