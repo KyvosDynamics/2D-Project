@@ -22,46 +22,39 @@ public class Platform
 
 public class Room
 {
-
-    public float StartX;
     public float EndX;
     public int Index;
-    public static int StaticIndex = -1; //it is important for this to be initialized minus one so that the first room is at index 0
+    private static int _staticIndex = -1; //it is important for this to be initialized minus one so that the first room is at index 0
     private GameObject _unityObject;
     private Platform[] _myEightPlatforms = new Platform[8];
-    private const float _width = 50.25f; //because we are using 3 backgrounds each having a 1676 pixel width
-    private const float _platformWidth = 6.28125f; //(notice platformWidth * 8 = roomWidth)
-
-    public float CenterX
-    { get { return _unityObject.transform.position.x; } }
-
-
-    public Platform LastPlatform
-    { get { return _myEightPlatforms[7]; } }
-
 
 
 
     public Room(Room previousRoom)
     {
-        StaticIndex++;
-        Index = StaticIndex;
+        _staticIndex++;
+        Index = _staticIndex;
+
+        const float width = 50.25f; //because we are using 3 backgrounds each having a 1676 pixel width
+        const float platformWidth = 6.28125f; //(notice platformWidth * 8 = roomWidth)
+        const float platformHeight = 0.616455f;
 
 
         Platform previousPlatform = null;
+        float startX;
 
         if (previousRoom == null)
         {//this is the very first room of the game
-            StartX = -25.14f; //-25.14 because -16.76 + -16.76/2
+            startX = -25.14f; //-25.14 because -16.76 + -16.76/2
         }
         else
         {
-            StartX = previousRoom.EndX; //we want the new room to start at the end of the previous room
+            startX = previousRoom.EndX; //we want the new room to start at the end of the previous room
             previousPlatform = previousRoom.LastPlatform;  //the previous platform is the last platform of the previous room
         }
 
-        EndX = StartX + _width;
-        float centerX = StartX + _width * 0.5f;
+        EndX = startX + width;
+        float centerX = startX + width * 0.5f;
 
 
         _unityObject = Object.Instantiate(RoomGenerator.StaticRoomPrefab, new Vector3(centerX, 0, 0), Quaternion.identity);
@@ -96,11 +89,25 @@ public class Room
             {//for every other platform we want a y that is the y of the previous platform plus/minus a small random value
 
 
-                float randomDifference = Random.Range(-1f, 1f);
+                float randomDifference = 0;
+                int upSameOrDown = Random.Range(0, 3);
+                switch(upSameOrDown)
+                {
+                    case 0: //up
+                        randomDifference = -platformHeight;
+                        break;
+                    case 1: //same level
+                        randomDifference = 0;
+                        break;
+                    case 2: //down
+                        randomDifference = platformHeight;
+                        break;
+                }
+
 
                 platformY = previousPlatform.Position.y + randomDifference;
 
-                if (platformY > 3.4f || platformY < -3.4f)
+                if (platformY > 2f || platformY < -4f)
                 {//out of allowed game bounds, go the other way
                     platformY -= 2 * randomDifference;
                 }
@@ -109,7 +116,7 @@ public class Room
 
 
             //now we know y. For x it's easy as we know the position of the room and the relative position of the platform inside the room
-            float platformX = roomTransform.position.x - (_width / 2 - _platformWidth / 2 - _platformWidth * i);
+            float platformX = roomTransform.position.x - (width / 2 - platformWidth / 2 - platformWidth * i);
 
             //therefore:
             p.Position = new Vector3(platformX, platformY);
@@ -134,13 +141,10 @@ public class Room
 
 
 
-                int type = Random.Range(0, 3);
-
-
-
                 Vector3 offsetRelativeToPlatform = new Vector3();
                 GameObject prefabToUse = null;
 
+                int type = Random.Range(0, 3);
                 switch (type)
                 {
                     case 0: //spike
@@ -180,11 +184,16 @@ public class Room
         }//for platform
     }
 
+    public float CenterX
+    { get { return _unityObject.transform.position.x; } }
+
+
+    public Platform LastPlatform
+    { get { return _myEightPlatforms[7]; } }
+
 
     public void Dispose()
-    {
-        Object.Destroy(_unityObject);
-    }
+    { Object.Destroy(_unityObject); }
 
 }
 
@@ -215,7 +224,7 @@ public class RoomGenerator : MonoBehaviour
         StaticPongerPrefab = PongerPrefab;
 
 
-        //find the scene room and destroy it. It is only there for visual reference for us developers. 
+        //find the scene room and destroy it. It is only there for visual reference for us developers 
         Destroy(GameObject.Find("DummyRoom"));
 
 
