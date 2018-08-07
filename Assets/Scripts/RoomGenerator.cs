@@ -4,36 +4,36 @@ using UnityEngine;
 
 public class Platform
 {
-    public bool HasObject = false;
-    private GameObject _gameObject = null;
+    public bool HasAttachedObject = false;
+    private GameObject _unityObject = null;
 
 
     public Platform(Transform parent)
     {
-        _gameObject = Object.Instantiate(RoomGenerator.StaticPlatformPrefab, parent);
+        _unityObject = Object.Instantiate(RoomGenerator.StaticPlatformPrefab, parent);
     }
 
     public Vector3 Position
     {
-        set { _gameObject.transform.position = value; }
-        get { return _gameObject.transform.position; }
+        set { _unityObject.transform.position = value; }
+        get { return _unityObject.transform.position; }
     }
 }
 
 public class Room
 {
-    private static float _newestPlatformY;
+
     public float StartX;
     public float EndX;
     public int Index;
     public static int StaticIndex = -1; //it is important for this to be initialized minus one so that the first room is at index 0
-    private GameObject _gameObject;
+    private GameObject _unityObject;
     private Platform[] _myEightPlatforms = new Platform[8];
     private const float _width = 50.25f; //because we are using 3 backgrounds each having a 1676 pixel width
     private const float _platformWidth = 6.28125f; //(notice platformWidth * 8 = roomWidth)
 
     public float CenterX
-    { get { return _gameObject.transform.position.x; } }
+    { get { return _unityObject.transform.position.x; } }
 
 
     public Platform LastPlatform
@@ -59,30 +59,40 @@ public class Room
             StartX = previousRoom.EndX; //we want the new room to start at the end of the previous room
             previousPlatform = previousRoom.LastPlatform;  //the previous platform is the last platform of the previous room
         }
+
         EndX = StartX + _width;
         float centerX = StartX + _width * 0.5f;
 
 
-        _gameObject = Object.Instantiate(RoomGenerator.StaticRoomPrefab, new Vector3(centerX, 0, 0), Quaternion.identity);
+        _unityObject = Object.Instantiate(RoomGenerator.StaticRoomPrefab, new Vector3(centerX, 0, 0), Quaternion.identity);
 
 
 
-
-
-        Transform roomTransform = _gameObject.transform;
+        Transform roomTransform = _unityObject.transform;
 
 
         Platform p = null;
         for (int i = 0; i < 8; i++)
         {
-            if (i > 0)
-                previousPlatform = _myEightPlatforms[i - 1];
-
-
             p = _myEightPlatforms[i] = new Platform(roomTransform);
 
 
-            float previousPlatformY = _newestPlatformY;
+            if (i > 0) //i.e. it is not the first platform of this room. When i is 0 the previous platform is the last platform of the previous room as set a few lines above
+                previousPlatform = _myEightPlatforms[i - 1];
+
+
+
+            //float previousPlatformY = _newestPlatformY;
+
+
+            float previousPlatformY = previousPlatform == null ? 0 : previousPlatform.Position.y;
+
+
+            //if(previousPlatformY!= bla)
+            //{
+            //   int kdsjf = 34;
+            //}
+            float _newestPlatformY;
 
             if (
                 previousPlatform == null //it is the very first room of the game (previousPlatform is only null in the first room)
@@ -126,11 +136,11 @@ public class Room
             //check if we should add a dangerous object on top of the platform
             if (
                 Index > 0 //don't add any objects to the first room so the player adjusts to the gameplay mechanics
-                && previousPlatform.HasObject == false //don't add objects to two platforms in a row
+                && previousPlatform.HasAttachedObject == false //don't add objects to two platforms in a row
                 && Random.Range(0, 4) == 0 //25% probability of object
                )
             {//add object
-                _myEightPlatforms[i].HasObject = true;
+                _myEightPlatforms[i].HasAttachedObject = true;
 
 
                 GameObject obj = null;
@@ -191,7 +201,7 @@ public class Room
 
     public void Dispose()
     {
-        Object.Destroy(_gameObject);
+        Object.Destroy(_unityObject);
     }
 
 }

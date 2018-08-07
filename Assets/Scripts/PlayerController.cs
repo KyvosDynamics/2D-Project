@@ -21,7 +21,8 @@ public class PlayerController : MonoBehaviour
     private bool _jumpFromPonger = false;
     private const float _raycastingDistance = 0.1f;
     private const float _autoClimbSpeed = 2f;
-
+    private Vector3 _downVectorWithMagnitude;
+    private Vector3 _rightVectorWithMagnitude;
 
 
     void Start()
@@ -41,8 +42,6 @@ public class PlayerController : MonoBehaviour
     }
 
 
-    Vector3 _downVectorWithMagnitude;
-    Vector3 _rightVectorWithMagnitude;
 
 
     void FixedUpdate()
@@ -53,7 +52,7 @@ public class PlayerController : MonoBehaviour
 
 
         _isTouchingGround = Physics2D.Raycast(bottommostPoint, Vector2.down, _raycastingDistance, GroundLayer);
-        //enabled this for debugging: Debug.DrawLine(bottommostPoint, bottommostPoint + Vector3.down * _raycastingDistance, _isTouchingGround ? Color.red : Color.green);
+        //enable this for debugging: Debug.DrawLine(bottommostPoint, bottommostPoint + Vector3.down * _raycastingDistance, _isTouchingGround ? Color.red : Color.green);
 
 
 
@@ -63,7 +62,7 @@ public class PlayerController : MonoBehaviour
         {
             Vector3 point = bottommostRightmostPoint + Vector3.up * raycastIndex * _rayYIncr;
             _isTouchingWall = Physics2D.Raycast(point, Vector2.right, _raycastingDistance, GroundLayer);
-            //enabled this for debugging: Debug.DrawLine(point, point + Vector3.right * _raycastingDistance, _isTouchingWall ? Color.red : Color.green);
+            //enable this for debugging: Debug.DrawLine(point, point + Vector3.right * _raycastingDistance, _isTouchingWall ? Color.red : Color.green);
         }
 
 
