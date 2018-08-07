@@ -82,26 +82,14 @@ public class Room
 
 
 
-            //float previousPlatformY = _newestPlatformY;
+            float platformY;
 
+            if (previousPlatform == null)
+            {
+                //the previous platform is null only in the very first room of the game and the very first platform of that first room
+                //we want the very first platform of our game to be at at y zero
 
-            float previousPlatformY = previousPlatform == null ? 0 : previousPlatform.Position.y;
-
-
-            //if(previousPlatformY!= bla)
-            //{
-            //   int kdsjf = 34;
-            //}
-            float _newestPlatformY;
-
-            if (
-                previousPlatform == null //it is the very first room of the game (previousPlatform is only null in the first room)
-                &&
-                i == 0 //and it is the first platform of the first room
-               )
-            {//we want the very first platform of our game to be at at y zero
-
-                _newestPlatformY = 0;
+                platformY = 0;
 
             }
             else
@@ -110,85 +98,78 @@ public class Room
 
                 float randomDifference = Random.Range(-1f, 1f);
 
-                _newestPlatformY = previousPlatformY + randomDifference;
+                platformY = previousPlatform.Position.y + randomDifference;
 
-                if (_newestPlatformY > 3.4f || _newestPlatformY < -3.4f)
+                if (platformY > 3.4f || platformY < -3.4f)
                 {//out of allowed game bounds, go the other way
-                    _newestPlatformY -= 2 * randomDifference;
+                    platformY -= 2 * randomDifference;
                 }
 
             }
 
 
             //now we know y. For x it's easy as we know the position of the room and the relative position of the platform inside the room
-            float newestPlatformX = roomTransform.position.x - (_width / 2 - _platformWidth / 2 - _platformWidth * i);
+            float platformX = roomTransform.position.x - (_width / 2 - _platformWidth / 2 - _platformWidth * i);
 
             //therefore:
-            p.Position = new Vector3(newestPlatformX, _newestPlatformY);
+            p.Position = new Vector3(platformX, platformY);
 
 
 
 
 
 
-
-
-            //check if we should add a dangerous object on top of the platform
+            //check if we should attach an object to the top of the platform
             if (
                 Index > 0 //don't add any objects to the first room so the player adjusts to the gameplay mechanics
-                && previousPlatform.HasAttachedObject == false //don't add objects to two platforms in a row
-                && Random.Range(0, 4) == 0 //25% probability of object
+                &&
+                previousPlatform.HasAttachedObject == false //don't add objects to two platforms in a row
+                &&
+                Random.Range(0, 4) == 0 //25% probability of object
                )
             {//add object
-                _myEightPlatforms[i].HasAttachedObject = true;
 
+                p.HasAttachedObject = true;
 
-                GameObject obj = null;
 
 
 
                 int type = Random.Range(0, 3);
 
 
+
+                Vector3 offsetRelativeToPlatform = new Vector3();
+                GameObject prefabToUse = null;
+
                 switch (type)
                 {
                     case 0: //spike
-
-                        obj = Object.Instantiate(RoomGenerator.StaticSpikePrefab, roomTransform);
+                        prefabToUse = RoomGenerator.StaticSpikePrefab;
 
                         //when we go to a spikeplatform that is higher than the previous one it is difficult to avoid the spike, so we move the spike to the right
                         //when we go to a spikeplatform that is lower than the previous one it is difficult to avoid the spike, so we move the spike to the left
-
-                        if (_newestPlatformY > previousPlatformY)// newY > _latestPlatformY)
+                        if (platformY > previousPlatform.Position.y)
                         {//new platform is higher, so move the spike right
-
-
-                            obj.transform.position = p.Position + new Vector3(2.5f, 0.8f, 0); //shift = new Vector3(2, 0, 0);
+                            offsetRelativeToPlatform = new Vector3(2.5f, 0.8f, 0);
                         }
                         else
                         {//move spike left
-                            obj.transform.position = p.Position + new Vector3(-2, 0.8f, 0);// shift = new Vector3(-2, 0, 0);
+                            offsetRelativeToPlatform = new Vector3(-2, 0.8f, 0);
                         }
-
-
-
                         break;
 
                     case 1: //saw
-
-                        obj = Object.Instantiate(RoomGenerator.StaticSawPrefab, roomTransform);
-
-                        obj.transform.position = p.Position + new Vector3(0, 1.32f, 0);
-
+                        prefabToUse = RoomGenerator.StaticSawPrefab;
+                        offsetRelativeToPlatform = new Vector3(0, 1.32f, 0);
                         break;
 
                     case 2: //ponger
-
-                        obj = Object.Instantiate(RoomGenerator.StaticPongerPrefab, roomTransform);
-                        obj.transform.position = p.Position + new Vector3(0, 1.04f, 0);
-
+                        prefabToUse = RoomGenerator.StaticPongerPrefab;
+                        offsetRelativeToPlatform = new Vector3(0, 1.04f, 0);
                         break;
                 }
+
+                Object.Instantiate(prefabToUse, p.Position + offsetRelativeToPlatform, Quaternion.identity, roomTransform);
 
 
 
@@ -198,6 +179,7 @@ public class Room
 
         }//for platform
     }
+
 
     public void Dispose()
     {
