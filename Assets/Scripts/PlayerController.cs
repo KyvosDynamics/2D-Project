@@ -6,7 +6,7 @@ public class PlayerController : MonoBehaviour
     [HideInInspector]
     public bool IsCyan = true;
     public float Speed;
-    public float JumpSpeed;
+    private float JumpSpeed = 8;
     public LayerMask GroundLayer;
    
     //by convention private fields start with the underscore '_' character followed by a lower-case letter
@@ -52,6 +52,11 @@ public class PlayerController : MonoBehaviour
 
     void FixedUpdate()
     {
+        if(transform.position.y<-5)
+        {//player fell to the void
+            Time.timeScale = 0f; //game over
+        }
+
         Vector3 bottommostPoint = transform.position + _downVectorWithMagnitude;
         Vector3 bottommostRightmostPoint = bottommostPoint + _rightVectorWithMagnitude;
 
@@ -78,7 +83,7 @@ public class PlayerController : MonoBehaviour
         if (_jumpFromPonger)
         {
             _jumpFromPonger = false;
-            yVel = JumpSpeed * 1.5f;
+            yVel = JumpSpeed * 1.6f;
         }
         else if (_jumpFromGround)
         {

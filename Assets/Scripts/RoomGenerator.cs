@@ -3,9 +3,18 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+
+
+public class ObjectDefinition
+{
+    public enum Type { Spike, Saw, Ponger}
+    public Type MyType = Type.Spike;
+
+}
+
 public class Platform
 {
-    public bool HasAttachedObject = false;
+    public ObjectDefinition AttachedObject = null;
     private GameObject _unityObject = null;
 
 
@@ -90,30 +99,50 @@ public class Room
             {//for every other platform we want a y that is the y of the previous platform plus/minus a small random value
 
 
-                float randomDifference = 0;
-                int upSameOrDown = Random.Range(0, 3);
-                switch(upSameOrDown)
+                //the only exception is when the previous platform had a ponger on it. We want the new platform to be placed much higher than usual
+                if(previousPlatform.AttachedObject!=null && previousPlatform.AttachedObject.MyType== ObjectDefinition.Type.Ponger)
                 {
-                    case 0: //up
-                        randomDifference = -platformHeight;
-                        break;
-                    case 1: //same level
-                        randomDifference = 0;
-                        break;
-                    case 2: //down
-                        randomDifference = platformHeight;
-                        break;
+
+                    platformY = previousPlatform.Position.y + 4 * platformHeight;
+
                 }
+                else
+                {
 
 
-                platformY = previousPlatform.Position.y + randomDifference;
 
-                if (platformY > 2f || platformY < -4f)
-                {//out of allowed game bounds, go the other way
-                    platformY -= 2 * randomDifference;
+
+                    float randomDifference = 0;
+                    int upSameOrDown = Random.Range(0, 3);
+                    switch (upSameOrDown)
+                    {
+                        case 0: //up
+                            randomDifference = platformHeight;
+                            break;
+                        case 1: //same level
+                            randomDifference = 0;
+                            break;
+                        case 2: //down
+                            randomDifference = -platformHeight;
+                            break;
+                    }
+
+                    platformY = previousPlatform.Position.y + randomDifference;
+
+                    //check for out-of-game-bounds
+                    if (platformY > 2f)                    
+                        platformY = previousPlatform.Position.y - platformHeight;                    
+                    else if(platformY< -4f)                    
+                        platformY = previousPlatform.Position.y + platformHeight;
+                    
+
+
+
+
                 }
 
             }
+
 
 
             //now we know y. For x it's easy as we know the position of the room and the relative position of the platform inside the room
@@ -127,17 +156,23 @@ public class Room
 
 
 
+
+
             //check if we should attach an object to the top of the platform
+
+
+
+
             if (
                 Index > 0 //don't add any objects to the first room so the player adjusts to the gameplay mechanics
                 &&
-                previousPlatform.HasAttachedObject == false //don't add objects to two platforms in a row
+                previousPlatform.AttachedObject==null //don't add objects to two platforms in a row
                 &&
                 Random.Range(0, 4) == 0 //25% probability of object
                )
             {//add object
 
-                p.HasAttachedObject = true;
+              
 
 
 
@@ -145,17 +180,36 @@ public class Room
                 Vector3 offsetRelativeToPlatform = new Vector3();
                 GameObject prefabToUse = null;
 
+
+                
+
                 int type = Random.Range(0, 3);
+
+                if(type== 2)
+                {//we want to add a ponger. But we should be careful: when we add a ponger the next platform is placed higher than usual.
+                    //this means in order to add ponger we should ensure that there is sufficient space above
+
+                    if(p.Position.y>1)
+                    {//nope, we are way too high for ponger, instantiate another type
+
+                        type = Random.Range(0, 2);
+                    }
+                }
+
+
                 switch (type)
                 {
                     case 0: //spike
                         prefabToUse = RoomGenerator.StaticSpikePrefab;
+                        p.AttachedObject = new ObjectDefinition(  ) { MyType = ObjectDefinition.Type.Spike };
 
                         //when we go to a spikeplatform that is higher than the previous one it is difficult to avoid the spike, so we move the spike to the right
                         //when we go to a spikeplatform that is lower than the previous one it is difficult to avoid the spike, so we move the spike to the left
                         if (platformY > previousPlatform.Position.y)
                         {//new platform is higher, so move the spike right
                             offsetRelativeToPlatform = new Vector3(2.5f, 0.8f, 0);
+
+                         
                         }
                         else
                         {//move spike left
@@ -165,11 +219,13 @@ public class Room
 
                     case 1: //saw
                         prefabToUse = RoomGenerator.StaticSawPrefab;
+                        p.AttachedObject = new ObjectDefinition() { MyType = ObjectDefinition.Type.Saw };
                         offsetRelativeToPlatform = new Vector3(0, 1.32f, 0);
                         break;
 
                     case 2: //ponger
                         prefabToUse = RoomGenerator.StaticPongerPrefab;
+                        p.AttachedObject = new ObjectDefinition() { MyType = ObjectDefinition.Type.Ponger };
                         offsetRelativeToPlatform = new Vector3(0, 1.04f, 0);
                         break;
                 }
@@ -184,6 +240,11 @@ public class Room
 
         }//for platform
     }
+
+
+
+
+
 
     public float CenterX
     { get { return _unityObject.transform.position.x; } }
