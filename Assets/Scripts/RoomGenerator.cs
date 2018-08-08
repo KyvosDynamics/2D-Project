@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Platform
 {
@@ -80,9 +81,9 @@ public class Room
             if (previousPlatform == null)
             {
                 //the previous platform is null only in the very first room of the game and the very first platform of that first room
-                //we want the very first platform of our game to be at at y zero
+                //we want the very first platform of our game to be at at y minus one
 
-                platformY = 0;
+                platformY = -1;
 
             }
             else
@@ -212,7 +213,7 @@ public class RoomGenerator : MonoBehaviour
     public static GameObject StaticPongerPrefab;
     private List<Room> _rooms;
     private float _screenWidth;
-
+    public Text Text;
 
 
     void Start()
@@ -229,7 +230,7 @@ public class RoomGenerator : MonoBehaviour
 
 
         //let's add the first real room (we pass null because there is no previous room)
-        _rooms = new List<Room> { new Room(null) };
+        _rooms = new List<Room> { new Room(null) };        
 
 
         float screenHeight = 2.0f * Camera.main.orthographicSize;
@@ -246,6 +247,7 @@ public class RoomGenerator : MonoBehaviour
     {
         while (true)
         {
+            bool roomAddedOrRemoved = false;
 
             Room oldestRoom = _rooms[0];
             float leftCameraBound = Camera.main.transform.position.x - _screenWidth / 2;
@@ -254,6 +256,7 @@ public class RoomGenerator : MonoBehaviour
             {//remove the oldest room
                 oldestRoom.Dispose();
                 _rooms.RemoveAt(0);
+                roomAddedOrRemoved = true;
             }
 
             Room latestRoom = _rooms[_rooms.Count - 1];
@@ -262,20 +265,28 @@ public class RoomGenerator : MonoBehaviour
             if (latestRoom.CenterX < rightCameraBound)
             {//add a new room
                 _rooms.Add(new Room(latestRoom));
+                roomAddedOrRemoved = true;
             }
 
 
-            if (_rooms.Count == 1)
-            {
-                PlayerIsInRoomIndex = _rooms[0].Index;
-            }
-            else
-            {//two rooms
 
-                if (_rooms[0].EndX >= transform.position.x)
+            if(roomAddedOrRemoved)
+            {//rooms changed so update the progress text
+
+                if (_rooms.Count == 1)
+                {
                     PlayerIsInRoomIndex = _rooms[0].Index;
+                }
                 else
-                    PlayerIsInRoomIndex = _rooms[1].Index;
+                {//two rooms
+
+                    if (_rooms[0].EndX >= transform.position.x)
+                        PlayerIsInRoomIndex = _rooms[0].Index;
+                    else
+                        PlayerIsInRoomIndex = _rooms[1].Index;
+                }
+
+                Text.text = "" + PlayerIsInRoomIndex;
             }
 
 

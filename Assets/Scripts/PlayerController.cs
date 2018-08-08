@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 
 public class PlayerController : MonoBehaviour
 {
@@ -7,6 +8,7 @@ public class PlayerController : MonoBehaviour
     public float Speed;
     public float JumpSpeed;
     public LayerMask GroundLayer;
+   
     //by convention private fields start with the underscore '_' character followed by a lower-case letter
     private Rigidbody2D _rigidbody;
     private SpriteRenderer _spriteRenderer;
@@ -25,6 +27,7 @@ public class PlayerController : MonoBehaviour
     private Vector3 _rightVectorWithMagnitude;
 
 
+
     void Start()
     {
         _rigidbody = GetComponent<Rigidbody2D>();
@@ -39,6 +42,9 @@ public class PlayerController : MonoBehaviour
 
         _downVectorWithMagnitude = Vector3.down * (size.y / 2 + 0.01f); //don't mind the 0.01f
         _rightVectorWithMagnitude = Vector3.right * size.x / 2;
+
+
+        transform.position = new Vector3(-25.14f + 6.28125f / 2, 1);
     }
 
 
