@@ -45,8 +45,8 @@ public class Room
         _staticIndex++;
         Index = _staticIndex;
 
-        const float width = 50.25f; //because we are using 3 backgrounds each having a 1676 pixel width
-        const float platformWidth = 6.28125f; //(notice platformWidth * 8 = roomWidth)
+        const float width = 50.28f; //because we are using 3 backgrounds each having a 1676 pixel width
+        const float platformWidth = 6.285f; //(notice platformWidth * 8 = roomWidth)  , also 1356 * scale= 628.5, scale= 0.4635
         const float platformHeight = 0.616455f;
 
 
