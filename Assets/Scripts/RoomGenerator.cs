@@ -35,7 +35,7 @@ public class Platform
     }
 }
 
-public class Room
+public class Room 
 {
     public static GameObject StaticRoomPrefab;
     public static GameObject StaticSpikePrefab;
@@ -43,7 +43,6 @@ public class Room
     public static GameObject StaticPongerPrefab;
     public float EndX;
     public int Index;
-    private static int _staticIndex = -1; //it is important for this to be initialized minus one so that the first room is at index 0
     private GameObject _unityObject;
     private Platform[] _myEightPlatforms = new Platform[8];
 
@@ -51,8 +50,8 @@ public class Room
 
     public Room(Room previousRoom)
     {
-        _staticIndex++;
-        Index = _staticIndex;
+       RoomGenerator.StaticRoomIndex++;
+        Index = RoomGenerator.StaticRoomIndex;
 
         const float width = 50.28f; //because we are using 3 backgrounds each having a 1676 pixel width
         const float platformWidth = 6.285f; //(notice platformWidth * 8 = roomWidth)  , also 1356 * scale= 628.5, scale= 0.4635
@@ -270,7 +269,9 @@ public class Room
 
 public class RoomGenerator : MonoBehaviour
 {
-    public static int PlayerIsInRoomIndex = -1; //this is not used yet but could be helpful if for example we want to increase game difficulty based on progress
+    public static int PlayerIsInRoomIndex = -1; //this could also be useful for increasing game difficulty based on progress
+    public static int StaticRoomIndex = -1; //it is important for this to be initialized minus one so that the first room is at index 0
+
     public GameObject RoomPrefab;
     public GameObject PlatformPrefab;
     public GameObject SpikePrefab;
@@ -282,8 +283,19 @@ public class RoomGenerator : MonoBehaviour
     public Text HighScoreText;
 
 
+    private void Awake()
+    {
+        //it is absolutely vital that we first reset the static variables because they are not automatically reset when we start a new game (e.g. after we are killed)
+        PlayerIsInRoomIndex = -1;
+        StaticRoomIndex = -1;
+
+    }
+
     void Start()
     {
+
+
+
         Platform.StaticPlatformPrefab = PlatformPrefab;
         Room.StaticRoomPrefab = RoomPrefab;
         Room.StaticSpikePrefab = SpikePrefab;
@@ -316,7 +328,7 @@ public class RoomGenerator : MonoBehaviour
 
     private IEnumerator GeneratorCheck()
     {
-        while (true)
+        while (PlayerController.IsAlive)
         {
             bool roomAddedOrRemoved = false;
 

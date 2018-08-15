@@ -2,10 +2,12 @@
 
 public class PlayerController : MonoBehaviour
 {
+    public static bool IsAlive = false;
     [HideInInspector]
     public bool IsCyan = true;
     public float Speed;
     public LayerMask GroundLayer;
+    public GameObject PlayerWasKilledUI;
 
     //by convention private fields start with the underscore '_' character followed by a lower-case letter
     private Rigidbody2D _rigidbody;
@@ -25,6 +27,11 @@ public class PlayerController : MonoBehaviour
     private Vector3 _rightVectorWithMagnitude;
 
 
+
+    private void Awake()
+    {
+        IsAlive = true;
+    }
 
     void Start()
     {
@@ -50,9 +57,13 @@ public class PlayerController : MonoBehaviour
 
     void FixedUpdate()
     {
+        if (!IsAlive)
+            return;
+
         if (transform.position.y < -5)
         {//player fell to the void
-            Time.timeScale = 0f; //game over
+            PlayerWasKilled();
+            return;
         }
 
         Vector3 bottommostPoint = transform.position + _downVectorWithMagnitude;
@@ -144,15 +155,15 @@ public class PlayerController : MonoBehaviour
         {
             case "CyanSaw":
                 if (!IsCyan)
-                    Time.timeScale = 0f; //game over
+                    PlayerWasKilled();
                 break;
             case "GreenSaw":
                 if (IsCyan)
-                    Time.timeScale = 0f; //game over    
+                    PlayerWasKilled();
                 break;
 
             case "Killer":
-                Time.timeScale = 0f; //game over
+                PlayerWasKilled();
                 break;
 
             case "Ponger":
@@ -162,6 +173,15 @@ public class PlayerController : MonoBehaviour
     }
 
 
+
+
+    private void PlayerWasKilled()
+    {
+        IsAlive = false;
+        _rigidbody.velocity = new Vector2(0, 0);//necessary otherwise the player will continue to move while the playerKilledUI gradually appears
+        GetComponent<Animator>().enabled = false;
+        PlayerWasKilledUI.SetActive(true);
+    }
 
 
 }
