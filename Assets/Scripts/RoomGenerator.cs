@@ -7,7 +7,7 @@ using UnityEngine.UI;
 
 public class ObjectDefinition
 {
-    public enum Type { Spike, Saw, Ponger}
+    public enum Type { Spike, Saw, Ponger }
     public Type MyType = Type.Spike;
 
 }
@@ -100,7 +100,7 @@ public class Room
 
 
                 //the only exception is when the previous platform had a ponger on it. We want the new platform to be placed much higher than usual
-                if(previousPlatform.AttachedObject!=null && previousPlatform.AttachedObject.MyType== ObjectDefinition.Type.Ponger)
+                if (previousPlatform.AttachedObject != null && previousPlatform.AttachedObject.MyType == ObjectDefinition.Type.Ponger)
                 {
 
                     platformY = previousPlatform.Position.y + 4 * platformHeight;
@@ -130,11 +130,11 @@ public class Room
                     platformY = previousPlatform.Position.y + randomDifference;
 
                     //check for out-of-game-bounds
-                    if (platformY > 2f)                    
-                        platformY = previousPlatform.Position.y - platformHeight;                    
-                    else if(platformY< -4f)                    
+                    if (platformY > 2f)
+                        platformY = previousPlatform.Position.y - platformHeight;
+                    else if (platformY < -4f)
                         platformY = previousPlatform.Position.y + platformHeight;
-                    
+
 
 
 
@@ -166,13 +166,13 @@ public class Room
             if (
                 Index > 0 //don't add any objects to the first room so the player adjusts to the gameplay mechanics
                 &&
-                previousPlatform.AttachedObject==null //don't add objects to two platforms in a row
+                previousPlatform.AttachedObject == null //don't add objects to two platforms in a row
                 &&
                 Random.Range(0, 4) == 0 //25% probability of object
                )
             {//add object
 
-              
+
 
 
 
@@ -181,15 +181,15 @@ public class Room
                 GameObject prefabToUse = null;
 
 
-                
+
 
                 int type = Random.Range(0, 3);
 
-                if(type== 2)
+                if (type == 2)
                 {//we want to add a ponger. But we should be careful: when we add a ponger the next platform is placed higher than usual.
                     //this means in order to add ponger we should ensure that there is sufficient space above
 
-                    if(p.Position.y>1)
+                    if (p.Position.y > 1)
                     {//nope, we are way too high for ponger, instantiate another type
 
                         type = Random.Range(0, 2);
@@ -201,7 +201,7 @@ public class Room
                 {
                     case 0: //spike
                         prefabToUse = RoomGenerator.StaticSpikePrefab;
-                        p.AttachedObject = new ObjectDefinition(  ) { MyType = ObjectDefinition.Type.Spike };
+                        p.AttachedObject = new ObjectDefinition() { MyType = ObjectDefinition.Type.Spike };
 
                         //when we go to a spikeplatform that is higher than the previous one it is difficult to avoid the spike, so we move the spike to the right
                         //when we go to a spikeplatform that is lower than the previous one it is difficult to avoid the spike, so we move the spike to the left
@@ -209,7 +209,7 @@ public class Room
                         {//new platform is higher, so move the spike right
                             offsetRelativeToPlatform = new Vector3(2.5f, 0.8f, 0);
 
-                         
+
                         }
                         else
                         {//move spike left
@@ -274,7 +274,8 @@ public class RoomGenerator : MonoBehaviour
     public static GameObject StaticPongerPrefab;
     private List<Room> _rooms;
     private float _screenWidth;
-    public Text Text;
+    public Text CurrentScoreText;
+    public Text HighScoreText;
 
 
     void Start()
@@ -291,11 +292,16 @@ public class RoomGenerator : MonoBehaviour
 
 
         //let's add the first real room (we pass null because there is no previous room)
-        _rooms = new List<Room> { new Room(null) };        
+        _rooms = new List<Room> { new Room(null) };
 
 
         float screenHeight = 2.0f * Camera.main.orthographicSize;
         _screenWidth = screenHeight * Camera.main.aspect;
+
+
+        CurrentScoreText.text = "0";
+        HighScoreText.text = PlayerPrefs.GetInt("HighScore", 0).ToString();
+
 
 
         StartCoroutine(GeneratorCheck());
@@ -331,7 +337,8 @@ public class RoomGenerator : MonoBehaviour
 
 
 
-            if(roomAddedOrRemoved)
+
+            if (roomAddedOrRemoved)
             {//rooms changed so update the progress text
 
                 if (_rooms.Count == 1)
@@ -347,7 +354,15 @@ public class RoomGenerator : MonoBehaviour
                         PlayerIsInRoomIndex = _rooms[1].Index;
                 }
 
-                Text.text = "" + PlayerIsInRoomIndex;
+
+                CurrentScoreText.text = PlayerIsInRoomIndex.ToString();
+
+                if (PlayerIsInRoomIndex > PlayerPrefs.GetInt("HighScore", 0))
+                {
+                    PlayerPrefs.SetInt("HighScore", PlayerIsInRoomIndex);
+                    HighScoreText.text = PlayerIsInRoomIndex.ToString();
+                }
+
             }
 
 
