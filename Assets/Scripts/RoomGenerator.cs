@@ -8,19 +8,24 @@ using UnityEngine.UI;
 public class ObjectDefinition
 {
     public enum Type { Spike, Saw, Ponger }
-    public Type MyType = Type.Spike;
+    public Type MyType { get; private set; }
 
+    public ObjectDefinition(Type type)
+    {
+        MyType = type;
+    }
 }
 
 public class Platform
 {
-    public ObjectDefinition AttachedObject = null;
+    public static GameObject StaticPlatformPrefab;
+    public ObjectDefinition AttachedObjectDefinition = null;
     private GameObject _unityObject = null;
 
 
     public Platform(Transform parent)
     {
-        _unityObject = Object.Instantiate(RoomGenerator.StaticPlatformPrefab, parent);
+        _unityObject = Object.Instantiate(StaticPlatformPrefab, parent);
     }
 
     public Vector3 Position
@@ -32,6 +37,10 @@ public class Platform
 
 public class Room
 {
+    public static GameObject StaticRoomPrefab;
+    public static GameObject StaticSpikePrefab;
+    public static GameObject StaticSawPrefab;
+    public static GameObject StaticPongerPrefab;
     public float EndX;
     public int Index;
     private static int _staticIndex = -1; //it is important for this to be initialized minus one so that the first room is at index 0
@@ -67,7 +76,7 @@ public class Room
         float centerX = startX + width * 0.5f;
 
 
-        _unityObject = Object.Instantiate(RoomGenerator.StaticRoomPrefab, new Vector3(centerX, 0, 0), Quaternion.identity);
+        _unityObject = Object.Instantiate(StaticRoomPrefab, new Vector3(centerX, 0, 0), Quaternion.identity);
 
 
 
@@ -100,7 +109,7 @@ public class Room
 
 
                 //the only exception is when the previous platform had a ponger on it. We want the new platform to be placed much higher than usual
-                if (previousPlatform.AttachedObject != null && previousPlatform.AttachedObject.MyType == ObjectDefinition.Type.Ponger)
+                if (previousPlatform.AttachedObjectDefinition != null && previousPlatform.AttachedObjectDefinition.MyType == ObjectDefinition.Type.Ponger)
                 {
 
                     platformY = previousPlatform.Position.y + 4 * platformHeight;
@@ -166,7 +175,7 @@ public class Room
             if (
                 Index > 0 //don't add any objects to the first room so the player adjusts to the gameplay mechanics
                 &&
-                previousPlatform.AttachedObject == null //don't add objects to two platforms in a row
+                previousPlatform.AttachedObjectDefinition == null //don't add objects to two platforms in a row
                 &&
                 Random.Range(0, 4) == 0 //25% probability of object
                )
@@ -200,8 +209,8 @@ public class Room
                 switch (type)
                 {
                     case 0: //spike
-                        prefabToUse = RoomGenerator.StaticSpikePrefab;
-                        p.AttachedObject = new ObjectDefinition() { MyType = ObjectDefinition.Type.Spike };
+                        prefabToUse = StaticSpikePrefab;
+                        p.AttachedObjectDefinition = new ObjectDefinition(ObjectDefinition.Type.Spike );
 
                         //when we go to a spikeplatform that is higher than the previous one it is difficult to avoid the spike, so we move the spike to the right
                         //when we go to a spikeplatform that is lower than the previous one it is difficult to avoid the spike, so we move the spike to the left
@@ -218,14 +227,14 @@ public class Room
                         break;
 
                     case 1: //saw
-                        prefabToUse = RoomGenerator.StaticSawPrefab;
-                        p.AttachedObject = new ObjectDefinition() { MyType = ObjectDefinition.Type.Saw };
+                        prefabToUse = StaticSawPrefab;
+                        p.AttachedObjectDefinition = new ObjectDefinition( ObjectDefinition.Type.Saw );
                         offsetRelativeToPlatform = new Vector3(0, 1.32f, 0);
                         break;
 
                     case 2: //ponger
-                        prefabToUse = RoomGenerator.StaticPongerPrefab;
-                        p.AttachedObject = new ObjectDefinition() { MyType = ObjectDefinition.Type.Ponger };
+                        prefabToUse = StaticPongerPrefab;
+                        p.AttachedObjectDefinition = new ObjectDefinition(ObjectDefinition.Type.Ponger );
                         offsetRelativeToPlatform = new Vector3(0, 1.04f, 0);
                         break;
                 }
@@ -267,11 +276,6 @@ public class RoomGenerator : MonoBehaviour
     public GameObject SpikePrefab;
     public GameObject SawPrefab;
     public GameObject PongerPrefab;
-    public static GameObject StaticRoomPrefab;
-    public static GameObject StaticPlatformPrefab;
-    public static GameObject StaticSpikePrefab;
-    public static GameObject StaticSawPrefab;
-    public static GameObject StaticPongerPrefab;
     private List<Room> _rooms;
     private float _screenWidth;
     public Text CurrentScoreText;
@@ -280,11 +284,11 @@ public class RoomGenerator : MonoBehaviour
 
     void Start()
     {
-        StaticRoomPrefab = RoomPrefab;
-        StaticPlatformPrefab = PlatformPrefab;
-        StaticSpikePrefab = SpikePrefab;
-        StaticSawPrefab = SawPrefab;
-        StaticPongerPrefab = PongerPrefab;
+        Platform.StaticPlatformPrefab = PlatformPrefab;
+        Room.StaticRoomPrefab = RoomPrefab;
+        Room.StaticSpikePrefab = SpikePrefab;
+        Room.StaticSawPrefab = SawPrefab;
+        Room.StaticPongerPrefab = PongerPrefab;
 
 
         //find the scene room and destroy it. It is only there for visual reference for us developers 

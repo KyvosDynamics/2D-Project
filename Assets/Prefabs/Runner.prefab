@@ -119,9 +119,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c1c54b0ec74e6764eb5e5a7c2c56c26a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  IsBlue: 1
+  IsCyan: 1
   Speed: 9
-  JumpForce: 10
   GroundLayer:
     serializedVersion: 2
     m_Bits: 512
@@ -144,6 +143,8 @@ MonoBehaviour:
   SawPrefab: {fileID: 1513025892425984, guid: 0603ed106f1bc86488600fee1873d414, type: 2}
   PongerPrefab: {fileID: 1468171118249788, guid: 574cbd0f29e14514eb65935332ba8c31,
     type: 2}
+  CurrentScoreText: {fileID: 0}
+  HighScoreText: {fileID: 0}
 --- !u!212 &212823901946135786
 SpriteRenderer:
   m_ObjectHideFlags: 1

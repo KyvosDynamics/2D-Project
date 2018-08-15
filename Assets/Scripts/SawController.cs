@@ -17,10 +17,9 @@ public class SawController : MonoBehaviour
 
 
 
-    void Update()
+    void FixedUpdate()
     {
         transform.Rotate(0, 0, RotationSpeed);
-
 
 
         if (_changedColorOnce == false && _playerTransform.position.x >= gameObject.transform.position.x - Range)
@@ -35,10 +34,11 @@ public class SawController : MonoBehaviour
             else
             {
                 _spriteRenderer.color = Color.cyan;
-                gameObject.tag = "BlueSaw";
+                gameObject.tag = "CyanSaw";
             }
         }
     }
+
 
 
 }

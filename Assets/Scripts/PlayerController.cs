@@ -1,20 +1,17 @@
 ﻿using UnityEngine;
-using UnityEngine.UI;
 
 public class PlayerController : MonoBehaviour
 {
     [HideInInspector]
     public bool IsCyan = true;
     public float Speed;
-    private float JumpSpeed = 8;
     public LayerMask GroundLayer;
-   
+
     //by convention private fields start with the underscore '_' character followed by a lower-case letter
     private Rigidbody2D _rigidbody;
     private SpriteRenderer _spriteRenderer;
     private bool _isTouchingGround;
     private bool _isTouchingWall;
-
     private int _numOfHorRaycasts;
     private float _rayYIncr;
     private bool _switchcolor = false;
@@ -23,6 +20,7 @@ public class PlayerController : MonoBehaviour
     private bool _jumpFromPonger = false;
     private const float _raycastingDistance = 0.1f;
     private const float _autoClimbSpeed = 2f;
+    private const float _jumpSpeed = 8;
     private Vector3 _downVectorWithMagnitude;
     private Vector3 _rightVectorWithMagnitude;
 
@@ -52,7 +50,7 @@ public class PlayerController : MonoBehaviour
 
     void FixedUpdate()
     {
-        if(transform.position.y<-5)
+        if (transform.position.y < -5)
         {//player fell to the void
             Time.timeScale = 0f; //game over
         }
@@ -83,17 +81,17 @@ public class PlayerController : MonoBehaviour
         if (_jumpFromPonger)
         {
             _jumpFromPonger = false;
-            yVel = JumpSpeed * 1.6f;
+            yVel = _jumpSpeed * 1.6f;
         }
         else if (_jumpFromGround)
         {
             _jumpFromGround = false;
-            yVel = JumpSpeed;
+            yVel = _jumpSpeed;
         }
         else if (_jumpFromWall)
         {
             _jumpFromWall = false;
-            yVel = JumpSpeed - _autoClimbSpeed;
+            yVel = _jumpSpeed - _autoClimbSpeed;
 
         }
         else if (_isTouchingWall)
@@ -144,7 +142,7 @@ public class PlayerController : MonoBehaviour
     {
         switch (collision.gameObject.tag)
         {
-            case "BlueSaw":
+            case "CyanSaw":
                 if (!IsCyan)
                     Time.timeScale = 0f; //game over
                 break;
@@ -153,12 +151,12 @@ public class PlayerController : MonoBehaviour
                     Time.timeScale = 0f; //game over    
                 break;
 
-            case "Ponger":
-                _jumpFromPonger = true;
-                break;
-
             case "Killer":
                 Time.timeScale = 0f; //game over
+                break;
+
+            case "Ponger":
+                _jumpFromPonger = true;
                 break;
         }
     }

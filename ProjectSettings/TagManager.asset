@@ -6,9 +6,10 @@ TagManager:
   tags:
   - Killer
   - GreenSaw
-  - BlueSaw
   - Ponger
   - Ground
+  - Room
+  - CyanSaw
   layers:
   - Default
   - TransparentFX
