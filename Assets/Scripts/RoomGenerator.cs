@@ -37,14 +37,15 @@ public class Platform
 
 public class Room
 {
-    public static GameObject StaticRoomPrefab;
+    public static GameObject StaticEmptyRoomPrefab;
+    public static GameObject StaticCustomRoomPrefab;
     public static GameObject StaticSpikePrefab;
     public static GameObject StaticSawPrefab;
     public static GameObject StaticPongerPrefab;
     public float EndX;
     public int Index;
     private GameObject _unityObject;
-    private Platform[] _myEightPlatforms = new Platform[8];
+    private Platform[] _myEightPlatforms = null;
 
 
 
@@ -54,8 +55,6 @@ public class Room
         Index = RoomGenerator.StaticRoomIndex;
 
         const float width = 50.28f; //because we are using 3 backgrounds each having a 1676 pixel width
-        const float platformWidth = 6.285f; //(notice platformWidth * 8 = roomWidth)  , also 1356 * scale= 628.5, scale= 0.4635
-        const float platformHeight = 0.616455f;
 
 
         Platform previousPlatform = null;
@@ -75,13 +74,49 @@ public class Room
         float centerX = startX + width * 0.5f;
 
 
-        _unityObject = Object.Instantiate(StaticRoomPrefab, new Vector3(centerX, 0, 0), Quaternion.identity);
+
+
+
+        //let's say for now (testing) a 50% chance of custom room
+
+        if(
+            Index > 0 //the very first room of the game cannot be a custom room
+           && Random.Range(0,2)==0            
+            )
+        {//custom room
+
+
+
+            _unityObject = Object.Instantiate(StaticCustomRoomPrefab, new Vector3(centerX, 0, 0), Quaternion.identity);
+
+
+
+        }
+        else
+        {//empty room, so we must also instantiate platforms
+
+
+            CreateEmptyRoomWithPlatforms(centerX,previousPlatform);
+        }
+    }
+
+
+    private void CreateEmptyRoomWithPlatforms(float roomX, Platform previousPlatform)
+    {
+        const float width = 50.28f; //because we are using 3 backgrounds each having a 1676 pixel width
+        const float platformWidth = 6.285f; //(notice platformWidth * 8 = roomWidth)  , also 1356 * scale= 628.5, scale= 0.4635
+        const float platformHeight = 0.616455f;
+
+
+
+
+        _unityObject = Object.Instantiate(StaticEmptyRoomPrefab, new Vector3(roomX, 0, 0), Quaternion.identity);
 
 
 
         Transform roomTransform = _unityObject.transform;
 
-
+        _myEightPlatforms= new Platform[8];
         Platform p = null;
         for (int i = 0; i < 8; i++)
         {
@@ -174,6 +209,8 @@ public class Room
             if (
                 Index > 0 //don't add any objects to the first room so the player adjusts to the gameplay mechanics
                 &&
+                previousPlatform!=null //it can be null of the previous room is a custom room
+                &&
                 previousPlatform.AttachedObjectDefinition == null //don't add objects to two platforms in a row
                 &&
                 Random.Range(0, 4) == 0 //25% probability of object
@@ -247,8 +284,8 @@ public class Room
 
 
         }//for platform
-    }
 
+    }
 
 
 
@@ -259,7 +296,15 @@ public class Room
 
 
     public Platform LastPlatform
-    { get { return _myEightPlatforms[7]; } }
+    { get {
+
+            if(_myEightPlatforms==null)
+            {//it is the case for custom rooms
+                return null;
+            }
+
+            return _myEightPlatforms[7];
+        } }
 
 
     public void Dispose()
@@ -272,7 +317,9 @@ public class RoomGenerator : MonoBehaviour
     public static int PlayerIsInRoomIndex = -1; //this could also be useful for increasing game difficulty based on progress
     public static int StaticRoomIndex = -1; //it is important for this to be initialized minus one so that the first room is at index 0
 
-    public GameObject RoomPrefab;
+    public GameObject EmptyRoomPrefab;
+    public GameObject CustomRoomPrefab;
+
     public GameObject PlatformPrefab;
     public GameObject SpikePrefab;
     public GameObject SawPrefab;
@@ -297,7 +344,8 @@ public class RoomGenerator : MonoBehaviour
 
 
         Platform.StaticPlatformPrefab = PlatformPrefab;
-        Room.StaticRoomPrefab = RoomPrefab;
+        Room.StaticEmptyRoomPrefab = EmptyRoomPrefab;
+        Room.StaticCustomRoomPrefab = CustomRoomPrefab;
         Room.StaticSpikePrefab = SpikePrefab;
         Room.StaticSawPrefab = SawPrefab;
         Room.StaticPongerPrefab = PongerPrefab;

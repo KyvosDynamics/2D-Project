@@ -836,6 +836,18 @@ Prefab:
       propertyPath: PlayerWasKilledUI
       value: 
       objectReference: {fileID: 1483984277}
+    - target: {fileID: 114311502555234632, guid: 9a1f1c1b4ca019d43ba28dd49d290589,
+        type: 2}
+      propertyPath: EmptyRoomPrefab
+      value: 
+      objectReference: {fileID: 1099257735438042, guid: ce6a87f6a8e194342b0543b84fa2d74b,
+        type: 2}
+    - target: {fileID: 114311502555234632, guid: 9a1f1c1b4ca019d43ba28dd49d290589,
+        type: 2}
+      propertyPath: CustomRoomPrefab
+      value: 
+      objectReference: {fileID: 1099257735438042, guid: cdcd3a7eeb2b23c4a85e1c02ca024c72,
+        type: 2}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 9a1f1c1b4ca019d43ba28dd49d290589, type: 2}
   m_IsPrefabAsset: 0
