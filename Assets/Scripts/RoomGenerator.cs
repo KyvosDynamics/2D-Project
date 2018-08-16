@@ -35,7 +35,7 @@ public class Platform
     }
 }
 
-public class Room 
+public class Room
 {
     public static GameObject StaticRoomPrefab;
     public static GameObject StaticSpikePrefab;
@@ -50,7 +50,7 @@ public class Room
 
     public Room(Room previousRoom)
     {
-       RoomGenerator.StaticRoomIndex++;
+        RoomGenerator.StaticRoomIndex++;
         Index = RoomGenerator.StaticRoomIndex;
 
         const float width = 50.28f; //because we are using 3 backgrounds each having a 1676 pixel width
@@ -209,7 +209,7 @@ public class Room
                 {
                     case 0: //spike
                         prefabToUse = StaticSpikePrefab;
-                        p.AttachedObjectDefinition = new ObjectDefinition(ObjectDefinition.Type.Spike );
+                        p.AttachedObjectDefinition = new ObjectDefinition(ObjectDefinition.Type.Spike);
 
                         //when we go to a spikeplatform that is higher than the previous one it is difficult to avoid the spike, so we move the spike to the right
                         //when we go to a spikeplatform that is lower than the previous one it is difficult to avoid the spike, so we move the spike to the left
@@ -227,13 +227,13 @@ public class Room
 
                     case 1: //saw
                         prefabToUse = StaticSawPrefab;
-                        p.AttachedObjectDefinition = new ObjectDefinition( ObjectDefinition.Type.Saw );
+                        p.AttachedObjectDefinition = new ObjectDefinition(ObjectDefinition.Type.Saw);
                         offsetRelativeToPlatform = new Vector3(0, 1.32f, 0);
                         break;
 
                     case 2: //ponger
                         prefabToUse = StaticPongerPrefab;
-                        p.AttachedObjectDefinition = new ObjectDefinition(ObjectDefinition.Type.Ponger );
+                        p.AttachedObjectDefinition = new ObjectDefinition(ObjectDefinition.Type.Ponger);
                         offsetRelativeToPlatform = new Vector3(0, 1.04f, 0);
                         break;
                 }
