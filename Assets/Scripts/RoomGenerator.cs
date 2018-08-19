@@ -5,24 +5,12 @@ using UnityEngine.UI;
 
 
 
-//public class ObjectDefinition
-//{
-  //  public enum Type { Spike, Saw, Ponger }
-    //public Type MyType { get; private set; }
-    //
-    //public ObjectDefinition(Type type)
-   // {
-     //   MyType = type;
-    //}
-//}
-
 public class Platform
 {
     public static GameObject StaticPlatformPrefab;
-    public ItemThatSitsOnPlatform AttachedObjectDefinition = null;
+    public ItemThatSitsOnPlatform AttachedObject = null;
     private GameObject _unityObject = null;
-    //public bool AttachedObjectRequiresSufficientSpaceAbove = false;
-    //public bool HasAttachedObject = false;
+
 
     public Platform(Transform parent)
     {
@@ -40,9 +28,6 @@ public class Room
 {
     public static GameObject StaticEmptyRoomPrefab;
     public static GameObject StaticCustomRoomPrefab;
-//    public static GameObject StaticSpikePrefab;
-  //  public static GameObject StaticSawPrefab;
-    //public static GameObject StaticPongerPrefab;
     public static ItemThatSitsOnPlatform[] StaticItemsThatSitOnPlatforms;
     public float EndX;
     public int Index;
@@ -81,10 +66,10 @@ public class Room
 
         //let's say for now (testing) a 50% chance of custom room
 
-        if(
+        if (
             false &&
             Index > 0 //the very first room of the game cannot be a custom room
-           && Random.Range(0,2)==0            
+           && Random.Range(0, 2) == 0
             )
         {//custom room
 
@@ -99,7 +84,7 @@ public class Room
         {//empty room, so we must also instantiate platforms
 
 
-            CreateEmptyRoomWithPlatforms(centerX,previousPlatform);
+            CreateEmptyRoomWithPlatforms(centerX, previousPlatform);
         }
     }
 
@@ -119,17 +104,12 @@ public class Room
 
         Transform roomTransform = _unityObject.transform;
 
-        _myEightPlatforms= new Platform[8];
+        _myEightPlatforms = new Platform[8];
         Platform p = null;
 
-        int blai = -1;
-        ItemThatSitsOnPlatform itdude = null;
 
         for (int i = 0; i < 8; i++)
         {
-            itdude = null;
-
-            blai = i;
             p = _myEightPlatforms[i] = new Platform(roomTransform);
 
 
@@ -153,7 +133,7 @@ public class Room
 
 
                 //the only exception is when the previous platform had a ponger on it. We want the new platform to be placed much higher than usual
-                if (previousPlatform.AttachedObjectDefinition!=null && previousPlatform.AttachedObjectDefinition.RequiresSufficientSpaceAbove)//.AttachedObjectRequiresSufficientSpaceAbove)// previousPlatform.ObjectRequiresSufficientSpaceAbove != null && previousPlatform.ObjectRequiresSufficientSpaceAbove==true)//.RequiresSufficientSpaceAbove)// .MyType == ObjectDefinition.Type.Ponger)
+                if (previousPlatform.AttachedObject != null && previousPlatform.AttachedObject.RequiresSufficientSpaceAbove)//.AttachedObjectRequiresSufficientSpaceAbove)// previousPlatform.ObjectRequiresSufficientSpaceAbove != null && previousPlatform.ObjectRequiresSufficientSpaceAbove==true)//.RequiresSufficientSpaceAbove)// .MyType == ObjectDefinition.Type.Ponger)
                 {
 
                     platformY = previousPlatform.Position.y + 4 * platformHeight;
@@ -204,7 +184,7 @@ public class Room
             //therefore:
             p.Position = new Vector3(platformX, platformY);
 
-            Debug.Log("created platform at " + platformX + "," + platformY+" for i "+i);
+            //Debug.Log("created platform at " + platformX + "," + platformY + " for i " + i);
 
 
 
@@ -221,9 +201,9 @@ public class Room
             if (
                 Index > 0 //don't add any objects to the first room so the player adjusts to the gameplay mechanics
                 &&
-                previousPlatform!=null //it can be null if the previous room is a custom room
+                previousPlatform != null //it can be null if the previous room is a custom room
                 &&
-                previousPlatform.AttachedObjectDefinition==null//.HasAttachedObject==false// .ObjectRequiresSufficientSpaceAbove==null//.AttachedObjectDefinition == null //don't add objects to two platforms in a row
+                previousPlatform.AttachedObject == null//.HasAttachedObject==false// .ObjectRequiresSufficientSpaceAbove==null//.AttachedObjectDefinition == null //don't add objects to two platforms in a row
                 &&
                 Random.Range(0, 4) == 0 //25% probability of object
                )
@@ -234,15 +214,15 @@ public class Room
 
 
 
-             
 
 
 
 
-                int type = Random.Range(0, 3);
+
+                int typeIndex = Random.Range(0, 3);
 
 
-                var it = StaticItemsThatSitOnPlatforms[type];
+                var it = StaticItemsThatSitOnPlatforms[typeIndex];
 
                 if (it.RequiresSufficientSpaceAbove)// type == 2)
                 {//we want to add a ponger. But we should be careful: when we add a ponger the next platform is placed higher than usual.
@@ -256,31 +236,26 @@ public class Room
                         {
                             anotherType = Random.Range(0, 3);
 
-                        } while (anotherType == type);
+                        } while (anotherType == typeIndex);
 
                         //type = Random.Range(0, 2);
-                        type = anotherType;
-                        it = StaticItemsThatSitOnPlatforms[type];
+                        typeIndex = anotherType;
+                        it = StaticItemsThatSitOnPlatforms[typeIndex];
                     }
                 }
 
 
-                itdude = it;
 
 
 
 
-             
-                GameObject prefabToUse = null;
-                prefabToUse = it.Prefab;
-                //p.HasAttachedObject = true;
-                //p.AttachedObjectRequiresSufficientSpaceAbove = it.RequiresSufficientSpaceAbove;
-                p.AttachedObjectDefinition = it;
-                Vector3 offsetRelativeToPlatform =  new Vector3();
+
+                p.AttachedObject = it;
+                Vector3 horizontalOffsetRelativeToPlatform = new Vector3();
 
 
 
-                
+
                 if (it.AutoDetermineHorizontalOffset)
                 {
 
@@ -288,88 +263,28 @@ public class Room
                     //when we go to a spikeplatform that is lower than the previous one it is difficult to avoid the spike, so we move the spike to the left
                     if (platformY > previousPlatform.Position.y)
                     {//new platform is higher, so move the spike right
-                        offsetRelativeToPlatform = new Vector3(2.5f, 0, 0);// 0.8f, 0);
+                        horizontalOffsetRelativeToPlatform = new Vector3(2.5f, 0, 0);// 0.8f, 0);
 
 
                     }
                     else
                     {//move spike left
-                        offsetRelativeToPlatform = new Vector3(-2, 0, 0);// 0.8f, 0);
+                        horizontalOffsetRelativeToPlatform = new Vector3(-2, 0, 0);// 0.8f, 0);
                     }
-                  //  break;
 
                 }
 
 
 
+                GameObject go = Object.Instantiate(it.Prefab, p.Position + horizontalOffsetRelativeToPlatform, Quaternion.identity, roomTransform);
 
+                //to have the object perfectly sit on top of the platform we should move it up a bit.
+                //By how much? ...   By half its height + half the platform's height (constant 0.308227f)
+                //(Oh and it is important that we use the instantiated object for that, not the prefab. The prefab has no bounds)
+                //so:
+                float verticalOffset = go.GetComponent<Collider2D>().bounds.extents.y + 0.308227f;                
+                go.transform.position += new Vector3(0, verticalOffset);
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                /*                switch (type)
-                                {
-                                    case 0: //spike
-                                        prefabToUse = StaticSpikePrefab;
-                                        p.AttachedObjectDefinition = new ObjectDefinition(ObjectDefinition.Type.Spike);
-
-                                    case 1: //saw
-                                        prefabToUse = StaticSawPrefab;
-                                        p.AttachedObjectDefinition = new ObjectDefinition(ObjectDefinition.Type.Saw);
-                                    //    offsetRelativeToPlatform = new Vector3(0, 1.32f, 0);
-                                        break;
-
-                                    case 2: //ponger
-                                        prefabToUse = StaticPongerPrefab;
-                                        p.AttachedObjectDefinition = new ObjectDefinition(ObjectDefinition.Type.Ponger);
-                                     //   offsetRelativeToPlatform = new Vector3(0, 1.04f, 0);
-                                        break;
-                                }*/
-
-                GameObject go =Object.Instantiate(prefabToUse, p.Position + offsetRelativeToPlatform, Quaternion.identity, roomTransform);
-                
-
-                Collider2D c = go.GetComponent<Collider2D>();
-                float bla=c.bounds.extents.y + 0.308227f;
-                /*  
-                  if (c is CircleCollider2D)
-                  {
-                      var bla3 = ((CircleCollider2D)c).bounds;
-                      var bla2 = ((CircleCollider2D)c).radius / 2;
-                      int kdjf = 34;
-                      //go.transform.position += new Vector3(0, bla);
-                  }
-                  else if(c is PolygonCollider2D)
-                  {
-                     // var bla = ((PolygonCollider2D)c).bounds.extents.y * 2;
-                     // go.transform.position += new Vector3(0, bla);
-                  }
-                  else if(type==2)// c is BoxCollider2D)
-                  {
-
-                      //half platform height + half object height
-
-                    //  0.308227 + 0.411428
-                    Bounds b=  prefabToUse.GetComponent<SpriteRenderer>().sprite.bounds;
-                   //   float bla = prefabToUse.transform.lossyScale.y * b.extents.y;
-
-                      int ksdjf = 3;
-                  }*/
-                go.transform.position += new Vector3(0, bla);
-
-                int kdjsf = 34;
 
 
             }
@@ -378,19 +293,6 @@ public class Room
 
         }//for platform
 
-      //  if(blai<7)
-       // {//weird problem
-
-    //        ItemThatSitsOnPlatform i0 = StaticItemsThatSitOnPlatforms[0];
-         //   ItemThatSitsOnPlatform i1 = StaticItemsThatSitOnPlatforms[1];
-         //   ItemThatSitsOnPlatform i2 = StaticItemsThatSitOnPlatforms[2];
-         //
-        //    ItemThatSitsOnPlatform itdudecopy = itdude;
-        //
-         //   int kdsjf34 = 34;
-
-
-    //    }
 
     }
 
@@ -403,15 +305,18 @@ public class Room
 
 
     public Platform LastPlatform
-    { get {
+    {
+        get
+        {
 
-            if(_myEightPlatforms==null)
+            if (_myEightPlatforms == null)
             {//it is the case for custom rooms
                 return null;
             }
 
             return _myEightPlatforms[7];
-        } }
+        }
+    }
 
 
     public void Dispose()
@@ -421,13 +326,13 @@ public class Room
 
 [System.Serializable]
 public class ItemThatSitsOnPlatform
-    {
+{
 
     public bool RequiresSufficientSpaceAbove;
     public bool AutoDetermineHorizontalOffset;
-    public  GameObject Prefab;
+    public GameObject Prefab;
 
-    }
+}
 
 public class RoomGenerator : MonoBehaviour
 {
@@ -441,10 +346,7 @@ public class RoomGenerator : MonoBehaviour
     public GameObject PlatformPrefab;
 
 
-    
-//    public GameObject SpikePrefab;
-  //  public GameObject SawPrefab;
-    //public GameObject PongerPrefab;
+
     private List<Room> _rooms;
     private float _screenWidth;
     public Text CurrentScoreText;
@@ -468,8 +370,6 @@ public class RoomGenerator : MonoBehaviour
         Room.StaticEmptyRoomPrefab = EmptyRoomPrefab;
         Room.StaticCustomRoomPrefab = CustomRoomPrefab;
         Room.StaticItemsThatSitOnPlatforms = ItemsThatSitOnPlatforms;//    Room.StaticSpikePrefab = SpikePrefab;
-        //Room.StaticSawPrefab = SawPrefab;
-        //Room.StaticPongerPrefab = PongerPrefab;
 
 
         //find the scene room and destroy it. It is only there for visual reference for us developers 
