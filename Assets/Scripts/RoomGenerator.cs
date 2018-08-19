@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using System.Linq;
 
 
 public class Platform
@@ -25,8 +26,14 @@ public class Platform
 
 public class Room
 {
-    public static GameObject StaticEmptyRoomPrefab;
-    public static GameObject StaticCustomRoomPrefab;
+    //    public static GameObject StaticEmptyRoomPrefab;
+    //  public static GameObject StaticCustomRoomPrefab;
+
+    public static RoomDefinition[] StaticProceduralRoomDefinitions;
+    public static RoomDefinition[] StaticCustomRoomDefinitions;
+
+    public static bool Procedural;
+
     public static ItemThatSitsOnPlatform[] StaticItemsThatSitOnPlatforms;
     public float EndX;
     public int Index;
@@ -66,15 +73,17 @@ public class Room
         //let's say for now (testing) a 50% chance of custom room
 
         if (
-            false &&
-            Index > 0 //the very first room of the game cannot be a custom room
-           && Random.Range(0, 2) == 0
-            )
+            Procedural==false)
+
+//            false &&
+  //          Index > 0 //the very first room of the game cannot be a custom room
+    //       && Random.Range(0, 2) == 0
+      //      )
         {//custom room
 
 
 
-            _unityObject = Object.Instantiate(StaticCustomRoomPrefab, new Vector3(centerX, 0, 0), Quaternion.identity);
+            _unityObject = Object.Instantiate(StaticCustomRoomDefinitions[Index].Prefab , new Vector3(centerX, 0, 0), Quaternion.identity);
 
 
 
@@ -96,9 +105,9 @@ public class Room
         const float platformHeight = 0.616455f;
 
 
+        int randomIndex = Random.Range(0, StaticProceduralRoomDefinitions.Length);
 
-
-        _unityObject = Object.Instantiate(StaticEmptyRoomPrefab, new Vector3(roomX, 0, 0), Quaternion.identity);
+        _unityObject = Object.Instantiate(StaticProceduralRoomDefinitions[randomIndex].Prefab, new Vector3(roomX, 0, 0), Quaternion.identity);
 
 
 
@@ -313,15 +322,33 @@ public class ItemThatSitsOnPlatform
 
 }
 
+public enum Theme { Fire, Ice };
+
+
+[System.Serializable]
+public class RoomDefinition
+{
+    public GameObject Prefab;
+    public bool IsProcedural;
+    public int IndexForNonProcedural;
+
+    public Theme MyTheme;
+}
+
 public class RoomGenerator : MonoBehaviour
 {
+    public Theme ThemeToUse = Theme.Fire;
+
+    public bool Procedural = true;
+
     public ItemThatSitsOnPlatform[] ItemsThatSitOnPlatforms;
+    public RoomDefinition[] RoomDefinitions;
 
     public static int PlayerIsInRoomIndex = -1; //this could also be useful for increasing game difficulty based on progress
     public static int StaticRoomIndex = -1; //it is important for this to be initialized minus one so that the first room is at index 0
 
-    public GameObject EmptyRoomPrefab;
-    public GameObject CustomRoomPrefab;
+//    public GameObject EmptyRoomPrefab;
+//    public GameObject CustomRoomPrefab;
 
     public GameObject PlatformPrefab;
 
@@ -343,12 +370,21 @@ public class RoomGenerator : MonoBehaviour
     void Start()
     {
 
-
+        Room.Procedural = Procedural;
 
         Platform.StaticPlatformPrefab = PlatformPrefab;
-        Room.StaticEmptyRoomPrefab = EmptyRoomPrefab;
-        Room.StaticCustomRoomPrefab = CustomRoomPrefab;
+//        Room.StaticEmptyRoomPrefab = EmptyRoomPrefab;
+  //      Room.StaticCustomRoomPrefab = CustomRoomPrefab;
+
+        //Room.StaticRoomDefinitions = RoomDefinitions;
+
+        Room.StaticProceduralRoomDefinitions = RoomDefinitions.Where(r=>r.IsProcedural==true && r.MyTheme== ThemeToUse) .ToArray();
+        Room.StaticCustomRoomDefinitions = RoomDefinitions.Where(r => r.IsProcedural == false && r.MyTheme == ThemeToUse).OrderBy(r => r.IndexForNonProcedural).ToArray();
+
         Room.StaticItemsThatSitOnPlatforms = ItemsThatSitOnPlatforms;//    Room.StaticSpikePrefab = SpikePrefab;
+
+
+
 
 
         //find the scene room and destroy it. It is only there for visual reference for us developers 
@@ -393,10 +429,26 @@ public class RoomGenerator : MonoBehaviour
             Room latestRoom = _rooms[_rooms.Count - 1];
             float rightCameraBound = leftCameraBound + _screenWidth;
 
+
+
+
             if (latestRoom.CenterX < rightCameraBound)
-            {//add a new room
-                _rooms.Add(new Room(latestRoom));
-                roomAddedOrRemoved = true;
+            {                               
+                //should add a new room
+
+                //but we should be careful in the non-procedural case if we have run out of prefabs (the procedural is infinite and can reuse the same prefab multiple times)
+                if(Procedural==false && latestRoom.Index==Room.StaticCustomRoomDefinitions.Length-1)
+                {//we have won!
+
+                    Debug.Log("we won!");
+                    
+
+                }
+                else
+                {
+                    _rooms.Add(new Room(latestRoom));
+                    roomAddedOrRemoved = true;
+                }
             }
 
 
