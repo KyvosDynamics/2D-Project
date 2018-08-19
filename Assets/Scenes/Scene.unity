@@ -768,6 +768,16 @@ Prefab:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 114311502555234632, guid: 9a1f1c1b4ca019d43ba28dd49d290589,
+        type: 2}
+      propertyPath: Hou.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 114311502555234632, guid: 9a1f1c1b4ca019d43ba28dd49d290589,
+        type: 2}
+      propertyPath: ItemsThatSitOnPlatforms.Array.size
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 4343532462330572, guid: 9a1f1c1b4ca019d43ba28dd49d290589, type: 2}
       propertyPath: m_LocalPosition.x
       value: -20.17
@@ -848,6 +858,34 @@ Prefab:
       value: 
       objectReference: {fileID: 1099257735438042, guid: cdcd3a7eeb2b23c4a85e1c02ca024c72,
         type: 2}
+    - target: {fileID: 114311502555234632, guid: 9a1f1c1b4ca019d43ba28dd49d290589,
+        type: 2}
+      propertyPath: ItemsThatSitOnPlatforms.Array.data[0].RequiresSufficientSpaceAbove
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 114311502555234632, guid: 9a1f1c1b4ca019d43ba28dd49d290589,
+        type: 2}
+      propertyPath: ItemsThatSitOnPlatforms.Array.data[0].Prefab
+      value: 
+      objectReference: {fileID: 1468171118249788, guid: 574cbd0f29e14514eb65935332ba8c31,
+        type: 2}
+    - target: {fileID: 114311502555234632, guid: 9a1f1c1b4ca019d43ba28dd49d290589,
+        type: 2}
+      propertyPath: ItemsThatSitOnPlatforms.Array.data[1].Prefab
+      value: 
+      objectReference: {fileID: 1513025892425984, guid: 0603ed106f1bc86488600fee1873d414,
+        type: 2}
+    - target: {fileID: 114311502555234632, guid: 9a1f1c1b4ca019d43ba28dd49d290589,
+        type: 2}
+      propertyPath: ItemsThatSitOnPlatforms.Array.data[2].Prefab
+      value: 
+      objectReference: {fileID: 1954259282176104, guid: 17f41ba6059c3a744ba9606cbb4b8ce2,
+        type: 2}
+    - target: {fileID: 114311502555234632, guid: 9a1f1c1b4ca019d43ba28dd49d290589,
+        type: 2}
+      propertyPath: ItemsThatSitOnPlatforms.Array.data[2].AutoDetermineHorizontalOffset
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 9a1f1c1b4ca019d43ba28dd49d290589, type: 2}
   m_IsPrefabAsset: 0
