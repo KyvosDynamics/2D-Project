@@ -309,14 +309,13 @@ public class Room
 
 }
 
+
 [System.Serializable]
 public class ItemThatSitsOnPlatform
 {
-
-    public bool RequiresSufficientSpaceAbove;
-    public bool AutoDetermineHorizontalOffset;
+    public bool RequiresSufficientSpaceAbove; //e.g. ponger
+    public bool AutoDetermineHorizontalOffset; //e.g. spike
     public GameObject Prefab;
-
 }
 
 public enum Theme { Fire, Ice };
@@ -326,16 +325,15 @@ public enum Theme { Fire, Ice };
 public class RoomDefinition
 {
     public GameObject Prefab;
-    public bool IsProcedural;
-    public int IndexForNonProcedural;
-
+    public bool IsProcedural; //procedural rooms have no platforms or objects. They procedurally generated
+    public int IndexForNonProcedural; //non-procedural i.e. custom rooms have index from 0 to infinity. The smaller the index the sooner the room will be encountered in the game
     public Theme MyTheme;
 }
+
 
 public class RoomGenerator : MonoBehaviour
 {
     public Theme ThemeToUse = Theme.Fire;
-
     public bool Procedural = true;
 
     public ItemThatSitsOnPlatform[] ItemsThatSitOnPlatforms;
@@ -344,10 +342,8 @@ public class RoomGenerator : MonoBehaviour
     public static int PlayerIsInRoomIndex = -1; //this could also be useful for increasing game difficulty based on progress
     public static int StaticRoomIndex = -1; //it is important for this to be initialized minus one so that the first room is at index 0
 
-    //    public GameObject EmptyRoomPrefab;
-    //    public GameObject CustomRoomPrefab;
-
-    public GameObject PlatformPrefab;
+    public GameObject FirePlatformPrefab;
+    public GameObject IcePlatformPrefab;
 
     private List<Room> _rooms;
     private float _screenWidth;
@@ -361,27 +357,21 @@ public class RoomGenerator : MonoBehaviour
         //it is absolutely vital that we first reset the static variables because they are not automatically reset when we start a new game (e.g. after we are killed)
         PlayerIsInRoomIndex = -1;
         StaticRoomIndex = -1;
-
     }
 
     void Start()
     {
-
         Room.Procedural = Procedural;
 
-        Platform.StaticPlatformPrefab = PlatformPrefab;
-        //        Room.StaticEmptyRoomPrefab = EmptyRoomPrefab;
-        //      Room.StaticCustomRoomPrefab = CustomRoomPrefab;
 
-        //Room.StaticRoomDefinitions = RoomDefinitions;
+        if(ThemeToUse== Theme.Fire)
+            Platform.StaticPlatformPrefab = FirePlatformPrefab;
+        else
+            Platform.StaticPlatformPrefab = IcePlatformPrefab;
 
         Room.StaticProceduralRoomDefinitions = RoomDefinitions.Where(r => r.IsProcedural == true && r.MyTheme == ThemeToUse).ToArray();
         Room.StaticCustomRoomDefinitions = RoomDefinitions.Where(r => r.IsProcedural == false && r.MyTheme == ThemeToUse).OrderBy(r => r.IndexForNonProcedural).ToArray();
-
-        Room.StaticItemsThatSitOnPlatforms = ItemsThatSitOnPlatforms;//    Room.StaticSpikePrefab = SpikePrefab;
-
-
-
+        Room.StaticItemsThatSitOnPlatforms = ItemsThatSitOnPlatforms;
 
 
         //find the scene room and destroy it. It is only there for visual reference for us developers 

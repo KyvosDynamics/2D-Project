@@ -992,7 +992,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d869e4ed8ddee4b4c9409dbf5fe449c5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ThemeToUse: 0
+  ThemeToUse: 1
   Procedural: 1
   ItemsThatSitOnPlatforms:
   - RequiresSufficientSpaceAbove: 1
@@ -1021,7 +1021,9 @@ MonoBehaviour:
     IsProcedural: 1
     IndexForNonProcedural: 0
     MyTheme: 1
-  PlatformPrefab: {fileID: 1978104339873990, guid: c03114d99ddc66546b1f0469f6d05c54,
+  FirePlatformPrefab: {fileID: 1978104339873990, guid: c03114d99ddc66546b1f0469f6d05c54,
+    type: 2}
+  IcePlatformPrefab: {fileID: 1978104339873990, guid: 60afb4e7bbc7e8541931ad42889ff28f,
     type: 2}
   CurrentScoreText: {fileID: 261570680}
   HighScoreText: {fileID: 66004553}
