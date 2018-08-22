@@ -961,9 +961,83 @@ Prefab:
       propertyPath: RoomDefinitions.Array.data[3].IndexForNonProcedural
       value: 1
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 114311502555234632, guid: 9a1f1c1b4ca019d43ba28dd49d290589, type: 2}
   m_SourcePrefab: {fileID: 100100000, guid: 9a1f1c1b4ca019d43ba28dd49d290589, type: 2}
   m_IsPrefabAsset: 0
+--- !u!1 &1917205420
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1917205422}
+  - component: {fileID: 1917205421}
+  m_Layer: 0
+  m_Name: RoomGenerator
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1917205421
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1917205420}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d869e4ed8ddee4b4c9409dbf5fe449c5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ThemeToUse: 0
+  Procedural: 1
+  ItemsThatSitOnPlatforms:
+  - RequiresSufficientSpaceAbove: 1
+    AutoDetermineHorizontalOffset: 0
+    Prefab: {fileID: 1468171118249788, guid: 574cbd0f29e14514eb65935332ba8c31, type: 2}
+  - RequiresSufficientSpaceAbove: 0
+    AutoDetermineHorizontalOffset: 0
+    Prefab: {fileID: 1513025892425984, guid: 0603ed106f1bc86488600fee1873d414, type: 2}
+  - RequiresSufficientSpaceAbove: 0
+    AutoDetermineHorizontalOffset: 1
+    Prefab: {fileID: 1954259282176104, guid: 17f41ba6059c3a744ba9606cbb4b8ce2, type: 2}
+  RoomDefinitions:
+  - Prefab: {fileID: 1099257735438042, guid: cdcd3a7eeb2b23c4a85e1c02ca024c72, type: 2}
+    IsProcedural: 0
+    IndexForNonProcedural: 0
+    MyTheme: 0
+  - Prefab: {fileID: 1099257735438042, guid: 31912cc6808aed14b9e71fef697952b3, type: 2}
+    IsProcedural: 0
+    IndexForNonProcedural: 1
+    MyTheme: 0
+  - Prefab: {fileID: 1099257735438042, guid: ce6a87f6a8e194342b0543b84fa2d74b, type: 2}
+    IsProcedural: 1
+    IndexForNonProcedural: 0
+    MyTheme: 0
+  - Prefab: {fileID: 1099257735438042, guid: 1734408226cadae4eabc3e764c39f08b, type: 2}
+    IsProcedural: 1
+    IndexForNonProcedural: 0
+    MyTheme: 1
+  PlatformPrefab: {fileID: 1978104339873990, guid: c03114d99ddc66546b1f0469f6d05c54,
+    type: 2}
+  CurrentScoreText: {fileID: 261570680}
+  HighScoreText: {fileID: 66004553}
+--- !u!4 &1917205422
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1917205420}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 5
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1935096521 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 1681923645997908, guid: 524bd526f634c7a4482357951820d897,
