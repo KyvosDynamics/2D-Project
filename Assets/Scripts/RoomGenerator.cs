@@ -7,14 +7,13 @@ using UnityEngine.UI;
 
 public class Platform
 {
-    public static GameObject StaticPlatformPrefab;
     public ItemThatSitsOnPlatform AttachedObject = null;
     private GameObject _unityObject = null;
 
 
     public Platform(Transform parent)
     {
-        _unityObject = Object.Instantiate(StaticPlatformPrefab, parent);
+        _unityObject = Object.Instantiate(RoomGenerator.StaticPlatformPrefab, parent);
     }
 
     public Vector3 Position
@@ -24,81 +23,21 @@ public class Platform
     }
 }
 
-public class Room
+
+public class ProceduralRoom:Room
 {
-    public static RoomDefinition[] StaticProceduralRoomDefinitions;
-    public static RoomDefinition[] StaticCustomRoomDefinitions;
-
-    public static bool Procedural;
-
-    public static ItemThatSitsOnPlatform[] StaticItemsThatSitOnPlatforms;
-    public float EndX;
-    public int Index;
-    private GameObject _unityObject;
     private Platform[] _myEightPlatforms = null;
-    public float CenterX;
-
-//    public float CenterX
-  //  { get { return _unityObject.transform.position.x; } }
+    private Platform previousPlatform = null;
 
 
-
-    public Room(Room previousRoom)
+    public ProceduralRoom(ProceduralRoom previousRoom): base(previousRoom)
     {
-        RoomGenerator.StaticRoomIndex++;
-        Index = RoomGenerator.StaticRoomIndex;
 
-        const float width = 50.28f; //because we are using 3 backgrounds each having a 1676 pixel width
+        previousPlatform =previousRoom==null?null: previousRoom.LastPlatform;  //the previous platform is the last platform of the previous room
 
+        CreateEmptyRoomWithPlatforms(CenterX, previousPlatform);
 
-        Platform previousPlatform = null;
-        float startX;
-
-        if (previousRoom == null)
-        {//this is the very first room of the game
-            startX = -25.14f; //-25.14 because -16.76 + -16.76/2
-        }
-        else
-        {
-            startX = previousRoom.EndX; //we want the new room to start at the end of the previous room
-            previousPlatform = previousRoom.LastPlatform;  //the previous platform is the last platform of the previous room
-        }
-
-        EndX = startX + width;
-        CenterX = startX + width * 0.5f;
-
-
-
-
-
-        //let's say for now (testing) a 50% chance of custom room
-
-        if (
-            Procedural == false)
-
-        //            false &&
-        //          Index > 0 //the very first room of the game cannot be a custom room
-        //       && Random.Range(0, 2) == 0
-        //      )
-        {//custom room
-
-
-
-            _unityObject = Object.Instantiate(StaticCustomRoomDefinitions[Index].Prefab, new Vector3(CenterX, 0, 0), Quaternion.identity);
-
-
-
-        }
-        else
-        {//empty room, so we must also instantiate platforms
-
-
-            CreateEmptyRoomWithPlatforms(CenterX, previousPlatform);
-        }
     }
-
-
-
     private void CreateEmptyRoomWithPlatforms(float roomX, Platform previousPlatform)
     {
         const float width = 50.28f; //because we are using 3 backgrounds each having a 1676 pixel width
@@ -106,9 +45,9 @@ public class Room
         const float platformHeight = 0.616455f;
 
 
-        int randomIndex = Random.Range(0, StaticProceduralRoomDefinitions.Length);
+        int randomIndex = Random.Range(0, RoomGenerator.StaticRoomDefinitions.Length);
 
-        _unityObject = Object.Instantiate(StaticProceduralRoomDefinitions[randomIndex].Prefab, new Vector3(roomX, 0, 0), Quaternion.identity);
+        _unityObject = Object.Instantiate(RoomGenerator.StaticRoomDefinitions[randomIndex].Prefab, new Vector3(roomX, 0, 0), Quaternion.identity);
 
 
 
@@ -215,8 +154,8 @@ public class Room
             {//add object
 
 
-                int typeIndex = Random.Range(0, StaticItemsThatSitOnPlatforms.Length);
-                var item = StaticItemsThatSitOnPlatforms[typeIndex];
+                int typeIndex = Random.Range(0, RoomGenerator.StaticItemsThatSitOnPlatforms.Length);
+                var item = RoomGenerator.StaticItemsThatSitOnPlatforms[typeIndex];
 
                 if (item.RequiresSufficientSpaceAbove)
                 {//we want to add a ponger. But we should be careful: when we add a ponger the next platform is placed higher than usual.
@@ -228,12 +167,12 @@ public class Room
                         int anotherTypeIndex;
                         do
                         {
-                            anotherTypeIndex = Random.Range(0, StaticItemsThatSitOnPlatforms.Length);
+                            anotherTypeIndex = Random.Range(0, RoomGenerator.StaticItemsThatSitOnPlatforms.Length);
 
                         } while (anotherTypeIndex == typeIndex);
 
                         typeIndex = anotherTypeIndex;
-                        item = StaticItemsThatSitOnPlatforms[typeIndex];
+                        item = RoomGenerator.StaticItemsThatSitOnPlatforms[typeIndex];
                     }
                 }
 
@@ -287,10 +226,6 @@ public class Room
 
 
 
-
-
-
-
     public Platform LastPlatform
     {
         get
@@ -304,6 +239,67 @@ public class Room
             return _myEightPlatforms[7];
         }
     }
+
+  
+
+}
+
+public class CampaignRoom : Room
+{
+    public CampaignRoom(CampaignRoom previousRoom): base(previousRoom)
+    {
+
+
+
+        _unityObject = Object.Instantiate(RoomGenerator.StaticRoomDefinitions[Index].Prefab, new Vector3(CenterX, 0, 0), Quaternion.identity);
+
+
+    }
+}
+
+
+
+public class Room
+{
+    public float CenterX;
+    public float EndX;
+    public int Index;
+    protected GameObject _unityObject;
+
+
+    public Room(Room previousRoom)
+    {
+        RoomGenerator.StaticRoomIndex++;
+        Index = RoomGenerator.StaticRoomIndex;
+
+        const float width = 50.28f; //because we are using 3 backgrounds each having a 1676 pixel width
+
+
+       
+        float startX;
+
+        if (previousRoom == null)
+        {//this is the very first room of the game
+            startX = -25.14f; //-25.14 because -16.76 + -16.76/2
+        }
+        else
+        {
+            startX = previousRoom.EndX; //we want the new room to start at the end of the previous room
+        }
+
+        EndX = startX + width;
+        CenterX = startX + width * 0.5f;
+
+
+
+        
+    }
+
+
+
+
+
+
 
 
     public void Dispose()
@@ -335,6 +331,11 @@ public class RoomDefinition
 
 public class RoomGenerator : MonoBehaviour
 {
+    public static RoomDefinition[] StaticRoomDefinitions;
+    public static GameObject StaticPlatformPrefab;
+    public static bool StaticProcedural;
+    public static ItemThatSitsOnPlatform[] StaticItemsThatSitOnPlatforms;
+
     public Theme ThemeToUse = Theme.Fire;
     public bool Procedural = true;
 
@@ -363,17 +364,18 @@ public class RoomGenerator : MonoBehaviour
 
     void Start()
     {
-        Room.Procedural = Procedural;
+        StaticProcedural = Procedural;
 
 
-        if(ThemeToUse== Theme.Fire)
-            Platform.StaticPlatformPrefab = FirePlatformPrefab;
+        StaticPlatformPrefab = ThemeToUse == Theme.Fire ? FirePlatformPrefab : IcePlatformPrefab;
+
+        if (Procedural)
+            StaticRoomDefinitions = RoomDefinitions.Where(r => r.IsProcedural == true && r.MyTheme == ThemeToUse).ToArray();
         else
-            Platform.StaticPlatformPrefab = IcePlatformPrefab;
+            StaticRoomDefinitions = RoomDefinitions.Where(r => r.IsProcedural == false && r.MyTheme == ThemeToUse).OrderBy(r => r.IndexForNonProcedural).ToArray();
 
-        Room.StaticProceduralRoomDefinitions = RoomDefinitions.Where(r => r.IsProcedural == true && r.MyTheme == ThemeToUse).ToArray();
-        Room.StaticCustomRoomDefinitions = RoomDefinitions.Where(r => r.IsProcedural == false && r.MyTheme == ThemeToUse).OrderBy(r => r.IndexForNonProcedural).ToArray();
-        Room.StaticItemsThatSitOnPlatforms = ItemsThatSitOnPlatforms;
+
+        StaticItemsThatSitOnPlatforms = ItemsThatSitOnPlatforms;
 
 
         //find the scene room and destroy it. It is only there for visual reference for us developers 
@@ -381,7 +383,18 @@ public class RoomGenerator : MonoBehaviour
 
 
         //let's add the first real room (we pass null because there is no previous room)
-        _rooms = new List<Room> { new Room(null) };
+
+
+        if(Procedural)
+        {
+            _rooms = new List<Room> { new ProceduralRoom(null) };
+
+        }
+        else
+        {
+            _rooms = new List<Room> { new CampaignRoom(null) };
+        }
+
 
 
         float screenHeight = 2.0f * Camera.main.orthographicSize;
@@ -397,7 +410,7 @@ public class RoomGenerator : MonoBehaviour
     }
 
 
-   
+
 
     private IEnumerator GeneratorCheck()
     {
@@ -426,11 +439,11 @@ public class RoomGenerator : MonoBehaviour
                 //should add a new room
 
                 //but we should be careful in the non-procedural case if we have run out of prefabs (the procedural is infinite and can reuse the same prefab multiple times)
-                if (Procedural == false && latestRoom.Index == Room.StaticCustomRoomDefinitions.Length - 1)
+                if (Procedural == false && latestRoom.Index == StaticRoomDefinitions.Length - 1)
                 {//no more custom rooms available. We are approaching victory (when the last room ends)
-                    
 
-                    if(latestRoom.EndX<rightCameraBound)
+
+                    if (latestRoom.EndX < rightCameraBound)
                     {
                         GameObject.Find("Runner").GetComponent<PlayerController>().PlayerWon();
 
@@ -440,7 +453,12 @@ public class RoomGenerator : MonoBehaviour
                 }
                 else
                 {
-                    _rooms.Add(new Room(latestRoom));
+
+                    if(Procedural)
+                        _rooms.Add( new ProceduralRoom((ProceduralRoom) latestRoom));
+                    else
+                        _rooms.Add(new CampaignRoom((CampaignRoom) latestRoom));
+
                     roomAddedOrRemoved = true;
                 }
             }

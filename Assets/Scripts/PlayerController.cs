@@ -8,7 +8,7 @@ public class PlayerController : MonoBehaviour
     public float Speed;
     public LayerMask GroundLayer;
     public GameObject PlayerWasKilledUI;
-   
+    public GameObject PlayerWonUI;
 
     //by convention private fields start with the underscore '_' character followed by a lower-case letter
     private Rigidbody2D _rigidbody;
@@ -173,7 +173,6 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    public GameObject PlayerWonUI;
 
 
     private void PlayerWasKilled()
