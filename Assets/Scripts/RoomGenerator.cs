@@ -36,6 +36,10 @@ public class Room
     public int Index;
     private GameObject _unityObject;
     private Platform[] _myEightPlatforms = null;
+    public float CenterX;
+
+//    public float CenterX
+  //  { get { return _unityObject.transform.position.x; } }
 
 
 
@@ -61,7 +65,7 @@ public class Room
         }
 
         EndX = startX + width;
-        float centerX = startX + width * 0.5f;
+        CenterX = startX + width * 0.5f;
 
 
 
@@ -80,7 +84,7 @@ public class Room
 
 
 
-            _unityObject = Object.Instantiate(StaticCustomRoomDefinitions[Index].Prefab, new Vector3(centerX, 0, 0), Quaternion.identity);
+            _unityObject = Object.Instantiate(StaticCustomRoomDefinitions[Index].Prefab, new Vector3(CenterX, 0, 0), Quaternion.identity);
 
 
 
@@ -89,7 +93,7 @@ public class Room
         {//empty room, so we must also instantiate platforms
 
 
-            CreateEmptyRoomWithPlatforms(centerX, previousPlatform);
+            CreateEmptyRoomWithPlatforms(CenterX, previousPlatform);
         }
     }
 
@@ -285,8 +289,6 @@ public class Room
 
 
 
-    public float CenterX
-    { get { return _unityObject.transform.position.x; } }
 
 
     public Platform LastPlatform
@@ -395,11 +397,11 @@ public class RoomGenerator : MonoBehaviour
     }
 
 
-
+   
 
     private IEnumerator GeneratorCheck()
     {
-        while (PlayerController.IsAlive)
+        while (PlayerController.IsActive)
         {
             bool roomAddedOrRemoved = false;
 
@@ -425,9 +427,14 @@ public class RoomGenerator : MonoBehaviour
 
                 //but we should be careful in the non-procedural case if we have run out of prefabs (the procedural is infinite and can reuse the same prefab multiple times)
                 if (Procedural == false && latestRoom.Index == Room.StaticCustomRoomDefinitions.Length - 1)
-                {//we have won!
+                {//no more custom rooms available. We are approaching victory (when the last room ends)
+                    
 
-                    Debug.Log("we won!");
+                    if(latestRoom.EndX<rightCameraBound)
+                    {
+                        GameObject.Find("Runner").GetComponent<PlayerController>().PlayerWon();
+
+                    }
 
 
                 }

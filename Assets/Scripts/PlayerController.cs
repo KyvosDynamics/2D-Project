@@ -2,12 +2,13 @@
 
 public class PlayerController : MonoBehaviour
 {
-    public static bool IsAlive = false;
+    public static bool IsActive = false;
     [HideInInspector]
     public bool IsCyan = true;
     public float Speed;
     public LayerMask GroundLayer;
     public GameObject PlayerWasKilledUI;
+   
 
     //by convention private fields start with the underscore '_' character followed by a lower-case letter
     private Rigidbody2D _rigidbody;
@@ -30,7 +31,7 @@ public class PlayerController : MonoBehaviour
 
     private void Awake()
     {
-        IsAlive = true;
+        IsActive = true;
     }
 
     void Start()
@@ -57,7 +58,7 @@ public class PlayerController : MonoBehaviour
 
     void FixedUpdate()
     {
-        if (!IsAlive)
+        if (!IsActive)
             return;
 
         if (transform.position.y < -5)
@@ -172,16 +173,28 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-
+    public GameObject PlayerWonUI;
 
 
     private void PlayerWasKilled()
     {
-        IsAlive = false;
-        _rigidbody.velocity = new Vector2(0, 0);//necessary otherwise the player will continue to move while the playerKilledUI gradually appears
-        GetComponent<Animator>().enabled = false;
+        StopPlayer();
         PlayerWasKilledUI.SetActive(true);
     }
+    public void PlayerWon()
+    {
+        StopPlayer();
+        PlayerWonUI.SetActive(true);
+    }
+
+    private void StopPlayer()
+    {
+        IsActive = false;
+        _rigidbody.velocity = new Vector2(0, 0);//necessary otherwise the player will continue to move while the playerKilledUI gradually appears
+        GetComponent<Animator>().enabled = false;
+    }
+
+
 
 
 }
