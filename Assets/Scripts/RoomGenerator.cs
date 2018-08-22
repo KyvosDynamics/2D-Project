@@ -24,22 +24,29 @@ public class Platform
 }
 
 
-public class ProceduralRoom:Room
+public class ProceduralRoom : Room
 {
-    private Platform[] _myEightPlatforms = null;
-    private Platform previousPlatform = null;
+    public Platform LastPlatform { get; private set; }
+    //  private Platform[] _myEightPlatforms = null;
 
 
-    public ProceduralRoom(ProceduralRoom previousRoom): base(previousRoom)
+
+    public ProceduralRoom(ProceduralRoom previousRoom) : base(previousRoom)
     {
+        //private 
+        Platform _previousPlatform = null;
+        _previousPlatform = previousRoom == null ? null : previousRoom.LastPlatform;  //the previous platform is the last platform of the previous room
 
-        previousPlatform =previousRoom==null?null: previousRoom.LastPlatform;  //the previous platform is the last platform of the previous room
 
-        CreateEmptyRoomWithPlatforms(CenterX, previousPlatform);
 
-    }
-    private void CreateEmptyRoomWithPlatforms(float roomX, Platform previousPlatform)
-    {
+
+
+        //        CreateEmptyRoomWithPlatforms(CenterX, _previousPlatform);
+        //  }
+        //private void CreateEmptyRoomWithPlatforms(float roomX, Platform previousPlatform)
+        //{
+
+
         const float width = 50.28f; //because we are using 3 backgrounds each having a 1676 pixel width
         const float platformWidth = 6.285f; //(notice platformWidth * 8 = roomWidth)  , also 1356 * scale= 628.5, scale= 0.4635
         const float platformHeight = 0.616455f;
@@ -47,29 +54,30 @@ public class ProceduralRoom:Room
 
         int randomIndex = Random.Range(0, RoomGenerator.StaticRoomDefinitions.Length);
 
-        _unityObject = Object.Instantiate(RoomGenerator.StaticRoomDefinitions[randomIndex].Prefab, new Vector3(roomX, 0, 0), Quaternion.identity);
+        _unityObject = Object.Instantiate(RoomGenerator.StaticRoomDefinitions[randomIndex].Prefab, new Vector3(CenterX, 0, 0), Quaternion.identity);
 
 
 
         Transform roomTransform = _unityObject.transform;
 
-        _myEightPlatforms = new Platform[8];
+        //_myEightPlatforms = new Platform[8];
         Platform platform = null;
 
 
         for (int i = 0; i < 8; i++)
         {
-            platform = _myEightPlatforms[i] = new Platform(roomTransform);
+            platform = //_myEightPlatforms[i] = 
+                new Platform(roomTransform);
 
 
-            if (i > 0) //i.e. it is not the first platform of this room. When i is 0 the previous platform is the last platform of the previous room as set a few lines above
-                previousPlatform = _myEightPlatforms[i - 1];
+            //            if (i > 0) //i.e. it is not the first platform of this room. When i is 0 the previous platform is the last platform of the previous room as set a few lines above
+            //              _previousPlatform = _myEightPlatforms[i - 1];
 
 
 
             float platformY;
 
-            if (previousPlatform == null)
+            if (_previousPlatform == null)
             {
                 //the previous platform is null only in the very first room of the game and the very first platform of that first room
                 //we want the very first platform of our game to be at at y minus one
@@ -82,10 +90,10 @@ public class ProceduralRoom:Room
 
 
                 //the only exception is when the previous platform had a ponger on it. We want the new platform to be placed much higher than usual
-                if (previousPlatform.AttachedObject != null && previousPlatform.AttachedObject.RequiresSufficientSpaceAbove)
+                if (_previousPlatform.AttachedObject != null && _previousPlatform.AttachedObject.RequiresSufficientSpaceAbove)
                 {
 
-                    platformY = previousPlatform.Position.y + 4 * platformHeight;
+                    platformY = _previousPlatform.Position.y + 4 * platformHeight;
 
                 }
                 else
@@ -107,13 +115,13 @@ public class ProceduralRoom:Room
                             break;
                     }
 
-                    platformY = previousPlatform.Position.y + randomDifference;
+                    platformY = _previousPlatform.Position.y + randomDifference;
 
                     //check for out-of-game-bounds
                     if (platformY > 2f)
-                        platformY = previousPlatform.Position.y - platformHeight;
+                        platformY = _previousPlatform.Position.y - platformHeight;
                     else if (platformY < -4f)
-                        platformY = previousPlatform.Position.y + platformHeight;
+                        platformY = _previousPlatform.Position.y + platformHeight;
 
 
 
@@ -145,9 +153,9 @@ public class ProceduralRoom:Room
             if (
                 Index > 0 //don't add any objects to the first room so the player adjusts to the gameplay mechanics
                 &&
-                previousPlatform != null //it can be null if the previous room is a custom room
+                _previousPlatform != null //it can be null if the previous room is a custom room
                 &&
-                previousPlatform.AttachedObject == null //don't add objects to two platforms in a row
+                _previousPlatform.AttachedObject == null //don't add objects to two platforms in a row
                 &&
                 Random.Range(0, 4) == 0 //25% probability of object
                )
@@ -201,7 +209,7 @@ public class ProceduralRoom:Room
                 {
                     //when we go to a spikeplatform that is higher than the previous one it is difficult to avoid the spike, so we move the spike to the right
                     //when we go to a spikeplatform that is lower than the previous one it is difficult to avoid the spike, so we move the spike to the left
-                    if (platformY > previousPlatform.Position.y)
+                    if (platformY > _previousPlatform.Position.y)
                     {//new platform is higher, so move the spike right
                         horizontalOffset = 2.5f;
                     }
@@ -220,33 +228,34 @@ public class ProceduralRoom:Room
 
             }//add object
 
+
+
+            //make the latestplatform previousplatform for the next room
+            _previousPlatform = platform;
         }//for platform
 
+
+        // if (i == 7)
+        LastPlatform = platform;
+
     }
 
 
 
-    public Platform LastPlatform
-    {
-        get
-        {
+    //{
+    //  get
+    // {
+    //    return _myEightPlatforms[7];
+    //}
+    // }
 
-            if (_myEightPlatforms == null)
-            {//it is the case for custom rooms
-                return null;
-            }
 
-            return _myEightPlatforms[7];
-        }
-    }
-
-  
 
 }
 
 public class CampaignRoom : Room
 {
-    public CampaignRoom(CampaignRoom previousRoom): base(previousRoom)
+    public CampaignRoom(CampaignRoom previousRoom) : base(previousRoom)
     {
 
 
@@ -275,7 +284,7 @@ public class Room
         const float width = 50.28f; //because we are using 3 backgrounds each having a 1676 pixel width
 
 
-       
+
         float startX;
 
         if (previousRoom == null)
@@ -292,7 +301,7 @@ public class Room
 
 
 
-        
+
     }
 
 
@@ -385,7 +394,7 @@ public class RoomGenerator : MonoBehaviour
         //let's add the first real room (we pass null because there is no previous room)
 
 
-        if(Procedural)
+        if (Procedural)
         {
             _rooms = new List<Room> { new ProceduralRoom(null) };
 
@@ -454,10 +463,10 @@ public class RoomGenerator : MonoBehaviour
                 else
                 {
 
-                    if(Procedural)
-                        _rooms.Add( new ProceduralRoom((ProceduralRoom) latestRoom));
+                    if (Procedural)
+                        _rooms.Add(new ProceduralRoom((ProceduralRoom)latestRoom));
                     else
-                        _rooms.Add(new CampaignRoom((CampaignRoom) latestRoom));
+                        _rooms.Add(new CampaignRoom((CampaignRoom)latestRoom));
 
                     roomAddedOrRemoved = true;
                 }
