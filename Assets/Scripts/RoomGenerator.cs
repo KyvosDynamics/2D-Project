@@ -8,76 +8,45 @@ using UnityEngine.UI;
 public class Platform
 {
     public ItemThatSitsOnPlatform AttachedObject = null;
-    private GameObject _unityObject = null;
+    public Vector3 Position { get; private set; }
 
 
-    public Platform(Transform parent)
+    public Platform(Transform parent, Vector3 position)
     {
-        _unityObject = Object.Instantiate(RoomGenerator.StaticPlatformPrefab, parent);
+        Position = position;
+        Object.Instantiate(RoomGenerator.StaticPlatformPrefab, position, Quaternion.identity, parent);
     }
 
-    public Vector3 Position
-    {
-        set { _unityObject.transform.position = value; }
-        get { return _unityObject.transform.position; }
-    }
 }
 
 
 public class ProceduralRoom : Room
 {
     public Platform LastPlatform { get; private set; }
-    //  private Platform[] _myEightPlatforms = null;
-
 
 
     public ProceduralRoom(ProceduralRoom previousRoom) : base(previousRoom)
     {
-        //private 
-        Platform _previousPlatform = null;
-        _previousPlatform = previousRoom == null ? null : previousRoom.LastPlatform;  //the previous platform is the last platform of the previous room
-
-
-
-
-
-        //        CreateEmptyRoomWithPlatforms(CenterX, _previousPlatform);
-        //  }
-        //private void CreateEmptyRoomWithPlatforms(float roomX, Platform previousPlatform)
-        //{
+        Platform previousPlatform = previousRoom == null ? null : previousRoom.LastPlatform;  //the previous platform is the last platform of the previous room
 
 
         const float width = 50.28f; //because we are using 3 backgrounds each having a 1676 pixel width
         const float platformWidth = 6.285f; //(notice platformWidth * 8 = roomWidth)  , also 1356 * scale= 628.5, scale= 0.4635
         const float platformHeight = 0.616455f;
 
-
         int randomIndex = Random.Range(0, RoomGenerator.StaticRoomDefinitions.Length);
-
-        _unityObject = Object.Instantiate(RoomGenerator.StaticRoomDefinitions[randomIndex].Prefab, new Vector3(CenterX, 0, 0), Quaternion.identity);
-
-
-
+        Vector3 position = new Vector3(CenterX, 0, 0);
+        _unityObject = Object.Instantiate(RoomGenerator.StaticRoomDefinitions[randomIndex].Prefab,position, Quaternion.identity);
         Transform roomTransform = _unityObject.transform;
 
-        //_myEightPlatforms = new Platform[8];
         Platform platform = null;
 
 
         for (int i = 0; i < 8; i++)
         {
-            platform = //_myEightPlatforms[i] = 
-                new Platform(roomTransform);
-
-
-            //            if (i > 0) //i.e. it is not the first platform of this room. When i is 0 the previous platform is the last platform of the previous room as set a few lines above
-            //              _previousPlatform = _myEightPlatforms[i - 1];
-
-
-
             float platformY;
 
-            if (_previousPlatform == null)
+            if (previousPlatform == null)
             {
                 //the previous platform is null only in the very first room of the game and the very first platform of that first room
                 //we want the very first platform of our game to be at at y minus one
@@ -90,15 +59,14 @@ public class ProceduralRoom : Room
 
 
                 //the only exception is when the previous platform had a ponger on it. We want the new platform to be placed much higher than usual
-                if (_previousPlatform.AttachedObject != null && _previousPlatform.AttachedObject.RequiresSufficientSpaceAbove)
+                if (previousPlatform.AttachedObject != null && previousPlatform.AttachedObject.RequiresSufficientSpaceAbove)
                 {
 
-                    platformY = _previousPlatform.Position.y + 4 * platformHeight;
+                    platformY = previousPlatform.Position.y + 4 * platformHeight;
 
                 }
                 else
                 {
-
 
                     float randomDifference = 0;
                     int upSameOrDown = Random.Range(0, 3);
@@ -115,16 +83,13 @@ public class ProceduralRoom : Room
                             break;
                     }
 
-                    platformY = _previousPlatform.Position.y + randomDifference;
+                    platformY = previousPlatform.Position.y + randomDifference;
 
                     //check for out-of-game-bounds
                     if (platformY > 2f)
-                        platformY = _previousPlatform.Position.y - platformHeight;
+                        platformY = previousPlatform.Position.y - platformHeight;
                     else if (platformY < -4f)
-                        platformY = _previousPlatform.Position.y + platformHeight;
-
-
-
+                        platformY = previousPlatform.Position.y + platformHeight;
 
 
                 }
@@ -132,16 +97,11 @@ public class ProceduralRoom : Room
             }
 
 
-
             //now we know y. For x it's easy as we know the position of the room and the relative position of the platform inside the room
-            float platformX = roomTransform.position.x - (width / 2 - platformWidth / 2 - platformWidth * i);
+            float platformX = position.x - (width / 2 - platformWidth / 2 - platformWidth * i);
 
             //therefore:
-            platform.Position = new Vector3(platformX, platformY);
-
-            //Debug.Log("created platform at " + platformX + "," + platformY + " for i " + i);
-
-
+            platform = new Platform(roomTransform, new Vector3(platformX, platformY));
 
 
 
@@ -153,9 +113,7 @@ public class ProceduralRoom : Room
             if (
                 Index > 0 //don't add any objects to the first room so the player adjusts to the gameplay mechanics
                 &&
-                _previousPlatform != null //it can be null if the previous room is a custom room
-                &&
-                _previousPlatform.AttachedObject == null //don't add objects to two platforms in a row
+                previousPlatform.AttachedObject == null //don't add objects to two platforms in a row
                 &&
                 Random.Range(0, 4) == 0 //25% probability of object
                )
@@ -209,7 +167,7 @@ public class ProceduralRoom : Room
                 {
                     //when we go to a spikeplatform that is higher than the previous one it is difficult to avoid the spike, so we move the spike to the right
                     //when we go to a spikeplatform that is lower than the previous one it is difficult to avoid the spike, so we move the spike to the left
-                    if (platformY > _previousPlatform.Position.y)
+                    if (platformY > previousPlatform.Position.y)
                     {//new platform is higher, so move the spike right
                         horizontalOffset = 2.5f;
                     }
@@ -231,38 +189,25 @@ public class ProceduralRoom : Room
 
 
             //make the latestplatform previousplatform for the next room
-            _previousPlatform = platform;
+            previousPlatform = platform;
         }//for platform
 
-
-        // if (i == 7)
         LastPlatform = platform;
 
     }
 
 
 
-    //{
-    //  get
-    // {
-    //    return _myEightPlatforms[7];
-    //}
-    // }
-
-
 
 }
 
+
 public class CampaignRoom : Room
 {
+
     public CampaignRoom(CampaignRoom previousRoom) : base(previousRoom)
     {
-
-
-
         _unityObject = Object.Instantiate(RoomGenerator.StaticRoomDefinitions[Index].Prefab, new Vector3(CenterX, 0, 0), Quaternion.identity);
-
-
     }
 }
 
@@ -299,14 +244,7 @@ public class Room
         EndX = startX + width;
         CenterX = startX + width * 0.5f;
 
-
-
-
     }
-
-
-
-
 
 
 
@@ -373,36 +311,37 @@ public class RoomGenerator : MonoBehaviour
 
     void Start()
     {
-        StaticProcedural = Procedural;
-
-
-        StaticPlatformPrefab = ThemeToUse == Theme.Fire ? FirePlatformPrefab : IcePlatformPrefab;
-
-        if (Procedural)
-            StaticRoomDefinitions = RoomDefinitions.Where(r => r.IsProcedural == true && r.MyTheme == ThemeToUse).ToArray();
-        else
-            StaticRoomDefinitions = RoomDefinitions.Where(r => r.IsProcedural == false && r.MyTheme == ThemeToUse).OrderBy(r => r.IndexForNonProcedural).ToArray();
-
-
-        StaticItemsThatSitOnPlatforms = ItemsThatSitOnPlatforms;
-
-
         //find the scene room and destroy it. It is only there for visual reference for us developers 
         Destroy(GameObject.Find("DummyRoom"));
 
 
-        //let's add the first real room (we pass null because there is no previous room)
+
+        StaticProcedural = Procedural;
+
+        StaticItemsThatSitOnPlatforms = ItemsThatSitOnPlatforms;
+
+        StaticPlatformPrefab = ThemeToUse == Theme.Fire ? FirePlatformPrefab : IcePlatformPrefab;
 
 
         if (Procedural)
         {
-            _rooms = new List<Room> { new ProceduralRoom(null) };
+            StaticRoomDefinitions = RoomDefinitions.Where(r => r.IsProcedural == true && r.MyTheme == ThemeToUse).ToArray();
+
+            _rooms = new List<Room> { new ProceduralRoom(null) }; //let's add the first real room (we pass null because there is no previous room)
 
         }
         else
         {
-            _rooms = new List<Room> { new CampaignRoom(null) };
+            StaticRoomDefinitions = RoomDefinitions.Where(r => r.IsProcedural == false && r.MyTheme == ThemeToUse).OrderBy(r => r.IndexForNonProcedural).ToArray();
+
+            _rooms = new List<Room> { new CampaignRoom(null) }; //let's add the first real room (we pass null because there is no previous room)
+
         }
+
+
+
+
+
 
 
 

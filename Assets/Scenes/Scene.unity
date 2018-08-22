@@ -1163,7 +1163,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ThemeToUse: 0
-  Procedural: 0
+  Procedural: 1
   ItemsThatSitOnPlatforms:
   - RequiresSufficientSpaceAbove: 1
     AutoDetermineHorizontalOffset: 0
