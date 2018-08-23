@@ -197,7 +197,7 @@ Prefab:
     m_Modifications:
     - target: {fileID: 4502359669117760, guid: 524bd526f634c7a4482357951820d897, type: 2}
       propertyPath: m_LocalPosition.x
-      value: -9.31
+      value: -15.4
       objectReference: {fileID: 0}
     - target: {fileID: 4502359669117760, guid: 524bd526f634c7a4482357951820d897, type: 2}
       propertyPath: m_LocalPosition.y
@@ -1195,6 +1195,9 @@ MonoBehaviour:
     type: 2}
   IcePlatformPrefab: {fileID: 1978104339873990, guid: 60afb4e7bbc7e8541931ad42889ff28f,
     type: 2}
+  FireGoalRoomPrefab: {fileID: 1099257735438042, guid: 98dcf94d8dcaf824db08d087872f6d5a,
+    type: 2}
+  IceGoalRoomPrefab: {fileID: 0}
   CurrentScoreText: {fileID: 261570680}
   HighScoreText: {fileID: 66004553}
 --- !u!4 &1917205422

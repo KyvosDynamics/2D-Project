@@ -170,6 +170,10 @@ public class PlayerController : MonoBehaviour
             case "Ponger":
                 _jumpFromPonger = true;
                 break;
+
+            case "EndPoint":
+                PlayerWon();
+                break;
         }
     }
 
@@ -180,7 +184,7 @@ public class PlayerController : MonoBehaviour
         StopPlayer();
         PlayerWasKilledUI.SetActive(true);
     }
-    public void PlayerWon()
+    private void PlayerWon()
     {
         StopPlayer();
         PlayerWonUI.SetActive(true);

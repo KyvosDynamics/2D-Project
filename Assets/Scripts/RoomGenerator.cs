@@ -23,10 +23,15 @@ public class Platform
 public class CampaignRoom : Room
 {
 
-    public CampaignRoom(CampaignRoom previousRoom) : base(previousRoom)
+    public CampaignRoom(CampaignRoom previousRoom, bool isGoalRoom=false) : base(previousRoom)
     {
-        _unityObject = Object.Instantiate(RoomGenerator.StaticRoomDefinitions[Index].Prefab, new Vector3(CenterX, 0, 0), Quaternion.identity);
+
+        if(isGoalRoom==false)
+            _unityObject = Object.Instantiate(RoomGenerator.StaticRoomDefinitions[Index].Prefab, new Vector3(CenterX, 0, 0), Quaternion.identity);
+        else
+            _unityObject = Object.Instantiate(RoomGenerator.StaticGoalRoomPrefab, new Vector3(CenterX, 0, 0), Quaternion.identity);
     }
+    
 }
 
 
@@ -55,7 +60,7 @@ public class ProceduralRoom : Room
         {
             float platformY = -1; //it is important that we initialize this to minus one. This is the desired y value for the very first platform of our game (for this platform previousplatform=null)
 
-            if (previousPlatform != null)                        
+            if (previousPlatform != null)
             {//for every other platform we want a y that is the y of the previous platform plus/minus a small random value
 
                 //the only exception is when the previous platform had a ponger on it. We want the new platform to be placed much higher than usual
@@ -160,7 +165,7 @@ public class ProceduralRoom : Room
                     {//new platform is higher, so move the spike right
                         horizontalOffset = 2.5f;
                     }
-                    else if(platformY < previousPlatform.Position.y)
+                    else if (platformY < previousPlatform.Position.y)
                     {//move spike left
                         horizontalOffset = -2f;
                     }
@@ -251,8 +256,9 @@ public class RoomGenerator : MonoBehaviour
     public static ItemThatSitsOnPlatform[] StaticItemsThatSitOnPlatforms;
     public static RoomDefinition[] StaticRoomDefinitions;
     public static GameObject StaticPlatformPrefab;
+    public static GameObject StaticGoalRoomPrefab;
 
-    public static int PlayerIsInRoomIndex = -1; //this could also be useful for increasing game difficulty based on progress
+    public static int MaxRoomIndex = -1; //this could also be useful for increasing game difficulty based on progress
     public static int StaticRoomIndex = -1; //it is important for this to be initialized minus one so that the first room is at index 0
 
     public Theme ThemeToUse = Theme.Fire;
@@ -261,6 +267,10 @@ public class RoomGenerator : MonoBehaviour
     public RoomDefinition[] RoomDefinitions;
     public GameObject FirePlatformPrefab;
     public GameObject IcePlatformPrefab;
+
+    public GameObject FireGoalRoomPrefab;
+    public GameObject IceGoalRoomPrefab;
+
     public Text CurrentScoreText;
     public Text HighScoreText;
 
@@ -272,7 +282,7 @@ public class RoomGenerator : MonoBehaviour
     private void Awake()
     {
         //it is absolutely vital that we first reset the static variables because they are not automatically reset when we start a new game (e.g. after we are killed)
-        PlayerIsInRoomIndex = -1;
+        MaxRoomIndex = -1;
         StaticRoomIndex = -1;
     }
 
@@ -285,20 +295,29 @@ public class RoomGenerator : MonoBehaviour
 
         StaticItemsThatSitOnPlatforms = ItemsThatSitOnPlatforms;
 
-        StaticPlatformPrefab = ThemeToUse == Theme.Fire ? FirePlatformPrefab : IcePlatformPrefab;
+        if(ThemeToUse== Theme.Fire)
+        {
+            StaticPlatformPrefab =  FirePlatformPrefab;
+            StaticGoalRoomPrefab = FireGoalRoomPrefab;
+        }
+        else
+        {
+            StaticPlatformPrefab =  IcePlatformPrefab;
+        }
+        
 
 
         if (Procedural)
         {
             StaticRoomDefinitions = RoomDefinitions.Where(r => r.IsProcedural == true && r.MyTheme == ThemeToUse).ToArray();
             //let's add the first real room (we pass null because there is no previous room)
-            _rooms = new List<Room> { new ProceduralRoom(null) }; 
+            _rooms = new List<Room> { new ProceduralRoom(null) };
         }
         else
         {
             StaticRoomDefinitions = RoomDefinitions.Where(r => r.IsProcedural == false && r.MyTheme == ThemeToUse).OrderBy(r => r.IndexForNonProcedural).ToArray();
             //let's add the first real room (we pass null because there is no previous room)
-            _rooms = new List<Room> { new CampaignRoom(null) }; 
+            _rooms = new List<Room> { new CampaignRoom(null) };
         }
 
 
@@ -324,6 +343,7 @@ public class RoomGenerator : MonoBehaviour
     {
         while (PlayerController.IsActive)
         {
+
             bool roomAddedOrRemoved = false;
 
             Room oldestRoom = _rooms[0];
@@ -341,34 +361,51 @@ public class RoomGenerator : MonoBehaviour
 
 
 
-
             if (latestRoom.CenterX < rightCameraBound)
             {
                 //should add a new room
 
-                //but we should be careful in the non-procedural case if we have run out of prefabs (the procedural is infinite and can reuse the same prefab multiple times)
-                if (Procedural == false && latestRoom.Index == StaticRoomDefinitions.Length - 1)
-                {//no more custom rooms available. We are approaching victory (when the last room ends)
 
 
-                    if (latestRoom.EndX < rightCameraBound)
-                    {
-                        GameObject.Find("Runner").GetComponent<PlayerController>().PlayerWon();
+                if(Procedural)
+                {//nothing to consider, add a room
+                    _rooms.Add(new ProceduralRoom((ProceduralRoom)latestRoom));
 
-                    }
-
+                    roomAddedOrRemoved = true;
 
                 }
                 else
-                {
+                {//more tricky case...
+                 //in campaign mode we eventually run out of prefabs to use (finite list).
+                 //when that happens we should add a special "goal" room instead.
 
-                    if (Procedural)
-                        _rooms.Add(new ProceduralRoom((ProceduralRoom)latestRoom));
-                    else
+
+                    if (latestRoom.Index < StaticRoomDefinitions.Length - 1)
+                    {//we have prefab
+
                         _rooms.Add(new CampaignRoom((CampaignRoom)latestRoom));
+                        roomAddedOrRemoved = true;
+                    }
+                    else if(latestRoom.Index == StaticRoomDefinitions.Length - 1) //(strictly equal, NOT <= )
+                    {//we've run out of prefabs, add the special "goal" room
 
-                    roomAddedOrRemoved = true;
+                        _rooms.Add(new CampaignRoom((CampaignRoom)latestRoom, true));
+                        roomAddedOrRemoved = true; //(we still set this flag because we want the goal room to increase the score too)
+                    }
+
+
+
+
+
+
+
+
+
                 }
+
+
+             
+
             }
 
 
@@ -379,27 +416,24 @@ public class RoomGenerator : MonoBehaviour
 
                 if (_rooms.Count == 1)
                 {
-                    PlayerIsInRoomIndex = _rooms[0].Index;
+                    MaxRoomIndex = _rooms[0].Index;
                 }
                 else
                 {//two rooms
-
-                    if (_rooms[0].EndX >= transform.position.x)
-                        PlayerIsInRoomIndex = _rooms[0].Index;
-                    else
-                        PlayerIsInRoomIndex = _rooms[1].Index;
+                    MaxRoomIndex = _rooms[1].Index;
                 }
 
 
-                CurrentScoreText.text = PlayerIsInRoomIndex.ToString();
+                CurrentScoreText.text = MaxRoomIndex.ToString();
 
-                if (PlayerIsInRoomIndex > PlayerPrefs.GetInt("HighScore", 0))
+                if (MaxRoomIndex > PlayerPrefs.GetInt("HighScore", 0))
                 {
-                    PlayerPrefs.SetInt("HighScore", PlayerIsInRoomIndex);
-                    HighScoreText.text = PlayerIsInRoomIndex.ToString();
+                    PlayerPrefs.SetInt("HighScore", MaxRoomIndex);
+                    HighScoreText.text = MaxRoomIndex.ToString();
                 }
 
             }
+
 
 
             yield return new WaitForSeconds(0.25f);
