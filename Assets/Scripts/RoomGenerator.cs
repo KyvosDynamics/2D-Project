@@ -261,9 +261,10 @@ public class RoomGenerator : MonoBehaviour
 
     public static int MaxRoomIndex = -1; //this could also be useful for increasing game difficulty based on progress
     public static int StaticRoomIndex = -1; //it is important for this to be initialized minus one so that the first room is at index 0
-
-    public Theme ThemeToUse = Theme.Fire;
-    public bool Procedural = true;
+    [SerializeField]
+    private Theme _themeNeverSetThisToAll = Theme.Fire;
+    [SerializeField]
+    private bool _procedural = true;
     public ItemThatSitsOnPlatform[] ItemsThatSitOnPlatforms;
     public RoomDefinition[] RoomDefinitions;
     public GameObject FirePlatformPrefab;
@@ -277,6 +278,8 @@ public class RoomGenerator : MonoBehaviour
     private List<Room> _rooms;
     private float _screenWidth;
 
+    public static Theme? StaticThemeToUse; //this is set in the menu script. We've made it nullable so that we can override it from the inspector
+    public static bool? StaticProcedural; //this is set in the menu script. We've made it nullable so that we can override it from the inspector
 
 
     private void Awake()
@@ -284,6 +287,12 @@ public class RoomGenerator : MonoBehaviour
         //it is absolutely vital that we first reset the static variables because they are not automatically reset when we start a new game (e.g. after we are killed)
         MaxRoomIndex = -1;
         StaticRoomIndex = -1;
+
+
+        if (StaticThemeToUse.HasValue)
+            _themeNeverSetThisToAll = StaticThemeToUse.Value;
+        if (StaticProcedural.HasValue)
+            _procedural = StaticProcedural.Value;
     }
 
     void Start()
@@ -293,10 +302,10 @@ public class RoomGenerator : MonoBehaviour
 
 
 
-        StaticItemsThatSitOnPlatforms = ItemsThatSitOnPlatforms.Where(i => i.MyTheme == ThemeToUse || i.MyTheme== Theme.All).ToArray();
+        StaticItemsThatSitOnPlatforms = ItemsThatSitOnPlatforms.Where(i => i.MyTheme == _themeNeverSetThisToAll || i.MyTheme== Theme.All).ToArray();
 
 
-        if (ThemeToUse== Theme.Fire)
+        if (_themeNeverSetThisToAll== Theme.Fire)
         {            
             StaticPlatformPrefab =  FirePlatformPrefab;
             StaticGoalRoomPrefab = FireGoalRoomPrefab;
@@ -308,15 +317,15 @@ public class RoomGenerator : MonoBehaviour
         
 
 
-        if (Procedural)
+        if (_procedural)
         {
-            StaticRoomDefinitions = RoomDefinitions.Where(r => r.IsProcedural == true && r.MyTheme == ThemeToUse).ToArray();
+            StaticRoomDefinitions = RoomDefinitions.Where(r => r.IsProcedural == true && r.MyTheme == _themeNeverSetThisToAll).ToArray();
             //let's add the first real room (we pass null because there is no previous room)
             _rooms = new List<Room> { new ProceduralRoom(null) };
         }
         else
         {
-            StaticRoomDefinitions = RoomDefinitions.Where(r => r.IsProcedural == false && r.MyTheme == ThemeToUse).OrderBy(r => r.IndexForNonProcedural).ToArray();
+            StaticRoomDefinitions = RoomDefinitions.Where(r => r.IsProcedural == false && r.MyTheme == _themeNeverSetThisToAll).OrderBy(r => r.IndexForNonProcedural).ToArray();
             //let's add the first real room (we pass null because there is no previous room)
             _rooms = new List<Room> { new CampaignRoom(null) };
         }
@@ -368,7 +377,7 @@ public class RoomGenerator : MonoBehaviour
 
 
 
-                if(Procedural)
+                if(_procedural)
                 {//nothing to consider, add a room
                     _rooms.Add(new ProceduralRoom((ProceduralRoom)latestRoom));
 
