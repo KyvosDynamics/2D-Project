@@ -22,7 +22,7 @@ GameObject:
   - component: {fileID: 212449156905329998}
   - component: {fileID: 60456243325577422}
   m_Layer: 10
-  m_Name: Spike
+  m_Name: FireSpike
   m_TagString: Killer
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

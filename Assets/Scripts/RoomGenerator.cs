@@ -236,9 +236,10 @@ public class ItemThatSitsOnPlatform
     public bool RequiresSufficientSpaceAbove; //e.g. ponger
     public bool AutoDetermineHorizontalOffset; //e.g. spike
     public GameObject Prefab;
+    public Theme MyTheme;
 }
 
-public enum Theme { Fire, Ice };
+public enum Theme { All, Fire, Ice };
 
 
 [System.Serializable]
@@ -267,7 +268,6 @@ public class RoomGenerator : MonoBehaviour
     public RoomDefinition[] RoomDefinitions;
     public GameObject FirePlatformPrefab;
     public GameObject IcePlatformPrefab;
-
     public GameObject FireGoalRoomPrefab;
     public GameObject IceGoalRoomPrefab;
 
@@ -293,10 +293,11 @@ public class RoomGenerator : MonoBehaviour
 
 
 
-        StaticItemsThatSitOnPlatforms = ItemsThatSitOnPlatforms;
+        StaticItemsThatSitOnPlatforms = ItemsThatSitOnPlatforms.Where(i => i.MyTheme == ThemeToUse || i.MyTheme== Theme.All).ToArray();
 
-        if(ThemeToUse== Theme.Fire)
-        {
+
+        if (ThemeToUse== Theme.Fire)
+        {            
             StaticPlatformPrefab =  FirePlatformPrefab;
             StaticGoalRoomPrefab = FireGoalRoomPrefab;
         }

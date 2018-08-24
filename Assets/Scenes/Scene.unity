@@ -1162,35 +1162,42 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d869e4ed8ddee4b4c9409dbf5fe449c5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ThemeToUse: 0
+  ThemeToUse: 1
   Procedural: 1
   ItemsThatSitOnPlatforms:
   - RequiresSufficientSpaceAbove: 1
     AutoDetermineHorizontalOffset: 0
     Prefab: {fileID: 1468171118249788, guid: 574cbd0f29e14514eb65935332ba8c31, type: 2}
+    MyTheme: 0
   - RequiresSufficientSpaceAbove: 0
     AutoDetermineHorizontalOffset: 0
     Prefab: {fileID: 1513025892425984, guid: 0603ed106f1bc86488600fee1873d414, type: 2}
+    MyTheme: 0
   - RequiresSufficientSpaceAbove: 0
     AutoDetermineHorizontalOffset: 1
     Prefab: {fileID: 1954259282176104, guid: 17f41ba6059c3a744ba9606cbb4b8ce2, type: 2}
+    MyTheme: 1
+  - RequiresSufficientSpaceAbove: 0
+    AutoDetermineHorizontalOffset: 1
+    Prefab: {fileID: 1795348610015442, guid: 72f88977dfdea9940aa189fd18b4624e, type: 2}
+    MyTheme: 2
   RoomDefinitions:
   - Prefab: {fileID: 1099257735438042, guid: cdcd3a7eeb2b23c4a85e1c02ca024c72, type: 2}
     IsProcedural: 0
     IndexForNonProcedural: 0
-    MyTheme: 0
+    MyTheme: 1
   - Prefab: {fileID: 1099257735438042, guid: 31912cc6808aed14b9e71fef697952b3, type: 2}
     IsProcedural: 0
     IndexForNonProcedural: 1
-    MyTheme: 0
+    MyTheme: 1
   - Prefab: {fileID: 1099257735438042, guid: ce6a87f6a8e194342b0543b84fa2d74b, type: 2}
     IsProcedural: 1
     IndexForNonProcedural: 0
-    MyTheme: 0
+    MyTheme: 1
   - Prefab: {fileID: 1099257735438042, guid: 1734408226cadae4eabc3e764c39f08b, type: 2}
     IsProcedural: 1
     IndexForNonProcedural: 0
-    MyTheme: 1
+    MyTheme: 2
   FirePlatformPrefab: {fileID: 1978104339873990, guid: c03114d99ddc66546b1f0469f6d05c54,
     type: 2}
   IcePlatformPrefab: {fileID: 1978104339873990, guid: 60afb4e7bbc7e8541931ad42889ff28f,
