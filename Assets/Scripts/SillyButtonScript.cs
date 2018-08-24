@@ -1,20 +1,19 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class SillyButtonScript : MonoBehaviour {
+public class SillyButtonScript : MonoBehaviour
+{
+    public Transform SpinningImage;
+    public int ButtonIndex = 0;
+    private bool _spinImage = false;
+    private int _rotation = 360;
 
-    public GameObject spinningImage;
-    public int Index = 0;
-
-
-    bool spinImage = false;
 
     public void PlayGame()
     {
+       GetComponent<AudioSource>().Play();
 
-        switch(Index)
+        switch (ButtonIndex)
         {
             case 0:
                 RoomGenerator.StaticThemeToUse = Theme.Fire;
@@ -34,33 +33,24 @@ public class SillyButtonScript : MonoBehaviour {
                 break;
         }
 
-
-        spinImage = true;
-
-
+        _spinImage = true;
     }
-
-    int rotation = 360;
 
 
 
     void FixedUpdate()
     {
-        if (spinImage == false)
+        if (_spinImage == false)
             return;
 
 
-        rotation -= 10;
-        spinningImage.transform.rotation = Quaternion.Euler(Vector3.forward * rotation);
+        _rotation -= 10;
+        SpinningImage.rotation = Quaternion.Euler(Vector3.forward * _rotation);
 
 
-
-        if (rotation == 0)
+        if (_rotation == 0)
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
-
-
     }
-
 
 
 

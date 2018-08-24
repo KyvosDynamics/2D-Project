@@ -23,15 +23,15 @@ public class Platform
 public class CampaignRoom : Room
 {
 
-    public CampaignRoom(CampaignRoom previousRoom, bool isGoalRoom=false) : base(previousRoom)
+    public CampaignRoom(CampaignRoom previousRoom, bool isGoalRoom = false) : base(previousRoom)
     {
 
-        if(isGoalRoom==false)
+        if (isGoalRoom == false)
             _unityObject = Object.Instantiate(RoomGenerator.StaticRoomDefinitions[Index].Prefab, new Vector3(CenterX, 0, 0), Quaternion.identity);
         else
             _unityObject = Object.Instantiate(RoomGenerator.StaticGoalRoomPrefab, new Vector3(CenterX, 0, 0), Quaternion.identity);
     }
-    
+
 }
 
 
@@ -302,19 +302,19 @@ public class RoomGenerator : MonoBehaviour
 
 
 
-        StaticItemsThatSitOnPlatforms = ItemsThatSitOnPlatforms.Where(i => i.MyTheme == _themeNeverSetThisToAll || i.MyTheme== Theme.All).ToArray();
+        StaticItemsThatSitOnPlatforms = ItemsThatSitOnPlatforms.Where(i => i.MyTheme == _themeNeverSetThisToAll || i.MyTheme == Theme.All).ToArray();
 
 
-        if (_themeNeverSetThisToAll== Theme.Fire)
-        {            
-            StaticPlatformPrefab =  FirePlatformPrefab;
+        if (_themeNeverSetThisToAll == Theme.Fire)
+        {
+            StaticPlatformPrefab = FirePlatformPrefab;
             StaticGoalRoomPrefab = FireGoalRoomPrefab;
         }
         else
         {
-            StaticPlatformPrefab =  IcePlatformPrefab;
+            StaticPlatformPrefab = IcePlatformPrefab;
         }
-        
+
 
 
         if (_procedural)
@@ -377,7 +377,7 @@ public class RoomGenerator : MonoBehaviour
 
 
 
-                if(_procedural)
+                if (_procedural)
                 {//nothing to consider, add a room
                     _rooms.Add(new ProceduralRoom((ProceduralRoom)latestRoom));
 
@@ -396,7 +396,7 @@ public class RoomGenerator : MonoBehaviour
                         _rooms.Add(new CampaignRoom((CampaignRoom)latestRoom));
                         roomAddedOrRemoved = true;
                     }
-                    else if(latestRoom.Index == StaticRoomDefinitions.Length - 1) //(strictly equal, NOT <= )
+                    else if (latestRoom.Index == StaticRoomDefinitions.Length - 1) //(strictly equal, NOT <= )
                     {//we've run out of prefabs, add the special "goal" room
 
                         _rooms.Add(new CampaignRoom((CampaignRoom)latestRoom, true));
@@ -414,7 +414,7 @@ public class RoomGenerator : MonoBehaviour
                 }
 
 
-             
+
 
             }
 
