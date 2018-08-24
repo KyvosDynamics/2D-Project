@@ -10,4 +10,8 @@ public class PlayAgainScript : MonoBehaviour {
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
+    public void GoToMenu()
+    {
+        SceneManager.LoadScene(0);
+    }
 }
