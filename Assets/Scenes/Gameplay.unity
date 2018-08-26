@@ -1893,8 +1893,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d869e4ed8ddee4b4c9409dbf5fe449c5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _themeNeverSetThisToAll: 2
-  _procedural: 0
+  FireProceduralRoom: {fileID: 1099257735438042, guid: ce6a87f6a8e194342b0543b84fa2d74b,
+    type: 2}
+  IceProceduralRoom: {fileID: 1099257735438042, guid: 1734408226cadae4eabc3e764c39f08b,
+    type: 2}
+  FireCampaignGoalRoomPrefab: {fileID: 1099257735438042, guid: 98dcf94d8dcaf824db08d087872f6d5a,
+    type: 2}
+  IceCampaignGoalRoomPrefab: {fileID: 1356879439825246, guid: f5bfef6513d840e439f6a12b719eb8ef,
+    type: 2}
+  _themeNeverSetThisToAll: 1
+  _procedural: 1
   ItemsThatSitOnPlatforms:
   - RequiresSufficientSpaceAbove: 1
     AutoDetermineHorizontalOffset: 0
@@ -1912,34 +1920,19 @@ MonoBehaviour:
     AutoDetermineHorizontalOffset: 1
     Prefab: {fileID: 1795348610015442, guid: 72f88977dfdea9940aa189fd18b4624e, type: 2}
     MyTheme: 2
-  RoomDefinitions:
+  CampaignRoomDefinitions:
   - Prefab: {fileID: 1099257735438042, guid: cdcd3a7eeb2b23c4a85e1c02ca024c72, type: 2}
-    IsProcedural: 0
     IndexForNonProcedural: 0
     MyTheme: 1
   - Prefab: {fileID: 1099257735438042, guid: 31912cc6808aed14b9e71fef697952b3, type: 2}
-    IsProcedural: 0
     IndexForNonProcedural: 1
     MyTheme: 1
-  - Prefab: {fileID: 1099257735438042, guid: ce6a87f6a8e194342b0543b84fa2d74b, type: 2}
-    IsProcedural: 1
-    IndexForNonProcedural: 0
-    MyTheme: 1
-  - Prefab: {fileID: 1099257735438042, guid: 1734408226cadae4eabc3e764c39f08b, type: 2}
-    IsProcedural: 1
-    IndexForNonProcedural: 0
-    MyTheme: 2
   - Prefab: {fileID: 1099257735438042, guid: 3bfd4ecb62c44b24e8ac2a2e74586329, type: 2}
-    IsProcedural: 0
     IndexForNonProcedural: 0
     MyTheme: 2
   FirePlatformPrefab: {fileID: 1978104339873990, guid: c03114d99ddc66546b1f0469f6d05c54,
     type: 2}
   IcePlatformPrefab: {fileID: 1978104339873990, guid: 60afb4e7bbc7e8541931ad42889ff28f,
-    type: 2}
-  FireGoalRoomPrefab: {fileID: 1099257735438042, guid: 98dcf94d8dcaf824db08d087872f6d5a,
-    type: 2}
-  IceGoalRoomPrefab: {fileID: 1356879439825246, guid: f5bfef6513d840e439f6a12b719eb8ef,
     type: 2}
   CurrentScoreText: {fileID: 261570680}
   HighScoreText: {fileID: 66004553}

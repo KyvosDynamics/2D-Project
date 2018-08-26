@@ -243,10 +243,10 @@ public enum Theme { All, Fire, Ice };
 
 
 [System.Serializable]
-public class RoomDefinition
+public class CampaignRoomDefinition
 {
     public GameObject Prefab;
-    public bool IsProcedural; //procedural rooms have no platforms or objects. They procedurally generated
+//    public bool IsProcedural; //procedural rooms have no platforms or objects. They procedurally generated
     public int IndexForNonProcedural; //non-procedural i.e. custom rooms have index from 0 to infinity. The smaller the index the sooner the room will be encountered in the game
     public Theme MyTheme;
 }
@@ -254,8 +254,13 @@ public class RoomDefinition
 
 public class RoomGenerator : MonoBehaviour
 {
+    public GameObject FireProceduralRoom;
+    public GameObject IceProceduralRoom;
+    public GameObject FireCampaignGoalRoomPrefab;
+    public GameObject IceCampaignGoalRoomPrefab;
+
     public static ItemThatSitsOnPlatform[] StaticItemsThatSitOnPlatforms;
-    public static RoomDefinition[] StaticRoomDefinitions;
+    public static CampaignRoomDefinition[] StaticRoomDefinitions;
     public static GameObject StaticPlatformPrefab;
     public static GameObject StaticGoalRoomPrefab;
 
@@ -266,11 +271,9 @@ public class RoomGenerator : MonoBehaviour
     [SerializeField]
     private bool _procedural = true;
     public ItemThatSitsOnPlatform[] ItemsThatSitOnPlatforms;
-    public RoomDefinition[] RoomDefinitions;
+    public CampaignRoomDefinition[] CampaignRoomDefinitions;
     public GameObject FirePlatformPrefab;
     public GameObject IcePlatformPrefab;
-    public GameObject FireGoalRoomPrefab;
-    public GameObject IceGoalRoomPrefab;
 
     public Text CurrentScoreText;
     public Text HighScoreText;
@@ -308,25 +311,30 @@ public class RoomGenerator : MonoBehaviour
         if (_themeNeverSetThisToAll == Theme.Fire)
         {
             StaticPlatformPrefab = FirePlatformPrefab;
-            StaticGoalRoomPrefab = FireGoalRoomPrefab;
+            StaticGoalRoomPrefab = FireCampaignGoalRoomPrefab;
+
+            StaticRoomDefinitions = new CampaignRoomDefinition[] { new CampaignRoomDefinition() { Prefab = FireProceduralRoom } };
+            
         }
         else
         {
             StaticPlatformPrefab = IcePlatformPrefab;
-            StaticGoalRoomPrefab = IceGoalRoomPrefab;
+            StaticGoalRoomPrefab = IceCampaignGoalRoomPrefab;
+
+            StaticRoomDefinitions = new CampaignRoomDefinition[] { new CampaignRoomDefinition() { Prefab = IceProceduralRoom } };
         }
 
 
 
         if (_procedural)
         {
-            StaticRoomDefinitions = RoomDefinitions.Where(r => r.IsProcedural == true && r.MyTheme == _themeNeverSetThisToAll).ToArray();
+            //StaticRoomDefinitions = RoomDefinitions.Where(r => r.IsProcedural == true && r.MyTheme == _themeNeverSetThisToAll).ToArray();
             //let's add the first real room (we pass null because there is no previous room)
             _rooms = new List<Room> { new ProceduralRoom(null) };
         }
         else
         {
-            StaticRoomDefinitions = RoomDefinitions.Where(r => r.IsProcedural == false && r.MyTheme == _themeNeverSetThisToAll).OrderBy(r => r.IndexForNonProcedural).ToArray();
+            StaticRoomDefinitions = CampaignRoomDefinitions.Where(r=>r.MyTheme == _themeNeverSetThisToAll).OrderBy(r => r.IndexForNonProcedural).ToArray();
             //let's add the first real room (we pass null because there is no previous room)
             _rooms = new List<Room> { new CampaignRoom(null) };
         }
