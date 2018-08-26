@@ -27,7 +27,7 @@ public class CampaignRoom : Room
     {
 
         if (isGoalRoom == false)
-            _unityObject = Object.Instantiate(RoomGenerator.StaticRoomDefinitions[Index].Prefab, new Vector3(CenterX, 0, 0), Quaternion.identity);
+            _unityObject = Object.Instantiate(RoomGenerator.StaticRoomDefinitions[Index].RoomPrefab, new Vector3(CenterX, 0, 0), Quaternion.identity);
         else
             _unityObject = Object.Instantiate(RoomGenerator.StaticGoalRoomPrefab, new Vector3(CenterX, 0, 0), Quaternion.identity);
     }
@@ -51,7 +51,7 @@ public class ProceduralRoom : Room
 
         int randomIndex = Random.Range(0, RoomGenerator.StaticRoomDefinitions.Length);
         Vector3 position = new Vector3(CenterX, 0, 0);
-        _unityObject = Object.Instantiate(RoomGenerator.StaticRoomDefinitions[randomIndex].Prefab, position, Quaternion.identity);
+        _unityObject = Object.Instantiate(RoomGenerator.StaticRoomDefinitions[randomIndex].RoomPrefab, position, Quaternion.identity);
         Transform roomTransform = _unityObject.transform;
 
         Platform platform = null;
@@ -245,39 +245,44 @@ public enum Theme { All, Fire, Ice };
 [System.Serializable]
 public class CampaignRoomDefinition
 {
-    public GameObject Prefab;
+    public GameObject RoomPrefab;
 //    public bool IsProcedural; //procedural rooms have no platforms or objects. They procedurally generated
-    public int IndexForNonProcedural; //non-procedural i.e. custom rooms have index from 0 to infinity. The smaller the index the sooner the room will be encountered in the game
+    public int Index; //non-procedural i.e. custom rooms have index from 0 to infinity. The smaller the index the sooner the room will be encountered in the game
     public Theme MyTheme;
 }
 
 
 public class RoomGenerator : MonoBehaviour
 {
-    public GameObject FireProceduralRoom;
-    public GameObject IceProceduralRoom;
-    public GameObject FireCampaignGoalRoomPrefab;
-    public GameObject IceCampaignGoalRoomPrefab;
+
+    public static int MaxRoomIndex = -1; //this could also be useful for increasing game difficulty based on progress
+    public static int StaticRoomIndex = -1; //it is important for this to be initialized minus one so that the first room is at index 0
 
     public static ItemThatSitsOnPlatform[] StaticItemsThatSitOnPlatforms;
     public static CampaignRoomDefinition[] StaticRoomDefinitions;
     public static GameObject StaticPlatformPrefab;
     public static GameObject StaticGoalRoomPrefab;
 
-    public static int MaxRoomIndex = -1; //this could also be useful for increasing game difficulty based on progress
-    public static int StaticRoomIndex = -1; //it is important for this to be initialized minus one so that the first room is at index 0
+
     [SerializeField]
     private Theme _themeNeverSetThisToAll = Theme.Fire;
     [SerializeField]
     private bool _procedural = true;
-    public ItemThatSitsOnPlatform[] ItemsThatSitOnPlatforms;
-    public CampaignRoomDefinition[] CampaignRoomDefinitions;
+
+    public GameObject FireProceduralRoom;
+    public GameObject IceProceduralRoom;
+    public GameObject FireCampaignGoalRoomPrefab;
+    public GameObject IceCampaignGoalRoomPrefab;
     public GameObject FirePlatformPrefab;
     public GameObject IcePlatformPrefab;
 
     public Text CurrentScoreText;
     public Text HighScoreText;
 
+   
+    public ItemThatSitsOnPlatform[] ItemsThatSitOnPlatforms;
+    public CampaignRoomDefinition[] CampaignRoomDefinitions;
+  
     private List<Room> _rooms;
     private float _screenWidth;
 
@@ -313,7 +318,7 @@ public class RoomGenerator : MonoBehaviour
             StaticPlatformPrefab = FirePlatformPrefab;
             StaticGoalRoomPrefab = FireCampaignGoalRoomPrefab;
 
-            StaticRoomDefinitions = new CampaignRoomDefinition[] { new CampaignRoomDefinition() { Prefab = FireProceduralRoom } };
+            StaticRoomDefinitions = new CampaignRoomDefinition[] { new CampaignRoomDefinition() { RoomPrefab = FireProceduralRoom } };
             
         }
         else
@@ -321,7 +326,7 @@ public class RoomGenerator : MonoBehaviour
             StaticPlatformPrefab = IcePlatformPrefab;
             StaticGoalRoomPrefab = IceCampaignGoalRoomPrefab;
 
-            StaticRoomDefinitions = new CampaignRoomDefinition[] { new CampaignRoomDefinition() { Prefab = IceProceduralRoom } };
+            StaticRoomDefinitions = new CampaignRoomDefinition[] { new CampaignRoomDefinition() { RoomPrefab = IceProceduralRoom } };
         }
 
 
@@ -334,7 +339,7 @@ public class RoomGenerator : MonoBehaviour
         }
         else
         {
-            StaticRoomDefinitions = CampaignRoomDefinitions.Where(r=>r.MyTheme == _themeNeverSetThisToAll).OrderBy(r => r.IndexForNonProcedural).ToArray();
+            StaticRoomDefinitions = CampaignRoomDefinitions.Where(r=>r.MyTheme == _themeNeverSetThisToAll).OrderBy(r => r.Index).ToArray();
             //let's add the first real room (we pass null because there is no previous room)
             _rooms = new List<Room> { new CampaignRoom(null) };
         }
