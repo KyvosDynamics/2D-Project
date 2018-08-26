@@ -279,7 +279,7 @@ MonoBehaviour:
       Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
   m_FontData:
     m_Font: {fileID: 12800000, guid: a9fa387d6e05a2d4384b8f3c8fa1c420, type: 3}
-    m_FontSize: 94
+    m_FontSize: 81
     m_FontStyle: 0
     m_BestFit: 0
     m_MinSize: 10
@@ -307,7 +307,7 @@ Prefab:
     m_Modifications:
     - target: {fileID: 4085050198178842, guid: bd71b8c536acc5b43b1e0b3530a5230c, type: 2}
       propertyPath: m_LocalPosition.x
-      value: 270
+      value: 290
       objectReference: {fileID: 0}
     - target: {fileID: 4085050198178842, guid: bd71b8c536acc5b43b1e0b3530a5230c, type: 2}
       propertyPath: m_LocalPosition.y
@@ -364,7 +364,7 @@ Prefab:
     m_Modifications:
     - target: {fileID: 4085050198178842, guid: bd71b8c536acc5b43b1e0b3530a5230c, type: 2}
       propertyPath: m_LocalPosition.x
-      value: 270
+      value: 290
       objectReference: {fileID: 0}
     - target: {fileID: 4085050198178842, guid: bd71b8c536acc5b43b1e0b3530a5230c, type: 2}
       propertyPath: m_LocalPosition.y
@@ -520,7 +520,7 @@ Prefab:
     m_Modifications:
     - target: {fileID: 4085050198178842, guid: bd71b8c536acc5b43b1e0b3530a5230c, type: 2}
       propertyPath: m_LocalPosition.x
-      value: -220
+      value: -200
       objectReference: {fileID: 0}
     - target: {fileID: 4085050198178842, guid: bd71b8c536acc5b43b1e0b3530a5230c, type: 2}
       propertyPath: m_LocalPosition.y
@@ -577,7 +577,7 @@ Prefab:
     m_Modifications:
     - target: {fileID: 4085050198178842, guid: bd71b8c536acc5b43b1e0b3530a5230c, type: 2}
       propertyPath: m_LocalPosition.x
-      value: -220
+      value: -200
       objectReference: {fileID: 0}
     - target: {fileID: 4085050198178842, guid: bd71b8c536acc5b43b1e0b3530a5230c, type: 2}
       propertyPath: m_LocalPosition.y
@@ -666,7 +666,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c45c1ce190e3a6948ab89cc8d8dd3b22, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  scrollSpeed: 1
 --- !u!222 &1797198759
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -686,7 +685,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0, g: 0.26535645, b: 0.3679245, a: 1}
+  m_Color: {r: 0, g: 0.0156245325, b: 0.2264151, a: 1}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:

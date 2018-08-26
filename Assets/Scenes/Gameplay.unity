@@ -1894,7 +1894,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _themeNeverSetThisToAll: 2
-  _procedural: 1
+  _procedural: 0
   ItemsThatSitOnPlatforms:
   - RequiresSufficientSpaceAbove: 1
     AutoDetermineHorizontalOffset: 0
@@ -1929,13 +1929,18 @@ MonoBehaviour:
     IsProcedural: 1
     IndexForNonProcedural: 0
     MyTheme: 2
+  - Prefab: {fileID: 1099257735438042, guid: 3bfd4ecb62c44b24e8ac2a2e74586329, type: 2}
+    IsProcedural: 0
+    IndexForNonProcedural: 0
+    MyTheme: 2
   FirePlatformPrefab: {fileID: 1978104339873990, guid: c03114d99ddc66546b1f0469f6d05c54,
     type: 2}
   IcePlatformPrefab: {fileID: 1978104339873990, guid: 60afb4e7bbc7e8541931ad42889ff28f,
     type: 2}
   FireGoalRoomPrefab: {fileID: 1099257735438042, guid: 98dcf94d8dcaf824db08d087872f6d5a,
     type: 2}
-  IceGoalRoomPrefab: {fileID: 0}
+  IceGoalRoomPrefab: {fileID: 1356879439825246, guid: f5bfef6513d840e439f6a12b719eb8ef,
+    type: 2}
   CurrentScoreText: {fileID: 261570680}
   HighScoreText: {fileID: 66004553}
 --- !u!4 &1917205422

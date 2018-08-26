@@ -313,6 +313,7 @@ public class RoomGenerator : MonoBehaviour
         else
         {
             StaticPlatformPrefab = IcePlatformPrefab;
+            StaticGoalRoomPrefab = IceGoalRoomPrefab;
         }
 
 
