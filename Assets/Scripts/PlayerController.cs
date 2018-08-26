@@ -26,7 +26,7 @@ public class PlayerController : MonoBehaviour
     private const float _jumpSpeed = 8;
     private Vector3 _downVectorWithMagnitude;
     private Vector3 _rightVectorWithMagnitude;
-
+    private TrailRenderer _trailRenderer;
 
 
     private void Awake()
@@ -36,6 +36,16 @@ public class PlayerController : MonoBehaviour
 
     void Start()
     {
+        _trailRenderer = GetComponent<TrailRenderer>();
+        _trailRenderer.material = new Material(Shader.Find("Sprites/Default"));
+        Gradient gradient = new Gradient();
+        gradient.SetKeys(
+            new GradientColorKey[] { new GradientColorKey(Color.white, 0.0f), new GradientColorKey(Color.white, 1.0f) },
+            new GradientAlphaKey[] { new GradientAlphaKey(1.0f, 0.0f), new GradientAlphaKey(1.0f, 1.0f) }
+            );
+        _trailRenderer.colorGradient = gradient;
+
+
         _rigidbody = GetComponent<Rigidbody2D>();
         _spriteRenderer = GetComponent<SpriteRenderer>();
         _spriteRenderer.color = IsCyan ? Color.cyan : Color.green;
@@ -121,7 +131,7 @@ public class PlayerController : MonoBehaviour
         {
             _switchcolor = false;
             IsCyan = !IsCyan;
-            _spriteRenderer.color = IsCyan ? Color.cyan : Color.green;
+           _trailRenderer.startColor = _trailRenderer.endColor = _spriteRenderer.color = IsCyan ? Color.cyan : Color.green;
         }
 
 
