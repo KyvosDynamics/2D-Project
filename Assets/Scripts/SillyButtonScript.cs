@@ -11,7 +11,7 @@ public class SillyButtonScript : MonoBehaviour
 
     public void PlayGame()
     {
-       GetComponent<AudioSource>().Play();
+        GetComponent<AudioSource>().Play();
 
         switch (ButtonIndex)
         {

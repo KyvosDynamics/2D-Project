@@ -132,7 +132,7 @@ public class PlayerController : MonoBehaviour
         {
             _switchcolor = false;
             IsCyan = !IsCyan;
-           _trailRenderer.startColor = _trailRenderer.endColor = _spriteRenderer.color = IsCyan ? Color.cyan : Color.green;
+            _trailRenderer.startColor = _trailRenderer.endColor = _spriteRenderer.color = IsCyan ? Color.cyan : Color.green;
         }
 
 

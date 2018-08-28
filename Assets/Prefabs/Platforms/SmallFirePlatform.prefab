@@ -22,7 +22,7 @@ GameObject:
   - component: {fileID: 212644636427368218}
   - component: {fileID: 61431296085663080}
   m_Layer: 9
-  m_Name: MovingFirePlatform
+  m_Name: SmallFirePlatform
   m_TagString: Ground
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

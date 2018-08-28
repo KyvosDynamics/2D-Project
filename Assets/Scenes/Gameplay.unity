@@ -2002,7 +2002,7 @@ MonoBehaviour:
     type: 2}
   FirePlatformPrefab: {fileID: 1978104339873990, guid: c03114d99ddc66546b1f0469f6d05c54,
     type: 2}
-  FireMovingPlatformPrefab: {fileID: 1464210007114534, guid: 1b5f5e19a135b7845a42c882033aae7c,
+  SmallFirePlatformPrefab: {fileID: 1464210007114534, guid: 1b5f5e19a135b7845a42c882033aae7c,
     type: 2}
   IcePlatformPrefab: {fileID: 1978104339873990, guid: 60afb4e7bbc7e8541931ad42889ff28f,
     type: 2}
