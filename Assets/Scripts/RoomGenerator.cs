@@ -7,14 +7,30 @@ using UnityEngine.UI;
 
 public class Platform
 {
+    public enum Type { Ordinary, Gap, SmallMoving }
+
     public ItemThatSitsOnPlatform AttachedItem = null;
     public Vector3 Position { get; private set; }
+    public Type MyType { get; private set; }
 
-
-    public Platform(float x, float y, Transform roomTransform)
+    public Platform(float x, float y, Transform roomTransform, Type type)
     {
+        MyType = type;
         Position = new Vector3(x, y);
-        Object.Instantiate(RoomGenerator.StaticPlatformPrefab, Position, Quaternion.identity, roomTransform);
+
+        switch (type)
+        {
+            case Type.Ordinary:
+                Object.Instantiate(RoomGenerator.StaticPlatformPrefab, Position, Quaternion.identity, roomTransform);
+                break;
+            case Type.Gap:
+                //don't instantiate anything
+                break;
+            case Type.SmallMoving:
+                Object.Instantiate(RoomGenerator.StaticMovingPlatformPrefab, Position, Quaternion.identity, roomTransform);
+                break;
+        }
+
     }
 
 }
@@ -45,62 +61,195 @@ public class ProceduralRoom : Room
     {
         Platform previousPlatform = previousRoom == null ? null : previousRoom.LastPlatform;  //the previous platform is the last platform of the previous room
 
-        const float width = 50.28f; //because we are using a background with 5028 pixels width
+        const float roomWidth = 50.28f; //because we are using a background with 5028 pixels width
         const float platformWidth = 6.285f; //(notice platformWidth * 8 = roomWidth)  , also 1356 * scale= 628.5, scale= 0.4635
         const float platformHeight = 0.616455f;
 
         int randomIndex = Random.Range(0, RoomGenerator.StaticRoomDefinitions.Length);
-        Vector3 position = new Vector3(CenterX, 0, 0);
-        _unityObject = Object.Instantiate(RoomGenerator.StaticRoomDefinitions[randomIndex].RoomPrefab, position, Quaternion.identity);
+        //Vector3 roomPosition =;
+        _unityObject = Object.Instantiate(RoomGenerator.StaticRoomDefinitions[randomIndex].RoomPrefab, new Vector3(CenterX, 0, 0), Quaternion.identity);
         Transform roomTransform = _unityObject.transform;
 
         Platform platform = null;
 
+        float halfRoomWidth = roomWidth / 2;
+        float halfPlatformWidth = platformWidth / 2;
+        float roomX = CenterX;
+
+
+
         for (int i = 0; i < 8; i++)
         {
             float platformY = -1; //it is important that we initialize this to minus one. This is the desired y value for the very first platform of our game (for this platform previousplatform=null)
+            float platformX = roomX - halfRoomWidth + halfPlatformWidth + platformWidth * i;// - platformWidth / 2 - platformWidth * i);
+
+            Platform.Type type = Platform.Type.Ordinary;
+
+
+            bool canHaveAttachedItem = false;
+
+            //    if(previousPlatform==null)
+            //      {//the previous platform can be null only if: a) we are about the add the very first platform of the game, or b) we deliberately left a gap so as to add a moving platform
+            //            //as we don't not allow gaps in the very first room that can tell us which is the case:
+            //              //if(Index==0)
+            //               // {//very first room, very first platform
+            //  platformY
+            //
+            //              //}
+            //
+            //
+            //
+            //}
+            //else//
+
+
+
 
             if (previousPlatform != null)
-            {//for every other platform we want a y that is the y of the previous platform plus/minus a small random value
+            {
 
-                //the only exception is when the previous platform had a ponger on it. We want the new platform to be placed much higher than usual
-                if (previousPlatform.AttachedItem != null && previousPlatform.AttachedItem.RequiresSufficientSpaceAbove)
+
+                switch (previousPlatform.MyType)
                 {
-                    platformY = previousPlatform.Position.y + 4 * platformHeight;
+                    case Platform.Type.SmallMoving:
+                        type = Platform.Type.Ordinary;
+                        canHaveAttachedItem = false;
+                        break;
+
+                    case Platform.Type.Gap:
+                        type = Platform.Type.SmallMoving;
+                        canHaveAttachedItem = false;
+
+                        break;
+
+                    case Platform.Type.Ordinary:
+                        //check for gap eligibility
+                        if (Index > 0 //not first room, we don't want any gaps and moving platforms in the very first toom
+                    && i >= 1 && i <= 5                     //platforms 0, 6 and 7 cannot be gaps
+                    && previousPlatform.AttachedItem==null
+                    )
+                        {
+                            type = Platform.Type.Gap;
+                            canHaveAttachedItem = false;
+                        }
+                        else
+                        {
+                            type = Platform.Type.Ordinary;
+
+                            //check for attached item eligibility
+                            if (//          type == Platform.Type.Ordinary //only ordinary platforms can have attached items
+                                //&&
+                           Index > 0 //don't add any objects to the first room so the player adjusts to the gameplay mechanics
+                           &&
+                           previousPlatform.AttachedItem == null //don't add objects to two platforms in a row
+                           &&
+                           Random.Range(0, 4) == 0 //25% probability of object
+                           )
+                                canHaveAttachedItem = true;
+                            else
+                                canHaveAttachedItem = false;
+
+
+                        }
+
+                        break;
                 }
-                else
+
+
+
+                switch (type)
                 {
-                    int upSameOrDown = Random.Range(0, 3);
-                    switch (upSameOrDown)
-                    {
-                        case 0: //up
-                            platformY = previousPlatform.Position.y + platformHeight;
+                    case Platform.Type.Gap:
 
-                            if (platformY > 2f)//out of bounds, go down instead
-                                platformY = previousPlatform.Position.y - platformHeight;
-                            break;
+                        // type = Platform.Type.Gap;
+                        platformY = previousPlatform.Position.y;
+                        //now we know y. For x it's easy as we know the position of the room and the relative position of the platform inside the room
+                        platformX = roomX - halfRoomWidth + halfPlatformWidth + platformWidth * i;// - platformWidth / 2 - platformWidth * i);
+                        break;
+                    case Platform.Type.SmallMoving:
 
-                        case 1: //same level
-                            platformY = previousPlatform.Position.y;
-                            break;
+                        //  type = Platform.Type.SmallMoving;//                        movingPlatform = true;
+                        platformY = previousPlatform.Position.y;
+                        //else
+                        // {//deliberate gap, add moving platform
+                        //{//the previous platform is null. We are either adding the very first platform of the game or we deliberately left a gap.
+                        // if (Index > 0)
+                        //{//not the first room so definitely deliberate.
+                        //In this case we want to add a moving platform
+                        //Object.Instantiate(RoomGenerator.StaticMovingPlatformPrefab, Position, Quaternion.identity, roomTransform);
 
-                        case 2: //down
-                            platformY = previousPlatform.Position.y - platformHeight;
+                        //}
+                        //platformX = roomPosition.x - (roomWidth / 2 - platformWidth / 2 - platformWidth * i);
+                        platformX = roomX - halfRoomWidth //+ halfPlatformWidth
+                            + platformWidth * i;
+                        //}
 
-                            if (platformY < -4f)//out of bounds, go up instead
-                                platformY = previousPlatform.Position.y + platformHeight;
-                            break;
-                    }
+                        //but since the previousplatform is null how do we find the y value for our moving platform?
+                        //we simply check platform index -2
 
+                        //}
+
+                        break;
+                    case Platform.Type.Ordinary:
+                        //we want a y that is the y of the previous platform plus/minus a small random value
+
+                        platformX = roomX - halfRoomWidth + halfPlatformWidth + platformWidth * i;// platformX = roomPosition.x - (roomWidth / 2 - platformWidth / 2 - platformWidth * i);
+                        //the only exception is when the previous platform had a ponger on it. We want the new platform to be placed much higher than usual
+                        if (previousPlatform.AttachedItem != null && previousPlatform.AttachedItem.RequiresSufficientSpaceAbove)
+                        {
+                            platformY = previousPlatform.Position.y + 4 * platformHeight;
+                        }
+                        else
+                        {
+                            // else
+                            //  {
+
+                            int upSameOrDown = Random.Range(0, 3);
+                            if (previousPlatform.MyType == Platform.Type.SmallMoving)
+                                upSameOrDown = 1;
+
+
+                            switch (upSameOrDown)
+                            {
+                                case 0: //up
+                                    platformY = previousPlatform.Position.y + platformHeight;
+
+                                    if (platformY > 2f)//out of bounds, go down instead
+                                        platformY = previousPlatform.Position.y - platformHeight;
+                                    break;
+
+                                case 1: //same level
+                                    platformY = previousPlatform.Position.y;
+                                    break;
+
+                                case 2: //down
+                                    platformY = previousPlatform.Position.y - platformHeight;
+
+                                    if (platformY < -4f)//out of bounds, go up instead
+                                        platformY = previousPlatform.Position.y + platformHeight;
+                                    break;
+                            }
+                            // }
+
+
+
+                        }
+                        break;
                 }
+
+
+
+
             }
+            //else
 
 
-            //now we know y. For x it's easy as we know the position of the room and the relative position of the platform inside the room
-            float platformX = position.x - (width / 2 - platformWidth / 2 - platformWidth * i);
+
+
 
             //therefore:
-            platform = new Platform(platformX, platformY, roomTransform);
+            //if(movingPlatform)
+            platform = new Platform(platformX, platformY, roomTransform, type);
 
 
 
@@ -109,11 +258,7 @@ public class ProceduralRoom : Room
             //check if we should attach an object to the top of the platform
 
             if (
-                Index > 0 //don't add any objects to the first room so the player adjusts to the gameplay mechanics
-                &&
-                previousPlatform.AttachedItem == null //don't add objects to two platforms in a row
-                &&
-                Random.Range(0, 4) == 0 //25% probability of object
+             canHaveAttachedItem
                )
             {//add object
 
@@ -211,7 +356,7 @@ public class Room
 
         if (previousRoom == null)
         {//this is the very first room of the game
-            startX = -width / 2;
+            startX = 0;// -width / 2;
         }
         else
         {//we want the new room to start at the end of the previous room
@@ -246,7 +391,7 @@ public enum Theme { All, Fire, Ice };
 public class CampaignRoomDefinition
 {
     public GameObject RoomPrefab;
-//    public bool IsProcedural; //procedural rooms have no platforms or objects. They procedurally generated
+    //    public bool IsProcedural; //procedural rooms have no platforms or objects. They procedurally generated
     public int Index; //non-procedural i.e. custom rooms have index from 0 to infinity. The smaller the index the sooner the room will be encountered in the game
     public Theme MyTheme;
 }
@@ -261,7 +406,9 @@ public class RoomGenerator : MonoBehaviour
     public static ItemThatSitsOnPlatform[] StaticItemsThatSitOnPlatforms;
     public static CampaignRoomDefinition[] StaticRoomDefinitions;
     public static GameObject StaticPlatformPrefab;
+    public static GameObject StaticMovingPlatformPrefab;
     public static GameObject StaticGoalRoomPrefab;
+
 
 
     [SerializeField]
@@ -274,15 +421,16 @@ public class RoomGenerator : MonoBehaviour
     public GameObject FireCampaignGoalRoomPrefab;
     public GameObject IceCampaignGoalRoomPrefab;
     public GameObject FirePlatformPrefab;
+    public GameObject FireMovingPlatformPrefab;
     public GameObject IcePlatformPrefab;
 
     public Text CurrentScoreText;
     public Text HighScoreText;
 
-   
+
     public ItemThatSitsOnPlatform[] ItemsThatSitOnPlatforms;
     public CampaignRoomDefinition[] CampaignRoomDefinitions;
-  
+
     private List<Room> _rooms;
     private float _screenWidth;
 
@@ -309,6 +457,7 @@ public class RoomGenerator : MonoBehaviour
         Destroy(GameObject.Find("DummyRoom"));
 
 
+        StaticMovingPlatformPrefab = FireMovingPlatformPrefab;
 
         StaticItemsThatSitOnPlatforms = ItemsThatSitOnPlatforms.Where(i => i.MyTheme == _themeNeverSetThisToAll || i.MyTheme == Theme.All).ToArray();
 
@@ -319,7 +468,7 @@ public class RoomGenerator : MonoBehaviour
             StaticGoalRoomPrefab = FireCampaignGoalRoomPrefab;
 
             StaticRoomDefinitions = new CampaignRoomDefinition[] { new CampaignRoomDefinition() { RoomPrefab = FireProceduralRoom } };
-            
+
         }
         else
         {
@@ -339,7 +488,7 @@ public class RoomGenerator : MonoBehaviour
         }
         else
         {
-            StaticRoomDefinitions = CampaignRoomDefinitions.Where(r=>r.MyTheme == _themeNeverSetThisToAll).OrderBy(r => r.Index).ToArray();
+            StaticRoomDefinitions = CampaignRoomDefinitions.Where(r => r.MyTheme == _themeNeverSetThisToAll).OrderBy(r => r.Index).ToArray();
             //let's add the first real room (we pass null because there is no previous room)
             _rooms = new List<Room> { new CampaignRoom(null) };
         }

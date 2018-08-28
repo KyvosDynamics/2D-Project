@@ -2,7 +2,7 @@
 
 public class CameraFollow : MonoBehaviour
 {
-    private const float _xOffsetFromPlayer = 6;
+    private const float _xOffsetFromPlayer = 6.5f;
     private Transform _playerTransform;
 
 

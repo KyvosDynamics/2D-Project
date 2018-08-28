@@ -60,7 +60,8 @@ public class PlayerController : MonoBehaviour
         _rightVectorWithMagnitude = Vector3.right * size.x / 2;
 
 
-        transform.position = new Vector3(-25.14f + 6.28125f / 2, 1);
+        transform.position = new Vector3(//-25.14f + 
+            6.28125f / 2, 1);
     }
 
 

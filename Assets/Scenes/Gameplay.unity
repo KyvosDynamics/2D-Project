@@ -272,7 +272,7 @@ Prefab:
     m_Modifications:
     - target: {fileID: 4502359669117760, guid: 524bd526f634c7a4482357951820d897, type: 2}
       propertyPath: m_LocalPosition.x
-      value: -15.4
+      value: -11.23
       objectReference: {fileID: 0}
     - target: {fileID: 4502359669117760, guid: 524bd526f634c7a4482357951820d897, type: 2}
       propertyPath: m_LocalPosition.y
@@ -2001,6 +2001,8 @@ MonoBehaviour:
   IceCampaignGoalRoomPrefab: {fileID: 1356879439825246, guid: f5bfef6513d840e439f6a12b719eb8ef,
     type: 2}
   FirePlatformPrefab: {fileID: 1978104339873990, guid: c03114d99ddc66546b1f0469f6d05c54,
+    type: 2}
+  FireMovingPlatformPrefab: {fileID: 1464210007114534, guid: 1b5f5e19a135b7845a42c882033aae7c,
     type: 2}
   IcePlatformPrefab: {fileID: 1978104339873990, guid: 60afb4e7bbc7e8541931ad42889ff28f,
     type: 2}
