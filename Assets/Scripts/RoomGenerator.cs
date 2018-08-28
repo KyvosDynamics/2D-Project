@@ -122,9 +122,13 @@ public class ProceduralRoom : Room
 
                         break;
 
+
                     case Platform.Type.Small:
                         type = Platform.Type.Ordinary;
+                        platformY = previousPlatform.Position.y;
                         break;
+
+
 
                     case Platform.Type.Ordinary:
                         //check for gap eligibility
@@ -173,8 +177,6 @@ public class ProceduralRoom : Room
                                 //  {
 
                                 int upSameOrDown = Random.Range(0, 3);
-                                if (previousPlatform.MyType == Platform.Type.Small)
-                                    upSameOrDown = 1;
 
 
                                 switch (upSameOrDown)
