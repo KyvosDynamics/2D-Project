@@ -44,11 +44,27 @@ public class CampaignRoom : Room
     public CampaignRoom(CampaignRoom previousRoom, bool isGoalRoom = false) : base(previousRoom)
     {
         if (isGoalRoom == false)
-            _unityObject = Object.Instantiate(RoomGenerator.StaticRoomDefinitions[_index].RoomPrefab, new Vector3(_centerX, 0, 0), Quaternion.identity);
+            _unityObject = Object.Instantiate(RoomGenerator.StaticCampaignRoomDefinitions[_index].RoomPrefab, new Vector3(_centerX, 0, 0), Quaternion.identity);
         else
             _unityObject = Object.Instantiate(RoomGenerator.StaticGoalRoomPrefab, new Vector3(_centerX, 0, 0), Quaternion.identity);
+
+
+        //Texture2D _texture = tex;        
+        //Sprite newSprite = Sprite.Create(_texture, new Rect(0f, 0f, _texture.width, _texture.height), new Vector2(0.5f, 0.5f), 128f);
+        GameObject sprGameObj = new GameObject();
+        sprGameObj.transform.parent = _unityObject.transform;
+        //sprGameObj.name = "something";
+        sprGameObj.transform.position = new Vector3(_centerX, -4.76f);
+        var sprRenderer = sprGameObj.AddComponent<SpriteRenderer>();
+        //SpriteRenderer sprRenderer = sprGameObj.GetComponent<SpriteRenderer>();
+        sprRenderer.sprite = RoomGenerator.StaticBottomOfRoomSprite;// newSprite;
+        //return sprGameObj;
     }
 
+    //   public Sprite AddSprite(Texture2D tex)
+    //  {
+    //   
+    // }
 }
 
 
@@ -61,8 +77,22 @@ public class ProceduralRoom : Room
     public ProceduralRoom(ProceduralRoom previousRoom) : base(previousRoom)
     {
 
-        int randomIndex = Random.Range(0, RoomGenerator.StaticRoomDefinitions.Length);
-        _unityObject = Object.Instantiate(RoomGenerator.StaticRoomDefinitions[randomIndex].RoomPrefab, new Vector3(_centerX, 0, 0), Quaternion.identity);
+        //        int randomIndex = Random.Range(0, RoomGenerator.StaticRoomDefinitions.Length);
+        _unityObject = new GameObject();// Object.Instantiate(RoomGenerator.StaticRoomDefinitions[randomIndex].RoomPrefab, new Vector3(_centerX, 0, 0), Quaternion.identity);
+
+        _unityObject.name = "ProceduralRoom" + _index;
+        GameObject sprGameObj = new GameObject();
+        sprGameObj.transform.parent = _unityObject.transform;
+        sprGameObj.name = "bottom sprite"; // "something";
+        sprGameObj.transform.position = new Vector3(_centerX, -4.76f);
+        var sprRenderer = sprGameObj.AddComponent<SpriteRenderer>();
+        //SpriteRenderer sprRenderer = sprGameObj.GetComponent<SpriteRenderer>();
+        sprRenderer.sprite = RoomGenerator.StaticBottomOfRoomSprite;// newSprite;
+        //return sprGameObj;
+
+
+
+
 
 
         float halfRoomWidth = 50.28f / 2; //because we are using a background with 5028 pixels width
@@ -104,7 +134,7 @@ public class ProceduralRoom : Room
 
 
                     case Platform.Type.Ordinary:
-                        
+
                         //check for gap eligibility
                         if (
                             _index > 0 //not first room, we don't want any gaps and moving platforms in the very first toom
@@ -322,19 +352,21 @@ public class RoomGenerator : MonoBehaviour
     public static int StaticRoomIndex = -1; //it is important for this to be initialized minus one so that the first room is at index 0
 
     public static ItemThatSitsOnPlatform[] StaticItemsThatSitOnPlatforms;
-    public static CampaignRoomDefinition[] StaticRoomDefinitions;
+    public static CampaignRoomDefinition[] StaticCampaignRoomDefinitions;
     public static GameObject StaticPlatformPrefab;
     public static GameObject StaticSmallPlatformPrefab;
     public static GameObject StaticGoalRoomPrefab;
-
+    public static Sprite StaticBottomOfRoomSprite;
 
     [SerializeField]
     private Theme _themeNeverSetThisToAll = Theme.Fire;
     [SerializeField]
     private bool _procedural = true;
 
-    public GameObject FireProceduralRoom;
-    public GameObject IceProceduralRoom;
+
+    public Sprite FireBottomOfRoomSprite;
+    public Sprite IceBottomOfRoomSprite;
+
     public GameObject FireCampaignGoalRoomPrefab;
     public GameObject IceCampaignGoalRoomPrefab;
     public GameObject FirePlatformPrefab;
@@ -354,6 +386,7 @@ public class RoomGenerator : MonoBehaviour
 
     public static Theme? StaticThemeToUse; //this is set in the menu script. We've made it nullable so that we can override it from the inspector
     public static bool? StaticProcedural; //this is set in the menu script. We've made it nullable so that we can override it from the inspector
+
 
 
     private void Awake()
@@ -377,7 +410,7 @@ public class RoomGenerator : MonoBehaviour
 
 
         StaticItemsThatSitOnPlatforms = ItemsThatSitOnPlatforms.Where(i => i.MyTheme == _themeNeverSetThisToAll || i.MyTheme == Theme.All).ToArray();
-
+       
 
         if (_themeNeverSetThisToAll == Theme.Fire)
         {
@@ -385,8 +418,8 @@ public class RoomGenerator : MonoBehaviour
             StaticSmallPlatformPrefab = SmallFirePlatformPrefab;
 
             StaticGoalRoomPrefab = FireCampaignGoalRoomPrefab;
-            StaticRoomDefinitions = new CampaignRoomDefinition[] { new CampaignRoomDefinition() { RoomPrefab = FireProceduralRoom } };
-
+            //      StaticRoomDefinitions = new CampaignRoomDefinition[] { new CampaignRoomDefinition() { RoomPrefab = FireProceduralRoom } };
+            StaticBottomOfRoomSprite = FireBottomOfRoomSprite;
         }
         else
         {
@@ -394,7 +427,8 @@ public class RoomGenerator : MonoBehaviour
             StaticSmallPlatformPrefab = SmallIcePlatformPrefab;
 
             StaticGoalRoomPrefab = IceCampaignGoalRoomPrefab;
-            StaticRoomDefinitions = new CampaignRoomDefinition[] { new CampaignRoomDefinition() { RoomPrefab = IceProceduralRoom } };
+            //  StaticRoomDefinitions = new CampaignRoomDefinition[] { new CampaignRoomDefinition() { RoomPrefab = IceProceduralRoom } };
+            StaticBottomOfRoomSprite = IceBottomOfRoomSprite;
         }
 
 
@@ -407,7 +441,7 @@ public class RoomGenerator : MonoBehaviour
         }
         else
         {
-            StaticRoomDefinitions = CampaignRoomDefinitions.Where(r => r.MyTheme == _themeNeverSetThisToAll).OrderBy(r => r.Index).ToArray();
+            StaticCampaignRoomDefinitions = CampaignRoomDefinitions.Where(r => r.MyTheme == _themeNeverSetThisToAll).OrderBy(r => r.Index).ToArray();
             //let's add the first real room (we pass null because there is no previous room)
             _rooms = new List<Room> { new CampaignRoom(null) };
         }
@@ -472,13 +506,13 @@ public class RoomGenerator : MonoBehaviour
                  //when that happens we should add a special "goal" room instead.
 
 
-                    if (latestRoom.Index < StaticRoomDefinitions.Length - 1)
+                    if (latestRoom.Index < StaticCampaignRoomDefinitions.Length - 1)
                     {//we have prefab
 
                         _rooms.Add(new CampaignRoom((CampaignRoom)latestRoom));
                         roomAddedOrRemoved = true;
                     }
-                    else if (latestRoom.Index == StaticRoomDefinitions.Length - 1) //(strictly equal, NOT <= )
+                    else if (latestRoom.Index == StaticCampaignRoomDefinitions.Length - 1) //(strictly equal, NOT <= )
                     {//we've run out of prefabs, add the special "goal" room
 
                         _rooms.Add(new CampaignRoom((CampaignRoom)latestRoom, true));
