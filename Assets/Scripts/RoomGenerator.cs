@@ -8,10 +8,10 @@ using UnityEngine.UI;
 public class Platform
 {
     public enum Type { Ordinary, Gap, Small } //a gap is always followed by a small platform
-    public float X;
-    public float Y;
-    public Type MyType;
-    public ItemThatSitsOnPlatform AttachedItem;
+    public float X { get; private set; }
+    public float Y { get; private set; }
+    public Type MyType { get; private set; }
+    public ItemThatSitsOnPlatform AttachedItem { get; private set; }
 
 
     public Platform(float x, float y, Type type, ItemThatSitsOnPlatform attachedItem, Transform roomTransform)
@@ -44,9 +44,9 @@ public class CampaignRoom : Room
     public CampaignRoom(CampaignRoom previousRoom, bool isGoalRoom = false) : base(previousRoom)
     {
         if (isGoalRoom == false)
-            _unityObject = Object.Instantiate(RoomGenerator.StaticRoomDefinitions[Index].RoomPrefab, new Vector3(CenterX, 0, 0), Quaternion.identity);
+            _unityObject = Object.Instantiate(RoomGenerator.StaticRoomDefinitions[_index].RoomPrefab, new Vector3(_centerX, 0, 0), Quaternion.identity);
         else
-            _unityObject = Object.Instantiate(RoomGenerator.StaticGoalRoomPrefab, new Vector3(CenterX, 0, 0), Quaternion.identity);
+            _unityObject = Object.Instantiate(RoomGenerator.StaticGoalRoomPrefab, new Vector3(_centerX, 0, 0), Quaternion.identity);
     }
 
 }
@@ -61,9 +61,8 @@ public class ProceduralRoom : Room
     public ProceduralRoom(ProceduralRoom previousRoom) : base(previousRoom)
     {
 
-
         int randomIndex = Random.Range(0, RoomGenerator.StaticRoomDefinitions.Length);
-        _unityObject = Object.Instantiate(RoomGenerator.StaticRoomDefinitions[randomIndex].RoomPrefab, new Vector3(CenterX, 0, 0), Quaternion.identity);
+        _unityObject = Object.Instantiate(RoomGenerator.StaticRoomDefinitions[randomIndex].RoomPrefab, new Vector3(_centerX, 0, 0), Quaternion.identity);
 
 
         float halfRoomWidth = 50.28f / 2; //because we are using a background with 5028 pixels width
@@ -71,7 +70,7 @@ public class ProceduralRoom : Room
         float halfPlatformWidth = platformWidth / 2;
         const float platformHeight = 0.616455f;
 
-        float roomX = CenterX;
+        float roomX = _centerX;
 
         Platform previousPlatform = previousRoom == null ? null : previousRoom.LastPlatform;  //the previous platform is the last platform of the previous room
 
@@ -108,7 +107,7 @@ public class ProceduralRoom : Room
                         
                         //check for gap eligibility
                         if (
-                            Index > 0 //not first room, we don't want any gaps and moving platforms in the very first toom
+                            _index > 0 //not first room, we don't want any gaps and moving platforms in the very first toom
                             && i >= 1 && i <= 5                     //platforms 0, 6 and 7 cannot be gaps
                             && previousPlatform.AttachedItem == null
                             && Random.Range(0, 4) == 0 //let's say 25% probability of gap
@@ -154,18 +153,16 @@ public class ProceduralRoom : Room
                                 }
 
 
-
                                 //check for attached item eligibility
                                 //check if we should attach an object to the top of the platform
                                 if (
-                                    Index > 0 //don't add any objects to the first room so the player adjusts to the gameplay mechanics
+                                    _index > 0 //don't add any objects to the first room so the player adjusts to the gameplay mechanics
                                     &&
                                     previousPlatform.AttachedItem == null //don't add objects to two platforms in a row
                                     &&
                                     Random.Range(0, 4) == 0 //25% probability of object
                                  )
                                 {
-
                                     int typeIndex = Random.Range(0, RoomGenerator.StaticItemsThatSitOnPlatforms.Length);
                                     ItemThatSitsOnPlatform item = RoomGenerator.StaticItemsThatSitOnPlatforms[typeIndex];
 
@@ -189,14 +186,12 @@ public class ProceduralRoom : Room
 
 
                                     //now we know what item to add
-                                    //platform.AttachedItem = item;
                                     attachedItem = item;
 
                                     //instantiate it
                                     GameObject go = Object.Instantiate(item.Prefab, roomTransform);
 
                                     //let's determine its position
-
                                     //to have the object perfectly sit on top of the platform we should move it up a bit.
                                     //By how much? ...   By half its height + half the platform's height (constant 0.308227f)
                                     //(Oh and it is important that we use the instantiated object for that, not the prefab. The prefab has no bounds)
@@ -221,19 +216,13 @@ public class ProceduralRoom : Room
                                     //starting with its platform's position
                                     go.transform.position = new Vector3(platformX + horizontalOffset, platformY + verticalOffset);
 
-
-
                                 }
 
 
 
 
 
-
-
-
                             }
-
 
 
                         }
@@ -243,13 +232,7 @@ public class ProceduralRoom : Room
 
 
 
-
-
-
             }
-
-
-
 
 
 
@@ -274,35 +257,37 @@ public class ProceduralRoom : Room
 
 public class Room
 {
-    public int Index;
-    public float CenterX;
-    public float EndX;
+    protected int _index;
+    protected float _centerX;
+    protected float _endX;
     protected GameObject _unityObject;
 
 
     public Room(Room previousRoom)
     {
         RoomGenerator.StaticRoomIndex++;
-        Index = RoomGenerator.StaticRoomIndex;
-
-        float width = 50.28f; //because we are using a background with width 5028 pixels
+        _index = RoomGenerator.StaticRoomIndex;
 
         float startX;
 
         if (previousRoom == null)
         {//this is the very first room of the game
-            startX = 0;// -width / 2;
+            startX = 0;
         }
         else
         {//we want the new room to start at the end of the previous room
             startX = previousRoom.EndX;
         }
 
-        EndX = startX + width;
-        CenterX = startX + width * 0.5f;
+        float width = 50.28f; //because we are using a background with width 5028 pixels
+        _endX = startX + width;
+        _centerX = startX + width * 0.5f;
     }
 
 
+    public int Index { get { return _index; } }
+    public float CenterX { get { return _centerX; } }
+    public float EndX { get { return _endX; } }
 
     public void Dispose()
     { Object.Destroy(_unityObject); }
@@ -326,7 +311,6 @@ public enum Theme { All, Fire, Ice };
 public class CampaignRoomDefinition
 {
     public GameObject RoomPrefab;
-    //    public bool IsProcedural; //procedural rooms have no platforms or objects. They procedurally generated
     public int Index; //non-procedural i.e. custom rooms have index from 0 to infinity. The smaller the index the sooner the room will be encountered in the game
     public Theme MyTheme;
 }
@@ -334,7 +318,6 @@ public class CampaignRoomDefinition
 
 public class RoomGenerator : MonoBehaviour
 {
-
     public static int MaxRoomIndex = -1; //this could also be useful for increasing game difficulty based on progress
     public static int StaticRoomIndex = -1; //it is important for this to be initialized minus one so that the first room is at index 0
 
@@ -343,7 +326,6 @@ public class RoomGenerator : MonoBehaviour
     public static GameObject StaticPlatformPrefab;
     public static GameObject StaticSmallPlatformPrefab;
     public static GameObject StaticGoalRoomPrefab;
-
 
 
     [SerializeField]
@@ -357,6 +339,7 @@ public class RoomGenerator : MonoBehaviour
     public GameObject IceCampaignGoalRoomPrefab;
     public GameObject FirePlatformPrefab;
     public GameObject SmallFirePlatformPrefab;
+    public GameObject SmallIcePlatformPrefab;
     public GameObject IcePlatformPrefab;
 
     public Text CurrentScoreText;
@@ -392,7 +375,6 @@ public class RoomGenerator : MonoBehaviour
         Destroy(GameObject.Find("DummyRoom"));
 
 
-        StaticSmallPlatformPrefab = SmallFirePlatformPrefab;
 
         StaticItemsThatSitOnPlatforms = ItemsThatSitOnPlatforms.Where(i => i.MyTheme == _themeNeverSetThisToAll || i.MyTheme == Theme.All).ToArray();
 
@@ -400,16 +382,18 @@ public class RoomGenerator : MonoBehaviour
         if (_themeNeverSetThisToAll == Theme.Fire)
         {
             StaticPlatformPrefab = FirePlatformPrefab;
-            StaticGoalRoomPrefab = FireCampaignGoalRoomPrefab;
+            StaticSmallPlatformPrefab = SmallFirePlatformPrefab;
 
+            StaticGoalRoomPrefab = FireCampaignGoalRoomPrefab;
             StaticRoomDefinitions = new CampaignRoomDefinition[] { new CampaignRoomDefinition() { RoomPrefab = FireProceduralRoom } };
 
         }
         else
         {
             StaticPlatformPrefab = IcePlatformPrefab;
-            StaticGoalRoomPrefab = IceCampaignGoalRoomPrefab;
+            StaticSmallPlatformPrefab = SmallIcePlatformPrefab;
 
+            StaticGoalRoomPrefab = IceCampaignGoalRoomPrefab;
             StaticRoomDefinitions = new CampaignRoomDefinition[] { new CampaignRoomDefinition() { RoomPrefab = IceProceduralRoom } };
         }
 

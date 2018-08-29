@@ -3,8 +3,8 @@
 public class PlayerController : MonoBehaviour
 {
     public static bool IsActive = false;
-    [HideInInspector]
-    public bool IsCyan = true;
+    public bool IsCyan { get; private set; }
+
     public float Speed;
     public LayerMask GroundLayer;
     public GameObject PlayerWasKilledUI;
@@ -17,7 +17,7 @@ public class PlayerController : MonoBehaviour
     private bool _isTouchingWall;
     private int _numOfHorRaycasts;
     private float _rayYIncr;
-    private bool _switchcolor = false;
+    private bool _switchcolor;
     private bool _jumpFromGround = false;
     private bool _jumpFromWall = false;
     private bool _jumpFromPonger = false;
@@ -39,16 +39,14 @@ public class PlayerController : MonoBehaviour
         _trailRenderer = GetComponent<TrailRenderer>();
         _trailRenderer.material = new Material(Shader.Find("Sprites/Default"));
         Gradient gradient = new Gradient();
-        gradient.SetKeys(
-            new GradientColorKey[] { new GradientColorKey(Color.white, 0.0f), new GradientColorKey(Color.white, 1.0f) },
-            new GradientAlphaKey[] { new GradientAlphaKey(1.0f, 0.0f), new GradientAlphaKey(1.0f, 1.0f) }
-            );
+        gradient.SetKeys(new GradientColorKey[] { new GradientColorKey(Color.white, 0.0f), new GradientColorKey(Color.white, 1.0f) },
+                         new GradientAlphaKey[] { new GradientAlphaKey(1.0f, 0.0f), new GradientAlphaKey(1.0f, 1.0f) });
         _trailRenderer.colorGradient = gradient;
 
 
         _rigidbody = GetComponent<Rigidbody2D>();
         _spriteRenderer = GetComponent<SpriteRenderer>();
-        _spriteRenderer.color = IsCyan ? Color.cyan : Color.green;
+
 
         Vector3 size = GetComponent<Collider2D>().bounds.size;
 
@@ -60,8 +58,12 @@ public class PlayerController : MonoBehaviour
         _rightVectorWithMagnitude = Vector3.right * size.x / 2;
 
 
-        transform.position = new Vector3(//-25.14f + 
-            6.28125f / 2, 1);
+        transform.position = new Vector3(6.28125f / 2, 1);
+
+
+        //the following two so that the player starts cyan
+        _switchcolor = true;
+        IsCyan = false;
     }
 
 
@@ -145,6 +147,10 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {//keyboard handling
+
+        if (Input.GetKeyDown(KeyCode.P) || Input.GetKeyDown(KeyCode.Escape))
+            Time.timeScale = 0f;
+
 
         if (Input.GetKeyDown(KeyCode.Q))
             _switchcolor = true;

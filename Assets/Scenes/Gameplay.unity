@@ -2004,6 +2004,8 @@ MonoBehaviour:
     type: 2}
   SmallFirePlatformPrefab: {fileID: 1464210007114534, guid: 1b5f5e19a135b7845a42c882033aae7c,
     type: 2}
+  SmallIcePlatformPrefab: {fileID: 1464210007114534, guid: 9169915e3f4066646a74b55dffb9fc84,
+    type: 2}
   IcePlatformPrefab: {fileID: 1978104339873990, guid: 60afb4e7bbc7e8541931ad42889ff28f,
     type: 2}
   CurrentScoreText: {fileID: 261570680}
