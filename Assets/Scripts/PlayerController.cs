@@ -151,12 +151,24 @@ public class PlayerController : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Q))
             _switchcolor = true;
 
-        if (Input.GetKey(KeyCode.Space))
+        if (Input.GetKeyDown(KeyCode.Space))
         {
             if (_isTouchingGround)
                 _jumpFromGround = true;
             else if (_isTouchingWall)
                 _jumpFromWall = true;
+            else
+            {//it may still be possible to jump if we have the doublejump powerup
+              //  private void Jump(bool isGrounded)
+                if(hasPowerup)
+                {
+                    hasPowerup = false;
+                    var powerUpImage = GameObject.Find("UIcanvas").transform.Find("PowerUpImage").gameObject;
+                    powerUpImage.SetActive(false);
+                    _jumpFromGround = true;
+                }
+
+            }
         }
     }
 
@@ -187,9 +199,18 @@ public class PlayerController : MonoBehaviour
             case "EndPoint":
                 PlayerWon();
                 break;
+
+            case "DoubleJump":
+                Destroy(collision.gameObject);
+                var powerUpImage = GameObject.Find("UIcanvas").transform.Find("PowerUpImage").gameObject;
+                powerUpImage.SetActive(true);
+                powerUpImage.GetComponent<AudioSource>().Play();
+                hasPowerup = true;
+                break;
         }
     }
 
+    bool hasPowerup = false;
 
 
     private void PlayerWasKilled()

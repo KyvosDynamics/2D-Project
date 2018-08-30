@@ -11,6 +11,7 @@ TagManager:
   - Room
   - CyanSaw
   - EndPoint
+  - DoubleJump
   layers:
   - Default
   - TransparentFX
