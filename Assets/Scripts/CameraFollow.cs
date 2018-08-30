@@ -15,9 +15,6 @@ public class CameraFollow : MonoBehaviour
 
     void LateUpdate()
     {
-        if (!PlayerController.IsActive)
-            return;
-
         Vector3 newCameraPosition = transform.position;
         newCameraPosition.x = _playerTransform.position.x + _xOffsetFromPlayer;
         transform.position = newCameraPosition;

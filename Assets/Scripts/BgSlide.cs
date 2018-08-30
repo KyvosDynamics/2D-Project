@@ -13,7 +13,7 @@ public class BgSlide : MonoBehaviour
 
     IEnumerator Scroll()
     {
-        const float scrollSpeed = 0.005f;
+        const float scrollSpeed = 0.001f;
 
         RawImage rawImage = GetComponent<RawImage>();
         Rect uvRect = rawImage.uvRect;

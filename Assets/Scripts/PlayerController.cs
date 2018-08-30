@@ -2,7 +2,6 @@
 
 public class PlayerController : MonoBehaviour
 {
-    public static bool IsActive = false;
     public bool IsCyan { get; private set; }
 
     public float Speed;
@@ -29,10 +28,6 @@ public class PlayerController : MonoBehaviour
     private TrailRenderer _trailRenderer;
 
 
-    private void Awake()
-    {
-        IsActive = true;
-    }
 
     void Start()
     {
@@ -71,8 +66,6 @@ public class PlayerController : MonoBehaviour
 
     void FixedUpdate()
     {
-        if (!IsActive)
-            return;
 
         if (transform.position.y < -5)
         {//player fell to the void
@@ -201,24 +194,15 @@ public class PlayerController : MonoBehaviour
 
     private void PlayerWasKilled()
     {
-        StopPlayer();
+        Time.timeScale = 0f;
         PlayerWasKilledUI.SetActive(true);
     }
     private void PlayerWon()
     {
-        StopPlayer();
+        Time.timeScale = 0f;
         PlayerWonUI.SetActive(true);
     }
 
-    private void StopPlayer()
-    {
-        Time.timeScale = 0f;
-        return;
-
-        IsActive = false;
-        _rigidbody.velocity = new Vector2(0, 0);//necessary otherwise the player will continue to move while the playerKilledUI gradually appears
-        GetComponent<Animator>().enabled = false;
-    }
 
 
 

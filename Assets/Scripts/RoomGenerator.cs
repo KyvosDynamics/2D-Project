@@ -85,7 +85,7 @@ public class ProceduralRoom : Room
         for (int i = 0; i < 8; i++)
         {
             float platformX = roomX - halfRoomWidth + halfPlatformWidth + platformWidth * i; //x is easy as we know the position of the room and the relative position of the platform inside the room
-            float platformY = -1; //it is important that we initialize this to minus one. This is the desired y value for the very first platform of our game (for this platform previousplatform=null)
+            float platformY =-3.8f; //it is important that we initialize this to -3.8f. This is the desired y value for the very first platform of our game (for this platform previousplatform=null)
             Platform.Type type = Platform.Type.Ordinary;
             ItemThatSitsOnPlatform attachedItem = null;
 
@@ -151,7 +151,7 @@ public class ProceduralRoom : Room
                                     case 2: //down
                                         platformY = previousPlatform.Y - platformHeight;
 
-                                        if (platformY < -4f)//out of bounds, go up instead
+                                        if (platformY < -3.8f)//out of bounds, go up instead
                                             platformY = previousPlatform.Y + platformHeight;
                                         break;
                                 }
@@ -417,7 +417,7 @@ public class RoomGenerator : MonoBehaviour
 
     private IEnumerator GeneratorCheck()
     {
-        while (PlayerController.IsActive)
+        while (true)
         {
 
             bool roomAddedOrRemoved = false;
@@ -441,7 +441,6 @@ public class RoomGenerator : MonoBehaviour
             {
                 //should add a new room
 
-
                 if (_procedural)
                 {//nothing to consider, add a room
                     _rooms.Add(new ProceduralRoom((ProceduralRoom)latestRoom));
@@ -452,7 +451,6 @@ public class RoomGenerator : MonoBehaviour
                 {//more tricky case...
                  //in campaign mode we eventually run out of prefabs to use (finite list).
                  //when that happens we should add a special "goal" room instead.
-
 
                     if (latestRoom.Index < StaticCampaignRoomDefinitions.Length - 1)
                     {//we have prefab
@@ -467,9 +465,7 @@ public class RoomGenerator : MonoBehaviour
                         roomAddedOrRemoved = true; //(we still set this flag because we want the goal room to increase the score too)
                     }
 
-
                 }
-
             }
 
 
@@ -493,7 +489,6 @@ public class RoomGenerator : MonoBehaviour
                     PlayerPrefs.SetInt("HighScore", MaxRoomIndex);
                     HighScoreText.text = MaxRoomIndex.ToString();
                 }
-
             }
 
 
