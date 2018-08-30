@@ -1,41 +1,33 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class PauseMenu : MonoBehaviour {
-
-
+public class PauseMenu : MonoBehaviour
+{
     public static bool GameIsPaused = false;
     public GameObject PauseMenuUI;
 
+
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Escape))
+        if (Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.P))
         {
-            if (GameIsPaused)
-            {
-                Resume();
-            }
-            else
-            {
-                Pause();
-            }
-
+            if (GameIsPaused)            
+                Resume();            
+            else            
+                Pause();           
         }
-
     }
 
-  public  void Resume()
+    public void Resume()
     {
+        Camera.main.GetComponent<AudioSource>().volume = 1f;
         PauseMenuUI.SetActive(false);
         Time.timeScale = 1.0f;
         GameIsPaused = false;
-        
-
     }
     void Pause()
     {
+        Camera.main.GetComponent<AudioSource>().volume = 0.5f;
         PauseMenuUI.SetActive(true);
         Time.timeScale = 0f;
         GameIsPaused = true;
@@ -46,8 +38,10 @@ public class PauseMenu : MonoBehaviour {
         Time.timeScale = 1.0f;
         SceneManager.LoadScene(0);
     }
+
     public void QuitGame()
     {
         Application.Quit();
     }
+
 }

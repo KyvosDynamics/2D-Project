@@ -96,7 +96,13 @@ public class PlayerController : MonoBehaviour
         {
             Vector3 point = bottommostRightmostPoint + Vector3.up * raycastIndex * _rayYIncr;
             _isTouchingWall = Physics2D.Raycast(point, Vector2.right, _raycastingDistance, GroundLayer);
-            //enable this for debugging: Debug.DrawLine(point, point + Vector3.right * _raycastingDistance, _isTouchingWall ? Color.red : Color.green);
+            //enable this for debugging: 
+            Debug.DrawLine(point, point + Vector3.right * _raycastingDistance, _isTouchingWall ? Color.red : Color.green);
+
+            if (_isTouchingWall)
+            {
+                int ksjdf = 34;
+            }
         }
 
 
@@ -147,9 +153,6 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {//keyboard handling
-
-        if (Input.GetKeyDown(KeyCode.P) || Input.GetKeyDown(KeyCode.Escape))
-            Time.timeScale = 0f;
 
 
         if (Input.GetKeyDown(KeyCode.Q))
@@ -209,6 +212,9 @@ public class PlayerController : MonoBehaviour
 
     private void StopPlayer()
     {
+        Time.timeScale = 0f;
+        return;
+
         IsActive = false;
         _rigidbody.velocity = new Vector2(0, 0);//necessary otherwise the player will continue to move while the playerKilledUI gradually appears
         GetComponent<Animator>().enabled = false;
