@@ -12,6 +12,7 @@ TagManager:
   - CyanSaw
   - EndPoint
   - DoubleJump
+  - Ghost
   layers:
   - Default
   - TransparentFX

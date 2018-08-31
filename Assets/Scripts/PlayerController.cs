@@ -132,8 +132,14 @@ public class PlayerController : MonoBehaviour
         if (_switchcolor)
         {
             _switchcolor = false;
+
+         
+
             IsCyan = !IsCyan;
             _trailRenderer.startColor = _trailRenderer.endColor = _spriteRenderer.color = IsCyan ? Color.cyan : Color.green;
+
+            if(hasGhost)
+                _spriteRenderer.color = new Color(255, 255, 255, 0);
         }
 
 
@@ -173,6 +179,14 @@ public class PlayerController : MonoBehaviour
     }
 
 
+    private void GhostNoMore()
+    {
+        hasGhost = false;
+        var ghostImage = GameObject.Find("UIcanvas").transform.Find("GhostImage").gameObject;
+        ghostImage.SetActive(false);
+        _trailRenderer.startColor = _trailRenderer.endColor = _spriteRenderer.color = IsCyan ? Color.cyan : Color.green;
+    }
+
 
 
     void OnTriggerEnter2D(Collider2D collision)
@@ -181,15 +195,28 @@ public class PlayerController : MonoBehaviour
         {
             case "CyanSaw":
                 if (!IsCyan)
-                    PlayerWasKilled();
+                {
+                    if (hasGhost)
+                        GhostNoMore();
+                    else 
+                        PlayerWasKilled();
+                }
                 break;
             case "GreenSaw":
                 if (IsCyan)
-                    PlayerWasKilled();
+                {
+                    if (hasGhost)
+                        GhostNoMore();
+                    else
+                        PlayerWasKilled();
+                }
                 break;
 
             case "Killer":
-                PlayerWasKilled();
+                if(hasGhost)                
+                    GhostNoMore();                
+                else
+                    PlayerWasKilled();
                 break;
 
             case "Ponger":
@@ -207,10 +234,21 @@ public class PlayerController : MonoBehaviour
                 powerUpImage.GetComponent<AudioSource>().Play();
                 hasPowerup = true;
                 break;
+
+            case "Ghost":
+                Destroy(collision.gameObject);
+                var ghostImage = GameObject.Find("UIcanvas").transform.Find("GhostImage").gameObject;
+                ghostImage.SetActive(true);
+                ghostImage.GetComponent<AudioSource>().Play();
+                hasGhost = true;
+                    _spriteRenderer.color = new Color(255, 255, 255, 0);
+
+                break;
         }
     }
 
     bool hasPowerup = false;
+    bool hasGhost = false;
 
 
     private void PlayerWasKilled()
