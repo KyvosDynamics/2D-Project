@@ -21,7 +21,7 @@ GameObject:
   - component: {fileID: 4823237268891154}
   - component: {fileID: 212470419973383640}
   - component: {fileID: 61512900247496514}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Ghost
   m_TagString: Ghost
   m_Icon: {fileID: 0}
@@ -35,7 +35,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1238502082857936}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -16.190638, y: 1.747578, z: 0}
+  m_LocalPosition: {x: -5.764862, y: 3.3229115, z: 0}
   m_LocalScale: {x: 0.6, y: 0.6, z: 0.6}
   m_Children: []
   m_Father: {fileID: 0}
@@ -98,8 +98,8 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: -2063000223
+  m_SortingLayer: 2
   m_SortingOrder: 0
   m_Sprite: {fileID: 21300000, guid: 527f31650bcb95146a2a6c6ba91b18da, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}

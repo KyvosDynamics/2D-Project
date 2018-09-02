@@ -5,6 +5,21 @@ using UnityEngine;
 using UnityEngine.UI;
 
 
+public class PointInTime
+{
+
+    public Vector3 position;
+    //public Quaternion rotation;
+    public bool iscyan;
+
+    public PointInTime(Vector3 _position, bool iscyan)// Quaternion _rotation)
+    {
+        position = _position;
+        //rotation = _rotation;
+        this.iscyan = iscyan;
+    }
+
+}
 public class Platform
 {
     public enum Type { Ordinary, Gap, Small } //a gap is always followed by a small platform
@@ -250,6 +265,7 @@ public class ProceduralRoom : Room
 public class Room
 {
     protected int _index;
+    private float _startX;
     protected float _centerX;
     protected float _endX;
     protected GameObject _unityObject;
@@ -260,29 +276,53 @@ public class Room
         RoomGenerator.StaticRoomIndex++;
         _index = RoomGenerator.StaticRoomIndex;
 
-        float startX;
+        
 
         if (previousRoom == null)
         {//this is the very first room of the game
-            startX = 0;
+            _startX = 0;
         }
         else
         {//we want the new room to start at the end of the previous room
-            startX = previousRoom.EndX;
+            _startX = previousRoom.EndX;
         }
 
         float width = 50.28f; //because we are using a background with width 5028 pixels
-        _endX = startX + width;
-        _centerX = startX + width * 0.5f;
+        _endX = _startX + width;
+        _centerX = _startX + width * 0.5f;
     }
 
 
     public int Index { get { return _index; } }
+
+    public float StartX { get { return _startX; } }
     public float CenterX { get { return _centerX; } }
     public float EndX { get { return _endX; } }
 
-    public void Dispose()
-    { Object.Destroy(_unityObject); }
+    public void PermanentDelete()
+    {
+        Object.Destroy(_unityObject);
+    }
+
+
+    public void SendToRecycleBin()
+    {
+        if (_lastDestroyedRoom != null)
+        {
+            _lastDestroyedRoom.PermanentDelete();
+        }
+
+        _lastDestroyedRoom = this;
+     }
+
+
+    private static Room _lastDestroyedRoom = null;
+    public static Room Revive()
+    {
+        Room clone = _lastDestroyedRoom;
+        _lastDestroyedRoom = null;
+        return clone;
+    }
 
 }
 
@@ -425,9 +465,17 @@ public class RoomGenerator : MonoBehaviour
             Room oldestRoom = _rooms[0];
             float leftCameraBound = Camera.main.transform.position.x - _screenWidth / 2;
 
+            if(CameraFollow.HasBeenInitialized && oldestRoom.StartX>leftCameraBound)
+            {//it can happen when we are rewinding time
+                var room= Room.Revive();
+                _rooms.Insert(0, room);
+                roomAddedOrRemoved = true;
+            }
+
+
             if (oldestRoom.EndX < leftCameraBound)
             {//remove the oldest room
-                oldestRoom.Dispose();
+                oldestRoom.SendToRecycleBin();
                 _rooms.RemoveAt(0);
                 roomAddedOrRemoved = true;
             }

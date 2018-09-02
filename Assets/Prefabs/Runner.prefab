@@ -25,6 +25,7 @@ GameObject:
   - component: {fileID: 114031257902860868}
   - component: {fileID: 114311502555234632}
   - component: {fileID: 95681946047422802}
+  - component: {fileID: 114603632731569786}
   m_Layer: 11
   m_Name: Runner
   m_TagString: Player
@@ -119,11 +120,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c1c54b0ec74e6764eb5e5a7c2c56c26a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  IsCyan: 1
   Speed: 9
   GroundLayer:
     serializedVersion: 2
     m_Bits: 512
+  PlayerWasKilledUI: {fileID: 0}
+  PlayerWonUI: {fileID: 0}
 --- !u!114 &114311502555234632
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -135,16 +137,32 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d869e4ed8ddee4b4c9409dbf5fe449c5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  RoomPrefab: {fileID: 1969975028501032, guid: ce6a87f6a8e194342b0543b84fa2d74b, type: 2}
-  PlatformPrefab: {fileID: 1978104339873990, guid: c03114d99ddc66546b1f0469f6d05c54,
-    type: 2}
-  SpikePrefab: {fileID: 1954259282176104, guid: 17f41ba6059c3a744ba9606cbb4b8ce2,
-    type: 2}
-  SawPrefab: {fileID: 1513025892425984, guid: 0603ed106f1bc86488600fee1873d414, type: 2}
-  PongerPrefab: {fileID: 1468171118249788, guid: 574cbd0f29e14514eb65935332ba8c31,
-    type: 2}
+  _themeNeverSetThisToAll: 1
+  _procedural: 1
+  FireBottomOfRoomSprite: {fileID: 0}
+  IceBottomOfRoomSprite: {fileID: 0}
+  FireCampaignGoalRoomPrefab: {fileID: 0}
+  IceCampaignGoalRoomPrefab: {fileID: 0}
+  FirePlatformPrefab: {fileID: 0}
+  SmallFirePlatformPrefab: {fileID: 0}
+  SmallIcePlatformPrefab: {fileID: 0}
+  IcePlatformPrefab: {fileID: 0}
   CurrentScoreText: {fileID: 0}
   HighScoreText: {fileID: 0}
+  ItemsThatSitOnPlatforms: []
+  CampaignRoomDefinitions: []
+--- !u!114 &114603632731569786
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1310359791481528}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e464a1355062916408a13f6931d5a58c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Seconds: 5
 --- !u!212 &212823901946135786
 SpriteRenderer:
   m_ObjectHideFlags: 1

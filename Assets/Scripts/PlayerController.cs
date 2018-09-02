@@ -31,6 +31,7 @@ public class PlayerController : MonoBehaviour
 
     void Start()
     {
+        _rewindTimeComponent = GetComponent<RewindTimeComponent>();
         _trailRenderer = GetComponent<TrailRenderer>();
         _trailRenderer.material = new Material(Shader.Find("Sprites/Default"));
         Gradient gradient = new Gradient();
@@ -57,8 +58,9 @@ public class PlayerController : MonoBehaviour
 
 
         //the following two so that the player starts cyan
-        _switchcolor = true;
-        IsCyan = false;
+        //_switchcolor = true;
+        //IsCyan = false;
+        SetColor(true);
     }
 
 
@@ -66,10 +68,12 @@ public class PlayerController : MonoBehaviour
 
     void FixedUpdate()
     {
+        if (_rewindTimeComponent.isRewinding) //do not bother with physics when we are rewinding
+            return;
 
         if (transform.position.y < -5)
         {//player fell to the void
-            PlayerWasKilled();
+            TryToKillPlayer();// PlayerWasKilled();
             return;
         }
 
@@ -133,12 +137,12 @@ public class PlayerController : MonoBehaviour
         {
             _switchcolor = false;
 
-         
+
 
             IsCyan = !IsCyan;
             _trailRenderer.startColor = _trailRenderer.endColor = _spriteRenderer.color = IsCyan ? Color.cyan : Color.green;
 
-            if(hasGhost)
+            if (hasGhost)
                 _spriteRenderer.color = new Color(255, 255, 255, 0);
         }
 
@@ -146,12 +150,23 @@ public class PlayerController : MonoBehaviour
     }
 
 
+    public void SetColor(bool iscyan)
+    {
+        IsCyan = iscyan;
+
+        _trailRenderer.startColor = _trailRenderer.endColor = _spriteRenderer.color = IsCyan ? Color.cyan : Color.green;
+    }
 
 
+    RewindTimeComponent _rewindTimeComponent;
 
 
     void Update()
     {//keyboard handling
+
+        if (_rewindTimeComponent.isRewinding) //do not respond to input when we are rewinding time
+            return;
+
 
 
         if (Input.GetKeyDown(KeyCode.Q))
@@ -165,10 +180,10 @@ public class PlayerController : MonoBehaviour
                 _jumpFromWall = true;
             else
             {//it may still be possible to jump if we have the doublejump powerup
-              //  private void Jump(bool isGrounded)
-                if(hasPowerup)
+             //  private void Jump(bool isGrounded)
+                if (hasDoubleJump)
                 {
-                    hasPowerup = false;
+                    hasDoubleJump = false;
                     var powerUpImage = GameObject.Find("UIcanvas").transform.Find("PowerUpImage").gameObject;
                     powerUpImage.SetActive(false);
                     _jumpFromGround = true;
@@ -188,35 +203,41 @@ public class PlayerController : MonoBehaviour
     }
 
 
+    private void TryToKillPlayer()
+    {
+        if (hasGhost)
+            GhostNoMore();
+        else// if (hasRewindTime)
+            RewindTime();
+//        else
+  //          PlayerWasKilled();
+    }
+
+
 
     void OnTriggerEnter2D(Collider2D collision)
     {
+        if (_rewindTimeComponent.isRewinding) //do not bother with collisions when we we are rewinding
+            return;
+
+
         switch (collision.gameObject.tag)
         {
             case "CyanSaw":
                 if (!IsCyan)
                 {
-                    if (hasGhost)
-                        GhostNoMore();
-                    else 
-                        PlayerWasKilled();
+                    TryToKillPlayer(); 
                 }
                 break;
             case "GreenSaw":
                 if (IsCyan)
                 {
-                    if (hasGhost)
-                        GhostNoMore();
-                    else
-                        PlayerWasKilled();
+                    TryToKillPlayer();
                 }
                 break;
 
             case "Killer":
-                if(hasGhost)                
-                    GhostNoMore();                
-                else
-                    PlayerWasKilled();
+                TryToKillPlayer();
                 break;
 
             case "Ponger":
@@ -232,7 +253,15 @@ public class PlayerController : MonoBehaviour
                 var powerUpImage = GameObject.Find("UIcanvas").transform.Find("PowerUpImage").gameObject;
                 powerUpImage.SetActive(true);
                 powerUpImage.GetComponent<AudioSource>().Play();
-                hasPowerup = true;
+                hasDoubleJump = true;
+                break;
+
+            case "RewindTime":
+                Destroy(collision.gameObject);
+                var rewindTimeImage = GameObject.Find("UIcanvas").transform.Find("RewindTimeImage").gameObject;
+                rewindTimeImage.SetActive(true);
+                rewindTimeImage.GetComponent<AudioSource>().Play();
+                hasRewindTime = true;
                 break;
 
             case "Ghost":
@@ -241,14 +270,17 @@ public class PlayerController : MonoBehaviour
                 ghostImage.SetActive(true);
                 ghostImage.GetComponent<AudioSource>().Play();
                 hasGhost = true;
-                    _spriteRenderer.color = new Color(255, 255, 255, 0);
+                _spriteRenderer.color = new Color(255, 255, 255, 0);
 
                 break;
         }
     }
 
-    bool hasPowerup = false;
+
+
+    bool hasDoubleJump = false;
     bool hasGhost = false;
+    bool hasRewindTime = false;
 
 
     private void PlayerWasKilled()
@@ -262,7 +294,10 @@ public class PlayerController : MonoBehaviour
         PlayerWonUI.SetActive(true);
     }
 
-
+    private void RewindTime()
+    {
+      _rewindTimeComponent.StartRewind();
+    }
 
 
 

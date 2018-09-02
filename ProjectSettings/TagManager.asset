@@ -13,6 +13,7 @@ TagManager:
   - EndPoint
   - DoubleJump
   - Ghost
+  - RewindTime
   layers:
   - Default
   - TransparentFX
@@ -26,7 +27,7 @@ TagManager:
   - RoomSolidObjects
   - RoomOtherObjects
   - Player
-  - Glows
+  - 
   - 
   - 
   - 
