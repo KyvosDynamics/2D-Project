@@ -1541,9 +1541,9 @@ TrailRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingLayerID: -1794855415
+  m_SortingLayer: 3
+  m_SortingOrder: -1
   m_Time: 0.6
   m_Parameters:
     serializedVersion: 2
@@ -2778,7 +2778,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 4343532462330572, guid: 9a1f1c1b4ca019d43ba28dd49d290589, type: 2}
       propertyPath: m_LocalPosition.x
-      value: -20.17
+      value: -4.74
       objectReference: {fileID: 0}
     - target: {fileID: 4343532462330572, guid: 9a1f1c1b4ca019d43ba28dd49d290589, type: 2}
       propertyPath: m_LocalPosition.y
@@ -2816,7 +2816,7 @@ Prefab:
     - target: {fileID: 114031257902860868, guid: 9a1f1c1b4ca019d43ba28dd49d290589,
         type: 2}
       propertyPath: Speed
-      value: 9
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 114311502555234632, guid: 9a1f1c1b4ca019d43ba28dd49d290589,
         type: 2}
@@ -3035,7 +3035,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d869e4ed8ddee4b4c9409dbf5fe449c5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _themeNeverSetThisToAll: 2
+  _themeNeverSetThisToAll: 1
   _procedural: 0
   FireBottomOfRoomSprite: {fileID: 21300000, guid: 1e381976c613c0744975bb456ffe7421,
     type: 3}

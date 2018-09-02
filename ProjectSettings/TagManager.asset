@@ -53,9 +53,12 @@ TagManager:
   - name: RoomBackground
     uniqueID: 2577418493
     locked: 0
-  - name: RoomObjects
+  - name: RoomObjectsBehindPlayer
     uniqueID: 2231967073
     locked: 0
   - name: Player
     uniqueID: 2500111881
+    locked: 0
+  - name: RoomObjectsAbovePlayer
+    uniqueID: 1229797127
     locked: 0
