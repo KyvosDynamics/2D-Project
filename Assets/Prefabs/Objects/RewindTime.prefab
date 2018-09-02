@@ -23,7 +23,7 @@ GameObject:
   - component: {fileID: 61127869673070124}
   m_Layer: 10
   m_Name: RewindTime
-  m_TagString: RewindTime
+  m_TagString: PowerUp_RewindTime
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

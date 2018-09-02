@@ -4,7 +4,7 @@ public class CameraFollow : MonoBehaviour
 {
     private const float _xOffsetFromPlayer = 6.5f;
     private Transform _playerTransform;
-    public static bool HasBeenInitialized = false;
+  
 
 
     private void Start()
@@ -18,7 +18,7 @@ public class CameraFollow : MonoBehaviour
         Vector3 newCameraPosition = transform.position;
         newCameraPosition.x = _playerTransform.position.x + _xOffsetFromPlayer;
         transform.position = newCameraPosition;
-        HasBeenInitialized = true;
+       RoomGenerator.  CameraHasBeenInitialized = true;
     }
 
 

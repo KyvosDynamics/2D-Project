@@ -11,9 +11,9 @@ TagManager:
   - Room
   - CyanSaw
   - EndPoint
-  - DoubleJump
-  - Ghost
-  - RewindTime
+  - PowerUp_DoubleJump
+  - PowerUp_Ghost
+  - PowerUp_RewindTime
   layers:
   - Default
   - TransparentFX

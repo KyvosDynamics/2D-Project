@@ -350,8 +350,10 @@ public class CampaignRoomDefinition
 
 public class RoomGenerator : MonoBehaviour
 {
+    //the following 3 static variables are not good coding practice but they will do for now
     public static int MaxRoomIndex = -1; //this could also be useful for increasing game difficulty based on progress
     public static int StaticRoomIndex = -1; //it is important for this to be initialized minus one so that the first room is at index 0
+    public static bool CameraHasBeenInitialized = false;
 
     public static ItemThatSitsOnPlatform[] StaticItemsThatSitOnPlatforms;
     public static CampaignRoomDefinition[] StaticCampaignRoomDefinitions;
@@ -395,6 +397,7 @@ public class RoomGenerator : MonoBehaviour
         //it is absolutely vital that we first reset the static variables because they are not automatically reset when we start a new game (e.g. after we are killed)
         MaxRoomIndex = -1;
         StaticRoomIndex = -1;
+        CameraHasBeenInitialized = false;
 
 
         if (StaticThemeToUse.HasValue)
@@ -465,7 +468,7 @@ public class RoomGenerator : MonoBehaviour
             Room oldestRoom = _rooms[0];
             float leftCameraBound = Camera.main.transform.position.x - _screenWidth / 2;
 
-            if(CameraFollow.HasBeenInitialized && oldestRoom.StartX>leftCameraBound)
+            if(CameraHasBeenInitialized && oldestRoom.StartX>leftCameraBound)
             {//it can happen when we are rewinding time
                 var room= Room.Revive();
                 _rooms.Insert(0, room);

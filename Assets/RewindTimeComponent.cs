@@ -9,7 +9,7 @@ public class RewindTimeComponent : MonoBehaviour
     // {
     public bool isRewinding = false;
 
-    public float Seconds = 5f;
+    private float Seconds = 3f;
 
     List<PointInTime> pointsInTime;
 
@@ -25,13 +25,13 @@ public class RewindTimeComponent : MonoBehaviour
     }
 
     // Update is called once per frame
-//    void Update()
-  //  {
+    //    void Update()
+    //  {
     //    if (Input.GetKeyDown(KeyCode.Return))
-      //      StartRewind();
-//        if (Input.GetKeyUp(KeyCode.Return))
-  //          StopRewind();
-   // }
+    //      StartRewind();
+    //        if (Input.GetKeyUp(KeyCode.Return))
+    //          StopRewind();
+    // }
 
     void FixedUpdate()
     {
@@ -72,13 +72,13 @@ public class RewindTimeComponent : MonoBehaviour
     public void StartRewind()
     {
         isRewinding = true;
-    //    rb.isKinematic = true;
+        //    rb.isKinematic = true;
     }
 
     public void StopRewind()
     {
         isRewinding = false;
-     //   rb.isKinematic = false;
+        //   rb.isKinematic = false;
     }
 
 

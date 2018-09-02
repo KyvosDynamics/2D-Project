@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using System;
+using System.Collections.Generic;
+using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
@@ -11,13 +13,15 @@ public class PlayerController : MonoBehaviour
 
     //by convention private fields start with the underscore '_' character followed by a lower-case letter
     private Rigidbody2D _rigidbody;
-    private SpriteRenderer _spriteRenderer;
+    [HideInInspector]
+    public SpriteRenderer _spriteRenderer;
     private bool _isTouchingGround;
     private bool _isTouchingWall;
     private int _numOfHorRaycasts;
     private float _rayYIncr;
     private bool _switchcolor;
-    private bool _jumpFromGround = false;
+    [HideInInspector]
+    public bool _jumpFromGround = false;
     private bool _jumpFromWall = false;
     private bool _jumpFromPonger = false;
     private const float _raycastingDistance = 0.1f;
@@ -25,12 +29,15 @@ public class PlayerController : MonoBehaviour
     private const float _jumpSpeed = 8;
     private Vector3 _downVectorWithMagnitude;
     private Vector3 _rightVectorWithMagnitude;
-    private TrailRenderer _trailRenderer;
 
+    [HideInInspector]
+    public TrailRenderer _trailRenderer;
 
+    public static PlayerController Instance = null;
 
     void Start()
     {
+        Instance = this;
         _rewindTimeComponent = GetComponent<RewindTimeComponent>();
         _trailRenderer = GetComponent<TrailRenderer>();
         _trailRenderer.material = new Material(Shader.Find("Sprites/Default"));
@@ -142,8 +149,8 @@ public class PlayerController : MonoBehaviour
             IsCyan = !IsCyan;
             _trailRenderer.startColor = _trailRenderer.endColor = _spriteRenderer.color = IsCyan ? Color.cyan : Color.green;
 
-            if (hasGhost)
-                _spriteRenderer.color = new Color(255, 255, 255, 0);
+            if (_collectedPowerUps.ContainsKey(PowerUpTypes.Ghost))// .Contains("Ghost"))// hasGhost)
+                _collectedPowerUps[PowerUpTypes.Ghost].Activate();// _spriteRenderer.color = new Color(255, 255, 255, 0);
         }
 
 
@@ -158,7 +165,8 @@ public class PlayerController : MonoBehaviour
     }
 
 
-    RewindTimeComponent _rewindTimeComponent;
+    [HideInInspector]
+    public RewindTimeComponent _rewindTimeComponent;
 
 
     void Update()
@@ -181,12 +189,10 @@ public class PlayerController : MonoBehaviour
             else
             {//it may still be possible to jump if we have the doublejump powerup
              //  private void Jump(bool isGrounded)
-                if (hasDoubleJump)
+                if (_collectedPowerUps.ContainsKey(PowerUpTypes.DoubleJump))// "DoubleJump"))// hasDoubleJump)
                 {
-                    hasDoubleJump = false;
-                    var powerUpImage = GameObject.Find("UIcanvas").transform.Find("PowerUpImage").gameObject;
-                    powerUpImage.SetActive(false);
-                    _jumpFromGround = true;
+                    _collectedPowerUps[PowerUpTypes.DoubleJump].Activate();
+                    //activateDoubleJumpPowerUp();
                 }
 
             }
@@ -194,23 +200,25 @@ public class PlayerController : MonoBehaviour
     }
 
 
-    private void GhostNoMore()
-    {
-        hasGhost = false;
-        var ghostImage = GameObject.Find("UIcanvas").transform.Find("GhostImage").gameObject;
-        ghostImage.SetActive(false);
-        _trailRenderer.startColor = _trailRenderer.endColor = _spriteRenderer.color = IsCyan ? Color.cyan : Color.green;
-    }
 
 
     private void TryToKillPlayer()
-    {
-        if (hasGhost)
-            GhostNoMore();
-        else// if (hasRewindTime)
-            RewindTime();
-//        else
-  //          PlayerWasKilled();
+    {//TODO: make it check the reason of death. If we fell into the abyss there is no need to check for the ghost powerup!
+
+        if (_collectedPowerUps.ContainsKey(PowerUpTypes.Ghost))// "Ghost"))// hasGhost)
+        {
+            _collectedPowerUps[PowerUpTypes.Ghost].Deactivate();
+            //_collectedPowerUps[PowerUpTypes.Ghost].Remove();// GhostNoMore();
+        }
+        else if (_collectedPowerUps.ContainsKey(PowerUpTypes.RewindTime))// "RewindTime"))// hasRewindTime)
+        {
+            _collectedPowerUps[PowerUpTypes.RewindTime].Activate();
+            //_collectedPowerUps[PowerUpTypes.RewindTime].Remove();// GhostNoMore();
+
+            //   ewindTime();
+        }
+        else
+            PlayerWasKilled();
     }
 
 
@@ -226,7 +234,7 @@ public class PlayerController : MonoBehaviour
             case "CyanSaw":
                 if (!IsCyan)
                 {
-                    TryToKillPlayer(); 
+                    TryToKillPlayer();
                 }
                 break;
             case "GreenSaw":
@@ -248,39 +256,49 @@ public class PlayerController : MonoBehaviour
                 PlayerWon();
                 break;
 
-            case "DoubleJump":
-                Destroy(collision.gameObject);
-                var powerUpImage = GameObject.Find("UIcanvas").transform.Find("PowerUpImage").gameObject;
-                powerUpImage.SetActive(true);
-                powerUpImage.GetComponent<AudioSource>().Play();
-                hasDoubleJump = true;
-                break;
 
-            case "RewindTime":
-                Destroy(collision.gameObject);
-                var rewindTimeImage = GameObject.Find("UIcanvas").transform.Find("RewindTimeImage").gameObject;
-                rewindTimeImage.SetActive(true);
-                rewindTimeImage.GetComponent<AudioSource>().Play();
-                hasRewindTime = true;
-                break;
+            default:
+                if (collision.gameObject.tag.StartsWith("PowerUp_"))
+                {//we've triggered a powerup
 
-            case "Ghost":
-                Destroy(collision.gameObject);
-                var ghostImage = GameObject.Find("UIcanvas").transform.Find("GhostImage").gameObject;
-                ghostImage.SetActive(true);
-                ghostImage.GetComponent<AudioSource>().Play();
-                hasGhost = true;
-                _spriteRenderer.color = new Color(255, 255, 255, 0);
+                    Destroy(collision.gameObject);
 
+                    string secondpart = collision.gameObject.tag.Substring(8);
+                    CollectedPowerUp(secondpart);
+
+                }
                 break;
         }
     }
 
+    private void CollectedPowerUp(string secondpart)
+    {
+        var powerupHandle = Activator.CreateInstance(null, secondpart + "PowerUp"); //(by convention we name the class as the powerup tag +"PowerUp")
+        var powerup = (PowerUp)powerupHandle.Unwrap();
+
+        PowerUpTypes poweruptype = (PowerUpTypes)Enum.Parse(typeof(PowerUpTypes), secondpart);
+        if (_collectedPowerUps.ContainsKey(poweruptype))// Enum.Parse(PowerUpTypes, secondpart))//  powerup)) //we already have this powerup
+            return;
+        _collectedPowerUps.Add(poweruptype, powerup);
+
+        GameObject uiImage = GameObject.Find("UIcanvas").transform.Find(secondpart + "Image").gameObject; //(by convention we name the image as the powerup tag +"Image")
+        uiImage.SetActive(true);
+        uiImage.GetComponent<AudioSource>().Play();
 
 
-    bool hasDoubleJump = false;
-    bool hasGhost = false;
-    bool hasRewindTime = false;
+
+        if (powerup.isActivatedImmediately)
+            powerup.Activate();
+
+    }
+
+    [HideInInspector]
+    public Dictionary<PowerUpTypes, PowerUp> _collectedPowerUps = new Dictionary<PowerUpTypes, PowerUp>();
+
+
+    //    bool hasDoubleJump = false;
+    //  bool hasGhost = false;
+    //bool hasRewindTime = false;
 
 
     private void PlayerWasKilled()
@@ -294,11 +312,122 @@ public class PlayerController : MonoBehaviour
         PlayerWonUI.SetActive(true);
     }
 
-    private void RewindTime()
+
+
+
+}
+
+
+public class DoubleJumpPowerUp : PowerUp
+{
+    public DoubleJumpPowerUp()
     {
-      _rewindTimeComponent.StartRewind();
+        mytype = PowerUpTypes.DoubleJump;
+    }
+    public override void Activate()
+    {
+        PlayerController.Instance._jumpFromGround = true;
+        base.Activate();
+    }
+
+}
+public class GhostPowerUp : PowerUp
+{
+    public GhostPowerUp()
+    {
+        mytype = PowerUpTypes.Ghost;
+        isActivatedImmediately = true;
+    }
+
+    public override void Activate()
+    { 
+        PlayerController.Instance._spriteRenderer.color = new Color(255, 255, 255, 0);
+
+        base.Activate();
+    }
+    public override void Deactivate()
+    {
+        PlayerController.Instance._trailRenderer.startColor = PlayerController.Instance._trailRenderer.endColor = PlayerController.Instance._spriteRenderer.color
+            = PlayerController.Instance.IsCyan ? Color.cyan : Color.green;
+
+        base.Deactivate();
+    }
+}
+public class RewindTimePowerUp : PowerUp
+{
+    public RewindTimePowerUp()
+    {
+        mytype = PowerUpTypes.RewindTime;
+    }
+
+    public override void Activate()
+    {
+        PlayerController.Instance._rewindTimeComponent.StartRewind();
+        base.Activate();
+    }
+}
+public enum PowerUpTypes { DoubleJump, Ghost, RewindTime };
+
+public class PowerUp
+{
+    //public string UIimagename;
+    public PowerUpTypes mytype; //public string tag;
+    public bool isActivatedImmediately;
+
+    //    public delegate void ActivationMethod();
+    //  public ActivationMethod MyActivationMethod;
+
+
+    public virtual void Activate() {
+        if(!isActivatedImmediately)        
+            Remove();        
+    }
+    public virtual void Deactivate() {
+        if (isActivatedImmediately)
+            Remove();
     }
 
 
 
+
+    private void Remove()
+    {
+
+        PlayerController.Instance._collectedPowerUps.Remove(mytype);//  .Remove(tag);
+        GameObject uiImage = GameObject.Find("UIcanvas").transform.Find(mytype.ToString() + "Image").gameObject; //(by convention we name the image as the powerup tag +"Image")
+        uiImage.SetActive(false);
+
+        // public override void HideUiIcon()
+        //  {
+        /*
+        private void activateDoubleJumpPowerUp()
+        {
+
+         //   hasDoubleJump = false;
+            var powerUpImage = GameObject.Find("UIcanvas").transform.Find("DoubleJumpImage").gameObject;
+            powerUpImage.SetActive(false);
+
+
+
+        }
+
+
+
+        private void RewindTime()
+        {
+            _collectedPowerUps.Remove("RewindTime");//    hasRewindTime = false;
+            var rewindTimeImage = GameObject.Find("UIcanvas").transform.Find("RewindTimeImage").gameObject;
+            rewindTimeImage.SetActive(false);
+
+        }
+
+        private void GhostNoMore()
+        {
+            _collectedPowerUps.Remove("Ghost");//   hasGhost = false;
+            var ghostImage = GameObject.Find("UIcanvas").transform.Find("GhostImage").gameObject;
+            ghostImage.SetActive(false);
+
+        }*/
+        // }
+    }
 }
