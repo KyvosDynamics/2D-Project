@@ -2,8 +2,149 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+public class TronTrail
+{
+    public int HeadIndex;
+    public int TailIndex;
+    public Color MyColor;
+    private Vector3[] points;
+    private LineRenderer linerenderer;
+    public static int sortingLayerID;
+
+    public TronTrail(Color color, Vector3 startPosition, bool inForeground)
+    {
+        MyColor = color;
+        const int MAXPOINTS = 348394;
+        points = new Vector3[MAXPOINTS];
+
+        points[0] = startPosition;// transform.position;
+        //   times[0] = Time.time;
+        // hasChanged = true;
+        //started = false;
+        //}
+        //        Vector3[] currentPoints = new Vector3[head - tail + 1];
+        //      System.Array.Copy(points, tail, currentPoints, 0, head - tail + 1);
+
+        GameObject gObject = new GameObject("MyGameObject");
+        linerenderer = gObject.AddComponent<LineRenderer>();
+
+        if (inForeground)
+        {
+            linerenderer.sortingLayerName = "Player";// .sortingLayerID = sortingLayerID;
+
+
+        }
+        else
+        {
+            linerenderer.sortingLayerName = "RoomObjectsBehindPlayer";// .sortingLayerID = sortingLayerID;
+
+        }
+        linerenderer.sortingOrder = -10;
+
+
+        linerenderer.SetColors(color, color);// Color.red, Color.blue);
+                                             //  linerenderer.material = new Material(Shader.Find("Particles/Additive")); //or ?    
+        linerenderer.material = new Material(Shader.Find("Sprites/Default"));
+        linerenderer.SetWidth(1, 1);
+
+        //     linerenderer.SetPosition(0, Vector3.zero);
+        //   linerenderer.SetPosition(1, Vector3.one);
+
+        linerenderer.positionCount = 1;// head - tail + 1;
+        linerenderer.SetPositions(new Vector3[] { points[0] });
+    }
+    [SerializeField] float minSampleDistance = 0.1f;
+
+
+    public void AddFinalPoint(Vector3 newPosition)
+    {
+        //traillength += sq;
+        HeadIndex++;
+        points[HeadIndex] = newPosition;// transform.position;
+                                        //     times[head] = Time.time;
+                                        //   hasChanged = true;
+        Vector3[] currentPoints = new Vector3[HeadIndex - TailIndex + 1];
+        System.Array.Copy(points, TailIndex, currentPoints, 0, HeadIndex - TailIndex + 1);
+        linerenderer.positionCount = HeadIndex - TailIndex + 1;
+        linerenderer.SetPositions(currentPoints);
+
+    }
+
+
+    public void CheckIfShouldAddPointAndIfYesAddIt(Vector3 newPosition)
+    {
+
+
+        float sq = (newPosition - points[HeadIndex]).sqrMagnitude;
+
+        //add point if head far enough
+        if (//head < MAXPOINTS - 1 &&
+            sq > minSampleDistance * minSampleDistance)
+        {
+            AddFinalPoint(newPosition);
+        }
+
+        //     // remove old tail
+        //   if (Time.time - times[tail] > lifetime)
+        // {
+        //    tail++;
+        //   hasChanged = true;
+        //}
+
+        //   if (hasChanged)
+        // {
+        //  hasChanged = false;
+        //
+        //}
+
+
+        // setgradientcolor(Color.blue);
+
+    }
+}
+
 public class PlayerController : MonoBehaviour
 {
+    //LineRenderer linetouse = null;
+    //
+    //  [SerializeField] LineRenderer line;
+    //
+    //[SerializeField] float lifetime = 10003f;
+
+    //  const int MAXPOINTS = 348394;
+    //   Vector3[] points = new Vector3[MAXPOINTS];
+    //float[] times = new float[MAXPOINTS];
+    //int headIndex = 0;
+    //int tailIndex = 0;
+
+    /*  bool started;
+      void OnEnable()
+      {
+          started = true;
+      }
+
+      void OnDisable()
+      {
+          line.positionCount = 0;
+      }
+      */
+
+
+
+    bool hasChanged = false;
+    //Vector3[] debug = new Vector3[MAXPOINTS];
+    //  void FixedUpdate()
+    //  {
+    // }
+
+
+
+    //  void Update()
+    //{
+    //  line.GetPositions(debug);
+    //}
+
+
     public bool IsCyan { get; private set; }
 
     public float Speed;
@@ -30,25 +171,34 @@ public class PlayerController : MonoBehaviour
     private Vector3 _downVectorWithMagnitude;
     private Vector3 _rightVectorWithMagnitude;
 
-    [HideInInspector]
-    public TrailRenderer _trailRenderer;
+    // // [HideInInspector]
+    // public TrailRenderer _trailRenderer;
 
     public static PlayerController Instance = null;
+    float traillength = 0;
+
 
     void Start()
     {
         Instance = this;
         _rewindTimeComponent = GetComponent<RewindTimeComponent>();
-        _trailRenderer = GetComponent<TrailRenderer>();
-        _trailRenderer.material = new Material(Shader.Find("Sprites/Default"));
-        Gradient gradient = new Gradient();
-        gradient.SetKeys(new GradientColorKey[] { new GradientColorKey(Color.white, 0.0f), new GradientColorKey(Color.white, 1.0f) },
-                         new GradientAlphaKey[] { new GradientAlphaKey(1.0f, 0.0f), new GradientAlphaKey(1.0f, 1.0f) });
-        _trailRenderer.colorGradient = gradient;
+        //      _trailRenderer = GetComponent<TrailRenderer>();
+
+        //line.mat
+
+
+        //_trailRenderer.SetPositions(new Vector3[] { new Vector3(0, 0), new Vector3(1, 0) });
+
+        //    _trailRendererGradient = new Gradient();
+        //  _trailRendererGradient.SetKeys(new GradientColorKey[] { new GradientColorKey(Color.white, 0.0f), new GradientColorKey(Color.cyan, 1.0f) },
+        //                  new GradientAlphaKey[] { new GradientAlphaKey(1.0f, 0.0f), new GradientAlphaKey(1.0f, 1.0f) });
+        //  line.colorGradient = _trailRendererGradient;  //_trailRenderer.colorGradient = _trailRendererGradient;
+
 
 
         _rigidbody = GetComponent<Rigidbody2D>();
         _spriteRenderer = GetComponent<SpriteRenderer>();
+        TronTrail.sortingLayerID = _spriteRenderer.sortingLayerID;
 
 
         Vector3 size = GetComponent<Collider2D>().bounds.size;
@@ -67,11 +217,36 @@ public class PlayerController : MonoBehaviour
         //the following two so that the player starts cyan
         //_switchcolor = true;
         //IsCyan = false;
+
+
+
         SetColor(true);
+
+
+
+        //    }
+        //  private void Start()
+        //{
+
+
+        //  if (started)
+        // {
+        //        head = tail = 0;
+        //    points[0] = transform.position;
+        //   times[0] = Time.time;
+        // hasChanged = true;
+        //started = false;
+        //}
+        //        Vector3[] currentPoints = new Vector3[head - tail + 1];
+        //      System.Array.Copy(points, tail, currentPoints, 0, head - tail + 1);
+        //        line.positionCount = 1;// head - tail + 1;
+        //      line.SetPositions(new Vector3[] { points[0] });
+        //   firstime = Time.time;
+
+        //       currentSnake = new TronTrail(Color.white, transform.position, true);
     }
 
-
-
+    TronTrail currentSnake = null;
 
     void FixedUpdate()
     {
@@ -147,24 +322,109 @@ public class PlayerController : MonoBehaviour
 
 
             IsCyan = !IsCyan;
-            _trailRenderer.startColor = _trailRenderer.endColor = _spriteRenderer.color = IsCyan ? Color.cyan : Color.green;
+
+
+            SetColor(IsCyan);
 
             if (_collectedPowerUps.ContainsKey(PowerUpTypes.Ghost))// .Contains("Ghost"))// hasGhost)
                 _collectedPowerUps[PowerUpTypes.Ghost].Activate();// _spriteRenderer.color = new Color(255, 255, 255, 0);
+
         }
 
 
+
+
+        if (masktrick && masktrickfloat <= 1.0f)
+        {
+            //Debug.Log("" + _trailRenderer.time);
+            //_trailRenderer.transform.position = this.transform.position - new Vector3(2, 0, 0);
+            //Gradient gradient = new Gradient();
+            //   _trailRendererGradient.SetKeys(new GradientColorKey[] { new GradientColorKey(Color.yellow, 0.0f),
+            //     new GradientColorKey(Color.cyan, 4.9f),  new GradientColorKey(Color.cyan, 5.0f) },
+            //               new GradientAlphaKey[] { new GradientAlphaKey(1.0f, 0.0f), new GradientAlphaKey(1.0f, 4.9f), new GradientAlphaKey(1.0f, 5) });
+            //   _trailRenderer.colorGradient = _trailRendererGradient;
+
+            //       masktrickfloat +=  0.01f;
+        }
+
+
+
+
+
+
+        currentSnake.CheckIfShouldAddPointAndIfYesAddIt(transform.position);
     }
+
+
+
+
+    float masktrickfloat = 0.0f;
 
 
     public void SetColor(bool iscyan)
-    {
+    {            // _trailRenderer.startColor = _trailRenderer.endColor = 
+                 //        _spriteRenderer.color = IsCyan ? Color.cyan : Color.green;
+
+
         IsCyan = iscyan;
 
-        _trailRenderer.startColor = _trailRenderer.endColor = _spriteRenderer.color = IsCyan ? Color.cyan : Color.green;
+        Color color = IsCyan ? Color.cyan : Color.green;
+
+        // setgradientcolor(color);
+        _spriteRenderer.color = color;
+
+        StartForegroundSnake();
     }
 
 
+
+
+    //float firstime = -1.0f;
+    //float masktime = -1.0f;
+    //   int maskpoint;
+
+    /*
+private void setgradientcolor(Color color)
+{
+    //length 0 0
+    //traillength 1
+    //masktrickfloat gradient?
+    //gradient= masktrickfloat/traillength
+
+
+
+
+    //0 headindex 0
+    //1 headindex head       
+    //gradient maskpoint;// masktime
+    //currenthead 1
+    //maskpoint ?
+    //?=maskpoint/currenthead
+    float gradient = masktrickfloat / traillength;
+    //bla=(time.time-firstime)/(masktime-firstime)= (1-0)/(gradientime-0)
+    //gradientime=1/bla
+    //float bla = (Time.time - firstime) / (masktime - firstime);
+    //float gradienttime = 1 / bla;
+
+    if (masktrick == false)
+        gradient = 1.0f;
+
+    //private
+    Gradient _trailRendererGradient = null;
+    _trailRendererGradient = new Gradient();
+    _trailRendererGradient.mode = GradientMode.Fixed;
+    _trailRendererGradient.SetKeys(new GradientColorKey[] { new GradientColorKey(Color.white, 0.0f), new GradientColorKey(Color.white, gradient)
+        ,new GradientColorKey(Color.red,1.0f)
+    },
+                   new GradientAlphaKey[] { new GradientAlphaKey(1.0f, 0.0f), new GradientAlphaKey(1.0f, gradient), new GradientAlphaKey(1.0f, 1.0f) });
+    line.colorGradient = _trailRendererGradient;  //_trailRenderer.colorGradient = _trailRendererGradient;
+
+    //  line.startColor = line.endColor = color;
+
+    //   line.startColor=line.endColor=   // _trailRenderer.startColor = _trailRenderer.endColor = 
+}
+
+*/
     [HideInInspector]
     public RewindTimeComponent _rewindTimeComponent;
 
@@ -221,7 +481,61 @@ public class PlayerController : MonoBehaviour
             PlayerWasKilled();
     }
 
+    public void StartBackgroundSnake()
+    {
+        //       case "SpriteMask":
 
+
+        currentSnake.AddFinalPoint(transform.position);
+
+        currentSnake = new TronTrail(IsCyan ? Color.cyan : Color.green, transform.position, false);// currentSnake = new TronTrail(Color.red, transform.position, false);
+
+        //   masktrick = true;
+        //  masktrickfloat = traillength;//                maskpoint = head;// masktime = Time.time;
+        //  addlinepoint();
+
+        //                GameObject gObject = new GameObject("MyGameObject");
+        //              LineRenderer lRend = gObject.AddComponent<LineRenderer>();
+        //
+        //            lRend.SetColors(Color.red, Color.blue);
+        //          lRend.material = new Material(Shader.Find("Particles/Additive"));
+        //        lRend.SetWidth(1, 1);
+        //      lRend.SetPosition(0, Vector3.zero);
+        //    lRend.SetPosition(1, Vector3.one);
+
+        // break;
+
+    }
+    public void StartForegroundSnake()
+    {
+        //       case "SpriteMask":
+        //Debug.Log("sprite mask");
+
+
+        if (currentSnake != null)//it can be null the first time we call this method
+            currentSnake.AddFinalPoint(transform.position);
+
+        currentSnake = new TronTrail(IsCyan ? Color.cyan : Color.green, transform.position, true); //currentSnake = new TronTrail(Color.white, transform.position, true);
+
+
+
+
+        //   masktrick = true;
+        //  masktrickfloat = traillength;//                maskpoint = head;// masktime = Time.time;
+        //  addlinepoint();
+
+        //                GameObject gObject = new GameObject("MyGameObject");
+        //              LineRenderer lRend = gObject.AddComponent<LineRenderer>();
+        //
+        //            lRend.SetColors(Color.red, Color.blue);
+        //          lRend.material = new Material(Shader.Find("Particles/Additive"));
+        //        lRend.SetWidth(1, 1);
+        //      lRend.SetPosition(0, Vector3.zero);
+        //    lRend.SetPosition(1, Vector3.one);
+
+        // break;
+
+    }
 
     void OnTriggerEnter2D(Collider2D collision)
     {
@@ -257,6 +571,7 @@ public class PlayerController : MonoBehaviour
                 break;
 
 
+
             default:
                 if (collision.gameObject.tag.StartsWith("PowerUp_"))
                 {//we've triggered a powerup
@@ -270,6 +585,11 @@ public class PlayerController : MonoBehaviour
                 break;
         }
     }
+
+    bool masktrick = false;
+
+
+
 
     private void CollectedPowerUp(string secondpart)
     {
@@ -340,15 +660,16 @@ public class GhostPowerUp : PowerUp
     }
 
     public override void Activate()
-    { 
+    {
         PlayerController.Instance._spriteRenderer.color = new Color(255, 255, 255, 0);
 
         base.Activate();
     }
     public override void Deactivate()
     {
-        PlayerController.Instance._trailRenderer.startColor = PlayerController.Instance._trailRenderer.endColor = PlayerController.Instance._spriteRenderer.color
-            = PlayerController.Instance.IsCyan ? Color.cyan : Color.green;
+        //PlayerController.Instance._trailRenderer.startColor = PlayerController.Instance._trailRenderer.endColor =
+        PlayerController.Instance._spriteRenderer.color
+        = PlayerController.Instance.IsCyan ? Color.cyan : Color.green;
 
         base.Deactivate();
     }
@@ -378,11 +699,13 @@ public class PowerUp
     //  public ActivationMethod MyActivationMethod;
 
 
-    public virtual void Activate() {
-        if(!isActivatedImmediately)        
-            Remove();        
+    public virtual void Activate()
+    {
+        if (!isActivatedImmediately)
+            Remove();
     }
-    public virtual void Deactivate() {
+    public virtual void Deactivate()
+    {
         if (isActivatedImmediately)
             Remove();
     }
@@ -429,5 +752,7 @@ public class PowerUp
 
         }*/
         // }
+
+
     }
 }

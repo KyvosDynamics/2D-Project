@@ -14,6 +14,9 @@ TagManager:
   - PowerUp_DoubleJump
   - PowerUp_Ghost
   - PowerUp_RewindTime
+  - Ghost
+  - DoubleJump
+  - SpriteMask
   layers:
   - Default
   - TransparentFX
