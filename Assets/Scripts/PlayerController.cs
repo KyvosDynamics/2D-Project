@@ -2,48 +2,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class TronTrail
-{
-    private List<Vector3> _points = new List<Vector3>();
-    private LineRenderer _lineRenderer = null;
-
-
-    public TronTrail(Color color, Vector3 startPosition, bool inForeground)
-    {
-        GameObject gameObject = new GameObject("TronTrailHolder");
-        _lineRenderer = gameObject.AddComponent<LineRenderer>();
-        _lineRenderer.sortingLayerName = inForeground ? "Player" : "RoomObjectsBehindPlayer";
-        _lineRenderer.sortingOrder = -10; //so that for example it is behind a portal effect
-        _lineRenderer.startColor = _lineRenderer.endColor = color;
-        _lineRenderer.material = new Material(Shader.Find("Sprites/Default"));//or Shader.Find("Particles/Additive")); ?
-        _lineRenderer.startWidth = _lineRenderer.endWidth = 0.5f;
-
-        AddPoint(startPosition);
-    }
-
-    public void AddPoint(Vector3 position)
-    {
-        _points.Add(position);
-        _lineRenderer.positionCount = _points.Count;
-        _lineRenderer.SetPositions(_points.ToArray());
-    }
-
-    public void CheckIfShouldAddPointAndIfYesAddIt(Vector3 newPosition)
-    { //if the latest position is significantly far from the previous point we add a new point
-
-        if ((newPosition - _points[_points.Count - 1]).sqrMagnitude > 0.01f)
-            AddPoint(newPosition);
-    }
-
-}
-
 
 public class PlayerController : MonoBehaviour
 {
     public static PlayerController Instance = null;
 
     [HideInInspector]
-    public Dictionary<PowerUpTypes, PowerUp> CollectedPowerUps = new Dictionary<PowerUpTypes, PowerUp>();
+    public Dictionary<PowerUpType, PowerUp> CollectedPowerUps = new Dictionary<PowerUpType, PowerUp>();
 
     [HideInInspector]
     public bool IsCyan;
@@ -55,7 +20,9 @@ public class PlayerController : MonoBehaviour
     public bool JumpFromGround = false;
 
     [HideInInspector]
-    public RewindTimeComponent RewindTimeComponent;
+    public StateGroup CurrentStateGroup;
+    //private TronTrail _currentTronTrail = null;
+
 
     public float Speed;
     public LayerMask GroundLayer;
@@ -76,14 +43,16 @@ public class PlayerController : MonoBehaviour
     private const float _jumpSpeed = 8;
     private Vector3 _downVectorWithMagnitude;
     private Vector3 _rightVectorWithMagnitude;
-    private TronTrail _currentTronTrail = null;
+
 
 
     void Start()
     {
         Instance = this;
 
-        RewindTimeComponent = GetComponent<RewindTimeComponent>();
+        //RewindTimeComponent = GetComponent<RewindTimeComponent>();
+
+        //RewindTimeComponent = new StateGroup(this.gameObject);
         _rigidbody = GetComponent<Rigidbody2D>();
         SpriteRenderer = GetComponent<SpriteRenderer>();
 
@@ -99,17 +68,25 @@ public class PlayerController : MonoBehaviour
         transform.position = new Vector3(6.28125f / 2, 1);
 
         IsCyan = true; //start cyan
-        ApplyColorAccordingToFlag();
+        ApplyColorAccordingToFlag(true);
+
+
+        //CurrentStateGroup = new StateGroup(transform, this, transform.position, IsCyan, true);
     }
 
 
     void FixedUpdate()
     {
-        if (RewindTimeComponent.isRewinding) //do not bother with physics when we are rewinding
-            return;
+        if (CurrentStateGroup.isRewinding)
+        {
+            Debug.Log("command to initiate rewinding");
+            CurrentStateGroup.Rewind();
+            return; //do not bother with physics when we are rewinding
+        }
 
         if (transform.position.y < -5)
         {//player fell to the void
+            Debug.Log("trying to kill player because y<-5, isrewinding="+CurrentStateGroup.isRewinding+"   stategroupid="+CurrentStateGroup.myID);
             TryToKillPlayer();// PlayerWasKilled();
             return;
         }
@@ -173,25 +150,30 @@ public class PlayerController : MonoBehaviour
 
 
             IsCyan = !IsCyan;
-            ApplyColorAccordingToFlag();
+            ApplyColorAccordingToFlag(true);
 
-            if (CollectedPowerUps.ContainsKey(PowerUpTypes.Ghost))// .Contains("Ghost"))// hasGhost)
-                CollectedPowerUps[PowerUpTypes.Ghost].Activate();// _spriteRenderer.color = new Color(255, 255, 255, 0);
+            if (CollectedPowerUps.ContainsKey(PowerUpType.Ghost))// .Contains("Ghost"))// hasGhost)
+                CollectedPowerUps[PowerUpType.Ghost].Activate();// _spriteRenderer.color = new Color(255, 255, 255, 0);
 
         }
 
 
-        _currentTronTrail.CheckIfShouldAddPointAndIfYesAddIt(transform.position);
+
+
+
+        CurrentStateGroup.AddState(new State(transform.position, IsCyan));//.AddPoint();
+        //_currentTronTrail.AddPoint(transform.position);
     }
 
 
 
 
 
-    public void ApplyColorAccordingToFlag()
+    public void ApplyColorAccordingToFlag(bool initiateSimilarlyColoredTrail)
     {
         SpriteRenderer.color = IsCyan ? Color.cyan : Color.green;
-        StartForegroundTronTrail();
+        if(initiateSimilarlyColoredTrail)
+            StartForegroundTronTrail();
     }
 
 
@@ -199,7 +181,7 @@ public class PlayerController : MonoBehaviour
     void Update()
     {//keyboard handling
 
-        if (RewindTimeComponent.isRewinding) //do not respond to input when we are rewinding time
+        if (CurrentStateGroup.isRewinding) //do not respond to input when we are rewinding time
             return;
 
 
@@ -214,13 +196,8 @@ public class PlayerController : MonoBehaviour
                 _jumpFromWall = true;
             else
             {//it may still be possible to jump if we have the doublejump powerup
-             //  private void Jump(bool isGrounded)
-                if (CollectedPowerUps.ContainsKey(PowerUpTypes.DoubleJump))// "DoubleJump"))// hasDoubleJump)
-                {
-                    CollectedPowerUps[PowerUpTypes.DoubleJump].Activate();
-                    //activateDoubleJumpPowerUp();
-                }
-
+                if (CollectedPowerUps.ContainsKey(PowerUpType.DoubleJump))
+                    CollectedPowerUps[PowerUpType.DoubleJump].Activate();
             }
         }
     }
@@ -231,41 +208,39 @@ public class PlayerController : MonoBehaviour
     private void TryToKillPlayer()
     {//TODO: make it check the reason of death. If we fell into the abyss there is no need to check for the ghost powerup!
 
-        if (CollectedPowerUps.ContainsKey(PowerUpTypes.Ghost))// "Ghost"))// hasGhost)
-        {
-            CollectedPowerUps[PowerUpTypes.Ghost].Deactivate();
-            //_collectedPowerUps[PowerUpTypes.Ghost].Remove();// GhostNoMore();
-        }
-        else if (CollectedPowerUps.ContainsKey(PowerUpTypes.RewindTime))// "RewindTime"))// hasRewindTime)
-        {
-            CollectedPowerUps[PowerUpTypes.RewindTime].Activate();
-            //_collectedPowerUps[PowerUpTypes.RewindTime].Remove();// GhostNoMore();
+        Debug.Log("trying to kill player");
 
-            //   ewindTime();
+        if (CollectedPowerUps.ContainsKey(PowerUpType.Ghost))
+        {//we are a ghost, we cannot be killed! But we lose that ability now
+            CollectedPowerUps[PowerUpType.Ghost].Deactivate();
         }
-        else
+        else if (CollectedPowerUps.ContainsKey(PowerUpType.RewindTime))
+        {//we are not a ghost and we can be killed BUT we can rewind time ;)
+            CollectedPowerUps[PowerUpType.RewindTime].Activate();
+        }
+        else //no powerups are protecting us from death
             PlayerWasKilled();
     }
 
 
 
-    public void StartBackgroundTronTrail()
-    {
-        _currentTronTrail.AddPoint(transform.position);
-        _currentTronTrail = new TronTrail(IsCyan ? Color.cyan : Color.green, transform.position, false);
-    }
     public void StartForegroundTronTrail()
     {
-        if (_currentTronTrail != null)//it can be null the first time we call this method
-            _currentTronTrail.AddPoint(transform.position);
+        if (CurrentStateGroup != null)//it can be null the first time we call this method
+            CurrentStateGroup.AddState(new State(transform.position, IsCyan));
 
-        _currentTronTrail = new TronTrail(IsCyan ? Color.cyan : Color.green, transform.position, true);
+        CurrentStateGroup = new StateGroup(transform,this, transform.position, IsCyan, true);
+    }
+    public void StartBackgroundTronTrail()
+    {//eg when the player is passing through a portal. We don't want the trail to pass on top of the portal effect
+        CurrentStateGroup.AddState(new State(transform.position, IsCyan));
+        CurrentStateGroup = new StateGroup(transform,this, transform.position, IsCyan, false); //false for background
     }
 
 
     void OnTriggerEnter2D(Collider2D collision)
     {
-        if (RewindTimeComponent.isRewinding) //do not bother with collisions when we we are rewinding
+        if (CurrentStateGroup.isRewinding) //do not bother with collisions when we we are rewinding
             return;
 
 
@@ -273,15 +248,12 @@ public class PlayerController : MonoBehaviour
         {
             case "CyanSaw":
                 if (!IsCyan)
-                {
                     TryToKillPlayer();
-                }
                 break;
+
             case "GreenSaw":
                 if (IsCyan)
-                {
                     TryToKillPlayer();
-                }
                 break;
 
             case "Killer":
@@ -296,47 +268,33 @@ public class PlayerController : MonoBehaviour
                 PlayerWon();
                 break;
 
-
             default:
                 if (collision.gameObject.tag.StartsWith("PowerUp_"))
                 {//we've triggered a powerup
 
                     Destroy(collision.gameObject);
 
-                    string secondpart = collision.gameObject.tag.Substring(8);
-                    CollectedPowerUp(secondpart);
+                    string secondpart = collision.gameObject.tag.Substring(8); //(to remove the PowerUp_ string from the tag)
 
+                    PowerUpType poweruptype = (PowerUpType)Enum.Parse(typeof(PowerUpType), secondpart);
+                    if (CollectedPowerUps.ContainsKey(poweruptype)) //we already have this powerup
+                        return;
+
+                    var powerupHandle = Activator.CreateInstance(null, secondpart + "PowerUp"); //(by convention we name the class as the powerup tag +"PowerUp", eg GhostPowerUp)
+                    PowerUp powerup = (PowerUp)powerupHandle.Unwrap();
+
+                    CollectedPowerUps.Add(poweruptype, powerup);
+
+                    GameObject uiImage = GameObject.Find("UIcanvas").transform.Find(secondpart + "Image").gameObject; //(by convention we name the image as the powerup tag +"Image", eg GhostImage)
+                    uiImage.SetActive(true);
+                    uiImage.GetComponent<AudioSource>().Play();
+
+                    if (powerup.IsActivatedImmediately) //eg Ghost
+                        powerup.Activate();
                 }
                 break;
         }
     }
-
-
-
-
-    private void CollectedPowerUp(string secondpart)
-    {
-        var powerupHandle = Activator.CreateInstance(null, secondpart + "PowerUp"); //(by convention we name the class as the powerup tag +"PowerUp")
-        var powerup = (PowerUp)powerupHandle.Unwrap();
-
-        PowerUpTypes poweruptype = (PowerUpTypes)Enum.Parse(typeof(PowerUpTypes), secondpart);
-        if (CollectedPowerUps.ContainsKey(poweruptype))// Enum.Parse(PowerUpTypes, secondpart))//  powerup)) //we already have this powerup
-            return;
-        CollectedPowerUps.Add(poweruptype, powerup);
-
-        GameObject uiImage = GameObject.Find("UIcanvas").transform.Find(secondpart + "Image").gameObject; //(by convention we name the image as the powerup tag +"Image")
-        uiImage.SetActive(true);
-        uiImage.GetComponent<AudioSource>().Play();
-
-
-
-        if (powerup.isActivatedImmediately)
-            powerup.Activate();
-
-    }
-
-
-
 
 
     private void PlayerWasKilled()
@@ -351,16 +309,13 @@ public class PlayerController : MonoBehaviour
     }
 
 
-
 }
 
 
 public class DoubleJumpPowerUp : PowerUp
 {
-    public DoubleJumpPowerUp()
-    {
-        mytype = PowerUpTypes.DoubleJump;
-    }
+    public DoubleJumpPowerUp() : base(PowerUpType.DoubleJump) { }
+
     public override void Activate()
     {
         PlayerController.Instance.JumpFromGround = true;
@@ -370,67 +325,57 @@ public class DoubleJumpPowerUp : PowerUp
 }
 public class GhostPowerUp : PowerUp
 {
-    public GhostPowerUp()
-    {
-        mytype = PowerUpTypes.Ghost;
-        isActivatedImmediately = true;
-    }
+    public GhostPowerUp() : base(PowerUpType.Ghost, true) { }
 
     public override void Activate()
     {
         PlayerController.Instance.SpriteRenderer.color = new Color(255, 255, 255, 0); //trick to make player invisible (we want the trontrail to continue to be visible)
-
         base.Activate();
     }
     public override void Deactivate()
     {
-        PlayerController.Instance.ApplyColorAccordingToFlag(); //restore color according to the IsCyan flag
-
+        PlayerController.Instance.ApplyColorAccordingToFlag(false); //restore color according to the IsCyan flag, we set false because the trail was active anyway
         base.Deactivate();
     }
 }
 public class RewindTimePowerUp : PowerUp
 {
-    public RewindTimePowerUp()
-    {
-        mytype = PowerUpTypes.RewindTime;
-    }
+    public RewindTimePowerUp() : base(PowerUpType.RewindTime) { }
 
     public override void Activate()
     {
-        PlayerController.Instance.RewindTimeComponent.StartRewind();
+        PlayerController.Instance.CurrentStateGroup.StartRewind();
         base.Activate();
     }
 }
 
-public enum PowerUpTypes { DoubleJump, Ghost, RewindTime };
-
-
+public enum PowerUpType { DoubleJump, Ghost, RewindTime };
 
 public class PowerUp
 {
-    public PowerUpTypes mytype; //public string tag;
-    public bool isActivatedImmediately;
+    public PowerUpType mytype;
+    public bool IsActivatedImmediately;
 
+    public PowerUp(PowerUpType type, bool isActivatedImmediately = false)
+    {
+        mytype = type;
+    }
 
     public virtual void Activate()
     {
-        if (!isActivatedImmediately)
+        if (!IsActivatedImmediately)
             Remove();
     }
     public virtual void Deactivate()
     {
-        if (isActivatedImmediately)
+        if (IsActivatedImmediately)
             Remove();
     }
 
-
-
-
     private void Remove()
     {
-        PlayerController.Instance.CollectedPowerUps.Remove(mytype);//  .Remove(tag);
-        GameObject uiImage = GameObject.Find("UIcanvas").transform.Find(mytype.ToString() + "Image").gameObject; //(by convention we name the image as the powerup tag +"Image")
+        PlayerController.Instance.CollectedPowerUps.Remove(mytype);
+        GameObject uiImage = GameObject.Find("UIcanvas").transform.Find(mytype.ToString() + "Image").gameObject; //(by convention we name the image as the powerup tag +"Image", eg GhostImage)
         uiImage.SetActive(false);
     }
 

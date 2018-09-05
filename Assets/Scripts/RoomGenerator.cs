@@ -5,21 +5,6 @@ using UnityEngine;
 using UnityEngine.UI;
 
 
-public class PointInTime
-{
-
-    public Vector3 position;
-    //public Quaternion rotation;
-    public bool iscyan;
-
-    public PointInTime(Vector3 _position, bool iscyan)// Quaternion _rotation)
-    {
-        position = _position;
-        //rotation = _rotation;
-        this.iscyan = iscyan;
-    }
-
-}
 public class Platform
 {
     public enum Type { Ordinary, Gap, Small } //a gap is always followed by a small platform
@@ -100,7 +85,7 @@ public class ProceduralRoom : Room
         for (int i = 0; i < 8; i++)
         {
             float platformX = roomX - halfRoomWidth + halfPlatformWidth + platformWidth * i; //x is easy as we know the position of the room and the relative position of the platform inside the room
-            float platformY =-3.8f; //it is important that we initialize this to -3.8f. This is the desired y value for the very first platform of our game (for this platform previousplatform=null)
+            float platformY = -3.8f; //it is important that we initialize this to -3.8f. This is the desired y value for the very first platform of our game (for this platform previousplatform=null)
             Platform.Type type = Platform.Type.Ordinary;
             ItemThatSitsOnPlatform attachedItem = null;
 
@@ -276,7 +261,7 @@ public class Room
         RoomGenerator.StaticRoomIndex++;
         _index = RoomGenerator.StaticRoomIndex;
 
-        
+
 
         if (previousRoom == null)
         {//this is the very first room of the game
@@ -313,7 +298,7 @@ public class Room
         }
 
         _lastDestroyedRoom = this;
-     }
+    }
 
 
     private static Room _lastDestroyedRoom = null;
@@ -468,9 +453,9 @@ public class RoomGenerator : MonoBehaviour
             Room oldestRoom = _rooms[0];
             float leftCameraBound = Camera.main.transform.position.x - _screenWidth / 2;
 
-            if(CameraHasBeenInitialized && oldestRoom.StartX>leftCameraBound)
+            if (CameraHasBeenInitialized && oldestRoom.StartX > leftCameraBound)
             {//it can happen when we are rewinding time
-                var room= Room.Revive();
+                var room = Room.Revive();
                 _rooms.Insert(0, room);
                 roomAddedOrRemoved = true;
             }

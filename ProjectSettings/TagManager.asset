@@ -8,15 +8,13 @@ TagManager:
   - GreenSaw
   - Ponger
   - Ground
-  - Room
   - CyanSaw
   - EndPoint
   - PowerUp_DoubleJump
   - PowerUp_Ghost
   - PowerUp_RewindTime
-  - Ghost
-  - DoubleJump
   - SpriteMask
+  - Room
   layers:
   - Default
   - TransparentFX
@@ -63,6 +61,6 @@ TagManager:
   - name: Player
     uniqueID: 2500111881
     locked: 0
-  - name: RoomObjectsAbovePlayer
+  - name: 
     uniqueID: 1229797127
     locked: 0
