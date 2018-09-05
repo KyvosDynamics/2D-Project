@@ -6,7 +6,6 @@ public class TronTrail
 {
     private List<Vector3> _points = new List<Vector3>();
     private LineRenderer _lineRenderer = null;
-    private const float _minSampleDistance = 0.1f;
 
 
     public TronTrail(Color color, Vector3 startPosition, bool inForeground)
@@ -19,7 +18,7 @@ public class TronTrail
 
         _lineRenderer.startColor = _lineRenderer.endColor = color;
         _lineRenderer.material = new Material(Shader.Find("Sprites/Default"));//or Shader.Find("Particles/Additive")); ?
-        //_lineRenderer.SetWidth(1, 1);
+        _lineRenderer.startWidth = _lineRenderer.endWidth = 0.5f;
 
 
         AddPoint(startPosition);
@@ -36,24 +35,20 @@ public class TronTrail
     {
         //if the latest position is significantly far from the previous point we add a new point
 
-        if ((newPosition - _points[_points.Count - 1]).sqrMagnitude > _minSampleDistance * _minSampleDistance)        
-            AddPoint(newPosition);       
+        if ((newPosition - _points[_points.Count - 1]).sqrMagnitude > 0.01f)
+            AddPoint(newPosition);
     }
 
-
 }
+
 
 public class PlayerController : MonoBehaviour
 {
     [HideInInspector]
-    public Dictionary<PowerUpTypes, PowerUp> _collectedPowerUps = new Dictionary<PowerUpTypes, PowerUp>();
+    public Dictionary<PowerUpTypes, PowerUp> CollectedPowerUps = new Dictionary<PowerUpTypes, PowerUp>();
 
-
-
-
-
-
-    public bool IsCyan { get; private set; }
+    [HideInInspector]
+    public bool IsCyan;
 
     public float Speed;
     public LayerMask GroundLayer;
@@ -79,34 +74,20 @@ public class PlayerController : MonoBehaviour
     private Vector3 _downVectorWithMagnitude;
     private Vector3 _rightVectorWithMagnitude;
 
-
     public static PlayerController Instance = null;
-
 
     [HideInInspector]
     public RewindTimeComponent _rewindTimeComponent;
 
+    private TronTrail _currentTronTrail = null;
 
 
 
     void Start()
     {
         Instance = this;
+
         _rewindTimeComponent = GetComponent<RewindTimeComponent>();
-        //      _trailRenderer = GetComponent<TrailRenderer>();
-
-        //line.mat
-
-
-        //_trailRenderer.SetPositions(new Vector3[] { new Vector3(0, 0), new Vector3(1, 0) });
-
-        //    _trailRendererGradient = new Gradient();
-        //  _trailRendererGradient.SetKeys(new GradientColorKey[] { new GradientColorKey(Color.white, 0.0f), new GradientColorKey(Color.cyan, 1.0f) },
-        //                  new GradientAlphaKey[] { new GradientAlphaKey(1.0f, 0.0f), new GradientAlphaKey(1.0f, 1.0f) });
-        //  line.colorGradient = _trailRendererGradient;  //_trailRenderer.colorGradient = _trailRendererGradient;
-
-
-
         _rigidbody = GetComponent<Rigidbody2D>();
         _spriteRenderer = GetComponent<SpriteRenderer>();
 
@@ -124,39 +105,10 @@ public class PlayerController : MonoBehaviour
         transform.position = new Vector3(6.28125f / 2, 1);
 
 
-        //the following two so that the player starts cyan
-        //_switchcolor = true;
-        //IsCyan = false;
-
-
-
-        SetColor(true);
-
-
-
-        //    }
-        //  private void Start()
-        //{
-
-
-        //  if (started)
-        // {
-        //        head = tail = 0;
-        //    points[0] = transform.position;
-        //   times[0] = Time.time;
-        // hasChanged = true;
-        //started = false;
-        //}
-        //        Vector3[] currentPoints = new Vector3[head - tail + 1];
-        //      System.Array.Copy(points, tail, currentPoints, 0, head - tail + 1);
-        //        line.positionCount = 1;// head - tail + 1;
-        //      line.SetPositions(new Vector3[] { points[0] });
-        //   firstime = Time.time;
-
-        //       currentSnake = new TronTrail(Color.white, transform.position, true);
+        IsCyan = true; //start cyan
+        ApplyColor();
     }
 
-    TronTrail currentSnake = null;
 
     void FixedUpdate()
     {
@@ -230,14 +182,11 @@ public class PlayerController : MonoBehaviour
             _switchcolor = false;
 
 
-
             IsCyan = !IsCyan;
+            ApplyColor();
 
-
-            SetColor(IsCyan);
-
-            if (_collectedPowerUps.ContainsKey(PowerUpTypes.Ghost))// .Contains("Ghost"))// hasGhost)
-                _collectedPowerUps[PowerUpTypes.Ghost].Activate();// _spriteRenderer.color = new Color(255, 255, 255, 0);
+            if (CollectedPowerUps.ContainsKey(PowerUpTypes.Ghost))// .Contains("Ghost"))// hasGhost)
+                CollectedPowerUps[PowerUpTypes.Ghost].Activate();// _spriteRenderer.color = new Color(255, 255, 255, 0);
 
         }
 
@@ -250,25 +199,16 @@ public class PlayerController : MonoBehaviour
 
 
 
-        currentSnake.CheckIfShouldAddPointAndIfYesAddIt(transform.position);
+        _currentTronTrail.CheckIfShouldAddPointAndIfYesAddIt(transform.position);
     }
 
 
 
 
 
-    public void SetColor(bool iscyan)
-    {            // _trailRenderer.startColor = _trailRenderer.endColor = 
-                 //        _spriteRenderer.color = IsCyan ? Color.cyan : Color.green;
-
-
-        IsCyan = iscyan;
-
-        Color color = IsCyan ? Color.cyan : Color.green;
-
-        // setgradientcolor(color);
-        _spriteRenderer.color = color;
-
+    public void ApplyColor()
+    {           
+        _spriteRenderer.color = IsCyan ? Color.cyan : Color.green;
         StartForegroundTronTrail();
     }
 
@@ -295,9 +235,9 @@ public class PlayerController : MonoBehaviour
             else
             {//it may still be possible to jump if we have the doublejump powerup
              //  private void Jump(bool isGrounded)
-                if (_collectedPowerUps.ContainsKey(PowerUpTypes.DoubleJump))// "DoubleJump"))// hasDoubleJump)
+                if (CollectedPowerUps.ContainsKey(PowerUpTypes.DoubleJump))// "DoubleJump"))// hasDoubleJump)
                 {
-                    _collectedPowerUps[PowerUpTypes.DoubleJump].Activate();
+                    CollectedPowerUps[PowerUpTypes.DoubleJump].Activate();
                     //activateDoubleJumpPowerUp();
                 }
 
@@ -311,14 +251,14 @@ public class PlayerController : MonoBehaviour
     private void TryToKillPlayer()
     {//TODO: make it check the reason of death. If we fell into the abyss there is no need to check for the ghost powerup!
 
-        if (_collectedPowerUps.ContainsKey(PowerUpTypes.Ghost))// "Ghost"))// hasGhost)
+        if (CollectedPowerUps.ContainsKey(PowerUpTypes.Ghost))// "Ghost"))// hasGhost)
         {
-            _collectedPowerUps[PowerUpTypes.Ghost].Deactivate();
+            CollectedPowerUps[PowerUpTypes.Ghost].Deactivate();
             //_collectedPowerUps[PowerUpTypes.Ghost].Remove();// GhostNoMore();
         }
-        else if (_collectedPowerUps.ContainsKey(PowerUpTypes.RewindTime))// "RewindTime"))// hasRewindTime)
+        else if (CollectedPowerUps.ContainsKey(PowerUpTypes.RewindTime))// "RewindTime"))// hasRewindTime)
         {
-            _collectedPowerUps[PowerUpTypes.RewindTime].Activate();
+            CollectedPowerUps[PowerUpTypes.RewindTime].Activate();
             //_collectedPowerUps[PowerUpTypes.RewindTime].Remove();// GhostNoMore();
 
             //   ewindTime();
@@ -331,15 +271,15 @@ public class PlayerController : MonoBehaviour
 
     public void StartBackgroundTronTrail()
     {
-        currentSnake.AddPoint(transform.position);
-        currentSnake = new TronTrail(IsCyan ? Color.cyan : Color.green, transform.position, false);
+        _currentTronTrail.AddPoint(transform.position);
+        _currentTronTrail = new TronTrail(IsCyan ? Color.cyan : Color.green, transform.position, false);
     }
     public void StartForegroundTronTrail()
     {
-        if (currentSnake != null)//it can be null the first time we call this method
-            currentSnake.AddPoint(transform.position);
+        if (_currentTronTrail != null)//it can be null the first time we call this method
+            _currentTronTrail.AddPoint(transform.position);
 
-        currentSnake = new TronTrail(IsCyan ? Color.cyan : Color.green, transform.position, true);
+        _currentTronTrail = new TronTrail(IsCyan ? Color.cyan : Color.green, transform.position, true);
     }
 
 
@@ -403,9 +343,9 @@ public class PlayerController : MonoBehaviour
         var powerup = (PowerUp)powerupHandle.Unwrap();
 
         PowerUpTypes poweruptype = (PowerUpTypes)Enum.Parse(typeof(PowerUpTypes), secondpart);
-        if (_collectedPowerUps.ContainsKey(poweruptype))// Enum.Parse(PowerUpTypes, secondpart))//  powerup)) //we already have this powerup
+        if (CollectedPowerUps.ContainsKey(poweruptype))// Enum.Parse(PowerUpTypes, secondpart))//  powerup)) //we already have this powerup
             return;
-        _collectedPowerUps.Add(poweruptype, powerup);
+        CollectedPowerUps.Add(poweruptype, powerup);
 
         GameObject uiImage = GameObject.Find("UIcanvas").transform.Find(secondpart + "Image").gameObject; //(by convention we name the image as the powerup tag +"Image")
         uiImage.SetActive(true);
@@ -517,7 +457,7 @@ public class PowerUp
     private void Remove()
     {
 
-        PlayerController.Instance._collectedPowerUps.Remove(mytype);//  .Remove(tag);
+        PlayerController.Instance.CollectedPowerUps.Remove(mytype);//  .Remove(tag);
         GameObject uiImage = GameObject.Find("UIcanvas").transform.Find(mytype.ToString() + "Image").gameObject; //(by convention we name the image as the powerup tag +"Image")
         uiImage.SetActive(false);
 

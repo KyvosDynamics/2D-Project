@@ -22,7 +22,10 @@ public class RewindTimeComponent : MonoBehaviour
         pointsInTime = new List<PointInTime>();
         rb = GetComponent<Rigidbody2D>();
         mygameobject = gameObject;
+        _playerController = mygameobject.GetComponent<PlayerController>();
     }
+
+    PlayerController _playerController;
 
     // Update is called once per frame
     //    void Update()
@@ -48,7 +51,9 @@ public class RewindTimeComponent : MonoBehaviour
             PointInTime pointInTime = pointsInTime[0];
             transform.position = pointInTime.position;
 
-            mygameobject.GetComponent<PlayerController>().SetColor(pointInTime.iscyan);
+
+            _playerController.IsCyan = pointInTime.iscyan;
+            _playerController.ApplyColor();
 
             pointsInTime.RemoveAt(0);
         }
