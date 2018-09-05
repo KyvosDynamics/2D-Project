@@ -105,44 +105,12 @@ public class TronTrail
 
 public class PlayerController : MonoBehaviour
 {
-    //LineRenderer linetouse = null;
-    //
-    //  [SerializeField] LineRenderer line;
-    //
-    //[SerializeField] float lifetime = 10003f;
-
-    //  const int MAXPOINTS = 348394;
-    //   Vector3[] points = new Vector3[MAXPOINTS];
-    //float[] times = new float[MAXPOINTS];
-    //int headIndex = 0;
-    //int tailIndex = 0;
-
-    /*  bool started;
-      void OnEnable()
-      {
-          started = true;
-      }
-
-      void OnDisable()
-      {
-          line.positionCount = 0;
-      }
-      */
+    [HideInInspector]
+    public Dictionary<PowerUpTypes, PowerUp> _collectedPowerUps = new Dictionary<PowerUpTypes, PowerUp>();
 
 
 
-    bool hasChanged = false;
-    //Vector3[] debug = new Vector3[MAXPOINTS];
-    //  void FixedUpdate()
-    //  {
-    // }
 
-
-
-    //  void Update()
-    //{
-    //  line.GetPositions(debug);
-    //}
 
 
     public bool IsCyan { get; private set; }
@@ -171,11 +139,14 @@ public class PlayerController : MonoBehaviour
     private Vector3 _downVectorWithMagnitude;
     private Vector3 _rightVectorWithMagnitude;
 
-    // // [HideInInspector]
-    // public TrailRenderer _trailRenderer;
 
     public static PlayerController Instance = null;
-    float traillength = 0;
+
+
+    [HideInInspector]
+    public RewindTimeComponent _rewindTimeComponent;
+
+
 
 
     void Start()
@@ -334,18 +305,6 @@ public class PlayerController : MonoBehaviour
 
 
 
-        if (masktrick && masktrickfloat <= 1.0f)
-        {
-            //Debug.Log("" + _trailRenderer.time);
-            //_trailRenderer.transform.position = this.transform.position - new Vector3(2, 0, 0);
-            //Gradient gradient = new Gradient();
-            //   _trailRendererGradient.SetKeys(new GradientColorKey[] { new GradientColorKey(Color.yellow, 0.0f),
-            //     new GradientColorKey(Color.cyan, 4.9f),  new GradientColorKey(Color.cyan, 5.0f) },
-            //               new GradientAlphaKey[] { new GradientAlphaKey(1.0f, 0.0f), new GradientAlphaKey(1.0f, 4.9f), new GradientAlphaKey(1.0f, 5) });
-            //   _trailRenderer.colorGradient = _trailRendererGradient;
-
-            //       masktrickfloat +=  0.01f;
-        }
 
 
 
@@ -357,8 +316,6 @@ public class PlayerController : MonoBehaviour
 
 
 
-
-    float masktrickfloat = 0.0f;
 
 
     public void SetColor(bool iscyan)
@@ -377,56 +334,6 @@ public class PlayerController : MonoBehaviour
     }
 
 
-
-
-    //float firstime = -1.0f;
-    //float masktime = -1.0f;
-    //   int maskpoint;
-
-    /*
-private void setgradientcolor(Color color)
-{
-    //length 0 0
-    //traillength 1
-    //masktrickfloat gradient?
-    //gradient= masktrickfloat/traillength
-
-
-
-
-    //0 headindex 0
-    //1 headindex head       
-    //gradient maskpoint;// masktime
-    //currenthead 1
-    //maskpoint ?
-    //?=maskpoint/currenthead
-    float gradient = masktrickfloat / traillength;
-    //bla=(time.time-firstime)/(masktime-firstime)= (1-0)/(gradientime-0)
-    //gradientime=1/bla
-    //float bla = (Time.time - firstime) / (masktime - firstime);
-    //float gradienttime = 1 / bla;
-
-    if (masktrick == false)
-        gradient = 1.0f;
-
-    //private
-    Gradient _trailRendererGradient = null;
-    _trailRendererGradient = new Gradient();
-    _trailRendererGradient.mode = GradientMode.Fixed;
-    _trailRendererGradient.SetKeys(new GradientColorKey[] { new GradientColorKey(Color.white, 0.0f), new GradientColorKey(Color.white, gradient)
-        ,new GradientColorKey(Color.red,1.0f)
-    },
-                   new GradientAlphaKey[] { new GradientAlphaKey(1.0f, 0.0f), new GradientAlphaKey(1.0f, gradient), new GradientAlphaKey(1.0f, 1.0f) });
-    line.colorGradient = _trailRendererGradient;  //_trailRenderer.colorGradient = _trailRendererGradient;
-
-    //  line.startColor = line.endColor = color;
-
-    //   line.startColor=line.endColor=   // _trailRenderer.startColor = _trailRenderer.endColor = 
-}
-
-*/
-    [HideInInspector]
-    public RewindTimeComponent _rewindTimeComponent;
 
 
     void Update()
@@ -481,59 +388,28 @@ private void setgradientcolor(Color color)
             PlayerWasKilled();
     }
 
+
+
     public void StartBackgroundSnake()
     {
-        //       case "SpriteMask":
 
 
         currentSnake.AddFinalPoint(transform.position);
 
-        currentSnake = new TronTrail(IsCyan ? Color.cyan : Color.green, transform.position, false);// currentSnake = new TronTrail(Color.red, transform.position, false);
-
-        //   masktrick = true;
-        //  masktrickfloat = traillength;//                maskpoint = head;// masktime = Time.time;
-        //  addlinepoint();
-
-        //                GameObject gObject = new GameObject("MyGameObject");
-        //              LineRenderer lRend = gObject.AddComponent<LineRenderer>();
-        //
-        //            lRend.SetColors(Color.red, Color.blue);
-        //          lRend.material = new Material(Shader.Find("Particles/Additive"));
-        //        lRend.SetWidth(1, 1);
-        //      lRend.SetPosition(0, Vector3.zero);
-        //    lRend.SetPosition(1, Vector3.one);
-
-        // break;
+        currentSnake = new TronTrail(IsCyan ? Color.cyan : Color.green, transform.position, false);
 
     }
     public void StartForegroundSnake()
     {
-        //       case "SpriteMask":
-        //Debug.Log("sprite mask");
 
 
         if (currentSnake != null)//it can be null the first time we call this method
             currentSnake.AddFinalPoint(transform.position);
 
-        currentSnake = new TronTrail(IsCyan ? Color.cyan : Color.green, transform.position, true); //currentSnake = new TronTrail(Color.white, transform.position, true);
+        currentSnake = new TronTrail(IsCyan ? Color.cyan : Color.green, transform.position, true);
 
 
 
-
-        //   masktrick = true;
-        //  masktrickfloat = traillength;//                maskpoint = head;// masktime = Time.time;
-        //  addlinepoint();
-
-        //                GameObject gObject = new GameObject("MyGameObject");
-        //              LineRenderer lRend = gObject.AddComponent<LineRenderer>();
-        //
-        //            lRend.SetColors(Color.red, Color.blue);
-        //          lRend.material = new Material(Shader.Find("Particles/Additive"));
-        //        lRend.SetWidth(1, 1);
-        //      lRend.SetPosition(0, Vector3.zero);
-        //    lRend.SetPosition(1, Vector3.one);
-
-        // break;
 
     }
 
@@ -612,13 +488,8 @@ private void setgradientcolor(Color color)
 
     }
 
-    [HideInInspector]
-    public Dictionary<PowerUpTypes, PowerUp> _collectedPowerUps = new Dictionary<PowerUpTypes, PowerUp>();
 
 
-    //    bool hasDoubleJump = false;
-    //  bool hasGhost = false;
-    //bool hasRewindTime = false;
 
 
     private void PlayerWasKilled()
