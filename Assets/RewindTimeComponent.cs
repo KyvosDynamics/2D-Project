@@ -53,7 +53,7 @@ public class RewindTimeComponent : MonoBehaviour
 
 
             _playerController.IsCyan = pointInTime.iscyan;
-            _playerController.ApplyColor();
+            _playerController.ApplyColorAccordingToFlag();
 
             pointsInTime.RemoveAt(0);
         }

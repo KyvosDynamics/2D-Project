@@ -12,14 +12,11 @@ public class TronTrail
     {
         GameObject gameObject = new GameObject("TronTrailHolder");
         _lineRenderer = gameObject.AddComponent<LineRenderer>();
-
         _lineRenderer.sortingLayerName = inForeground ? "Player" : "RoomObjectsBehindPlayer";
         _lineRenderer.sortingOrder = -10; //so that for example it is behind a portal effect
-
         _lineRenderer.startColor = _lineRenderer.endColor = color;
         _lineRenderer.material = new Material(Shader.Find("Sprites/Default"));//or Shader.Find("Particles/Additive")); ?
         _lineRenderer.startWidth = _lineRenderer.endWidth = 0.5f;
-
 
         AddPoint(startPosition);
     }
@@ -32,8 +29,7 @@ public class TronTrail
     }
 
     public void CheckIfShouldAddPointAndIfYesAddIt(Vector3 newPosition)
-    {
-        //if the latest position is significantly far from the previous point we add a new point
+    { //if the latest position is significantly far from the previous point we add a new point
 
         if ((newPosition - _points[_points.Count - 1]).sqrMagnitude > 0.01f)
             AddPoint(newPosition);
@@ -44,11 +40,22 @@ public class TronTrail
 
 public class PlayerController : MonoBehaviour
 {
+    public static PlayerController Instance = null;
+
     [HideInInspector]
     public Dictionary<PowerUpTypes, PowerUp> CollectedPowerUps = new Dictionary<PowerUpTypes, PowerUp>();
 
     [HideInInspector]
     public bool IsCyan;
+
+    [HideInInspector]
+    public SpriteRenderer SpriteRenderer;
+
+    [HideInInspector]
+    public bool JumpFromGround = false;
+
+    [HideInInspector]
+    public RewindTimeComponent RewindTimeComponent;
 
     public float Speed;
     public LayerMask GroundLayer;
@@ -57,15 +64,11 @@ public class PlayerController : MonoBehaviour
 
     //by convention private fields start with the underscore '_' character followed by a lower-case letter
     private Rigidbody2D _rigidbody;
-    [HideInInspector]
-    public SpriteRenderer _spriteRenderer;
     private bool _isTouchingGround;
     private bool _isTouchingWall;
     private int _numOfHorRaycasts;
     private float _rayYIncr;
     private bool _switchcolor;
-    [HideInInspector]
-    public bool _jumpFromGround = false;
     private bool _jumpFromWall = false;
     private bool _jumpFromPonger = false;
     private const float _raycastingDistance = 0.1f;
@@ -73,24 +76,16 @@ public class PlayerController : MonoBehaviour
     private const float _jumpSpeed = 8;
     private Vector3 _downVectorWithMagnitude;
     private Vector3 _rightVectorWithMagnitude;
-
-    public static PlayerController Instance = null;
-
-    [HideInInspector]
-    public RewindTimeComponent _rewindTimeComponent;
-
     private TronTrail _currentTronTrail = null;
-
 
 
     void Start()
     {
         Instance = this;
 
-        _rewindTimeComponent = GetComponent<RewindTimeComponent>();
+        RewindTimeComponent = GetComponent<RewindTimeComponent>();
         _rigidbody = GetComponent<Rigidbody2D>();
-        _spriteRenderer = GetComponent<SpriteRenderer>();
-
+        SpriteRenderer = GetComponent<SpriteRenderer>();
 
         Vector3 size = GetComponent<Collider2D>().bounds.size;
 
@@ -101,18 +96,16 @@ public class PlayerController : MonoBehaviour
         _downVectorWithMagnitude = Vector3.down * (size.y / 2 + 0.01f); //don't mind the 0.01f
         _rightVectorWithMagnitude = Vector3.right * size.x / 2;
 
-
         transform.position = new Vector3(6.28125f / 2, 1);
 
-
         IsCyan = true; //start cyan
-        ApplyColor();
+        ApplyColorAccordingToFlag();
     }
 
 
     void FixedUpdate()
     {
-        if (_rewindTimeComponent.isRewinding) //do not bother with physics when we are rewinding
+        if (RewindTimeComponent.isRewinding) //do not bother with physics when we are rewinding
             return;
 
         if (transform.position.y < -5)
@@ -125,10 +118,8 @@ public class PlayerController : MonoBehaviour
         Vector3 bottommostRightmostPoint = bottommostPoint + _rightVectorWithMagnitude;
 
 
-
         _isTouchingGround = Physics2D.Raycast(bottommostPoint, Vector2.down, _raycastingDistance, GroundLayer);
         //enable this for debugging: Debug.DrawLine(bottommostPoint, bottommostPoint + Vector3.down * _raycastingDistance, _isTouchingGround ? Color.red : Color.green);
-
 
 
         _isTouchingWall = false;
@@ -148,16 +139,15 @@ public class PlayerController : MonoBehaviour
 
 
 
-
         float yVel = _rigidbody.velocity.y;
         if (_jumpFromPonger)
         {
             _jumpFromPonger = false;
             yVel = _jumpSpeed * 1.6f;
         }
-        else if (_jumpFromGround)
+        else if (JumpFromGround)
         {
-            _jumpFromGround = false;
+            JumpFromGround = false;
             yVel = _jumpSpeed;
         }
         else if (_jumpFromWall)
@@ -183,20 +173,12 @@ public class PlayerController : MonoBehaviour
 
 
             IsCyan = !IsCyan;
-            ApplyColor();
+            ApplyColorAccordingToFlag();
 
             if (CollectedPowerUps.ContainsKey(PowerUpTypes.Ghost))// .Contains("Ghost"))// hasGhost)
                 CollectedPowerUps[PowerUpTypes.Ghost].Activate();// _spriteRenderer.color = new Color(255, 255, 255, 0);
 
         }
-
-
-
-
-
-
-
-
 
 
         _currentTronTrail.CheckIfShouldAddPointAndIfYesAddIt(transform.position);
@@ -206,21 +188,19 @@ public class PlayerController : MonoBehaviour
 
 
 
-    public void ApplyColor()
-    {           
-        _spriteRenderer.color = IsCyan ? Color.cyan : Color.green;
+    public void ApplyColorAccordingToFlag()
+    {
+        SpriteRenderer.color = IsCyan ? Color.cyan : Color.green;
         StartForegroundTronTrail();
     }
-
 
 
 
     void Update()
     {//keyboard handling
 
-        if (_rewindTimeComponent.isRewinding) //do not respond to input when we are rewinding time
+        if (RewindTimeComponent.isRewinding) //do not respond to input when we are rewinding time
             return;
-
 
 
         if (Input.GetKeyDown(KeyCode.Q))
@@ -229,7 +209,7 @@ public class PlayerController : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Space))
         {
             if (_isTouchingGround)
-                _jumpFromGround = true;
+                JumpFromGround = true;
             else if (_isTouchingWall)
                 _jumpFromWall = true;
             else
@@ -285,7 +265,7 @@ public class PlayerController : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D collision)
     {
-        if (_rewindTimeComponent.isRewinding) //do not bother with collisions when we we are rewinding
+        if (RewindTimeComponent.isRewinding) //do not bother with collisions when we we are rewinding
             return;
 
 
@@ -317,7 +297,6 @@ public class PlayerController : MonoBehaviour
                 break;
 
 
-
             default:
                 if (collision.gameObject.tag.StartsWith("PowerUp_"))
                 {//we've triggered a powerup
@@ -331,8 +310,6 @@ public class PlayerController : MonoBehaviour
                 break;
         }
     }
-
-    bool masktrick = false;
 
 
 
@@ -375,7 +352,6 @@ public class PlayerController : MonoBehaviour
 
 
 
-
 }
 
 
@@ -387,7 +363,7 @@ public class DoubleJumpPowerUp : PowerUp
     }
     public override void Activate()
     {
-        PlayerController.Instance._jumpFromGround = true;
+        PlayerController.Instance.JumpFromGround = true;
         base.Activate();
     }
 
@@ -402,15 +378,13 @@ public class GhostPowerUp : PowerUp
 
     public override void Activate()
     {
-        PlayerController.Instance._spriteRenderer.color = new Color(255, 255, 255, 0);
+        PlayerController.Instance.SpriteRenderer.color = new Color(255, 255, 255, 0); //trick to make player invisible (we want the trontrail to continue to be visible)
 
         base.Activate();
     }
     public override void Deactivate()
     {
-        //PlayerController.Instance._trailRenderer.startColor = PlayerController.Instance._trailRenderer.endColor =
-        PlayerController.Instance._spriteRenderer.color
-        = PlayerController.Instance.IsCyan ? Color.cyan : Color.green;
+        PlayerController.Instance.ApplyColorAccordingToFlag(); //restore color according to the IsCyan flag
 
         base.Deactivate();
     }
@@ -424,20 +398,19 @@ public class RewindTimePowerUp : PowerUp
 
     public override void Activate()
     {
-        PlayerController.Instance._rewindTimeComponent.StartRewind();
+        PlayerController.Instance.RewindTimeComponent.StartRewind();
         base.Activate();
     }
 }
+
 public enum PowerUpTypes { DoubleJump, Ghost, RewindTime };
+
+
 
 public class PowerUp
 {
-    //public string UIimagename;
     public PowerUpTypes mytype; //public string tag;
     public bool isActivatedImmediately;
-
-    //    public delegate void ActivationMethod();
-    //  public ActivationMethod MyActivationMethod;
 
 
     public virtual void Activate()
@@ -456,44 +429,9 @@ public class PowerUp
 
     private void Remove()
     {
-
         PlayerController.Instance.CollectedPowerUps.Remove(mytype);//  .Remove(tag);
         GameObject uiImage = GameObject.Find("UIcanvas").transform.Find(mytype.ToString() + "Image").gameObject; //(by convention we name the image as the powerup tag +"Image")
         uiImage.SetActive(false);
-
-        // public override void HideUiIcon()
-        //  {
-        /*
-        private void activateDoubleJumpPowerUp()
-        {
-
-         //   hasDoubleJump = false;
-            var powerUpImage = GameObject.Find("UIcanvas").transform.Find("DoubleJumpImage").gameObject;
-            powerUpImage.SetActive(false);
-
-
-
-        }
-
-
-
-        private void RewindTime()
-        {
-            _collectedPowerUps.Remove("RewindTime");//    hasRewindTime = false;
-            var rewindTimeImage = GameObject.Find("UIcanvas").transform.Find("RewindTimeImage").gameObject;
-            rewindTimeImage.SetActive(false);
-
-        }
-
-        private void GhostNoMore()
-        {
-            _collectedPowerUps.Remove("Ghost");//   hasGhost = false;
-            var ghostImage = GameObject.Find("UIcanvas").transform.Find("GhostImage").gameObject;
-            ghostImage.SetActive(false);
-
-        }*/
-        // }
-
-
     }
+
 }

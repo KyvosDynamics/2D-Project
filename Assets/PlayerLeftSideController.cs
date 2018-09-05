@@ -12,7 +12,7 @@ public class PlayerLeftSideController : MonoBehaviour
 
     private void OnTriggerExit2D(Collider2D collision)
     {
-        if (collision.gameObject.tag =="SpriteMask")
+        if (collision.gameObject.tag == "SpriteMask")
         {
             Debug.Log("player left side exited sprite mask");
             _playerController.StartForegroundTronTrail();
