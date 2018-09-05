@@ -2,23 +2,21 @@
 
 public class PlayerLeftSideController : MonoBehaviour
 {
+    private PlayerController _playerController = null;
 
-    PlayerController pc;
 
     private void Start()
     {
-        pc = GetComponentInParent<PlayerController>();
+        _playerController = GetComponentInParent<PlayerController>();
     }
 
     private void OnTriggerExit2D(Collider2D collision)
     {
-        if (collision.gameObject.tag ==
-           "SpriteMask")
+        if (collision.gameObject.tag =="SpriteMask")
         {
             Debug.Log("player left side exited sprite mask");
-            pc.StartForegroundSnake();
+            _playerController.StartForegroundTronTrail();
         }
     }
-
 
 }

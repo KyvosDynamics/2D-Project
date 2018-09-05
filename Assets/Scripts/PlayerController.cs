@@ -4,20 +4,20 @@ using UnityEngine;
 
 public class TronTrail
 {
-    public int HeadIndex;
-    public int TailIndex;
+    //public int HeadIndex;
+   // public int TailIndex;
     public Color MyColor;
-    private Vector3[] points;
+    private List< Vector3> points;
     private LineRenderer linerenderer;
     public static int sortingLayerID;
 
     public TronTrail(Color color, Vector3 startPosition, bool inForeground)
     {
         MyColor = color;
-        const int MAXPOINTS = 348394;
-        points = new Vector3[MAXPOINTS];
-
-        points[0] = startPosition;// transform.position;
+        //const int MAXPOINTS = 348394;
+        points = new List<Vector3>();// new Vector3[MAXPOINTS];
+        points.Add(startPosition);
+        //points[0] = startPosition;// transform.position;
         //   times[0] = Time.time;
         // hasChanged = true;
         //started = false;
@@ -50,24 +50,26 @@ public class TronTrail
         //     linerenderer.SetPosition(0, Vector3.zero);
         //   linerenderer.SetPosition(1, Vector3.one);
 
-        linerenderer.positionCount = 1;// head - tail + 1;
-        linerenderer.SetPositions(new Vector3[] { points[0] });
+        //??????????????????????????        linerenderer.positionCount = 1;// head - tail + 1;
+        linerenderer.positionCount = points.Count;
+        linerenderer.SetPositions(points.ToArray());// new Vector3[] { points[0] });
     }
     [SerializeField] float minSampleDistance = 0.1f;
 
 
     public void AddFinalPoint(Vector3 newPosition)
     {
-        //traillength += sq;
-        HeadIndex++;
-        points[HeadIndex] = newPosition;// transform.position;
-                                        //     times[head] = Time.time;
-                                        //   hasChanged = true;
-        Vector3[] currentPoints = new Vector3[HeadIndex - TailIndex + 1];
-        System.Array.Copy(points, TailIndex, currentPoints, 0, HeadIndex - TailIndex + 1);
-        linerenderer.positionCount = HeadIndex - TailIndex + 1;
-        linerenderer.SetPositions(currentPoints);
 
+      //  HeadIndex++;
+        points.Add(newPosition);
+        //   points[HeadIndex] = newPosition;// transform.position;
+        //     times[head] = Time.time;
+        //   hasChanged = true;
+        // Vector3[] currentPoints = new Vector3[HeadIndex - TailIndex + 1];
+        //        System.Array.Copy(points, TailIndex, currentPoints, 0, HeadIndex - TailIndex + 1);
+        //????????????????????????????????????????????????        linerenderer.positionCount = HeadIndex  1;
+        linerenderer.positionCount = points.Count;
+        linerenderer.SetPositions(points.ToArray());// currentPoints);
     }
 
 
@@ -75,7 +77,7 @@ public class TronTrail
     {
 
 
-        float sq = (newPosition - points[HeadIndex]).sqrMagnitude;
+        float sq = (newPosition - points[points.Count-1 ]).sqrMagnitude;
 
         //add point if head far enough
         if (//head < MAXPOINTS - 1 &&
@@ -330,7 +332,7 @@ public class PlayerController : MonoBehaviour
         // setgradientcolor(color);
         _spriteRenderer.color = color;
 
-        StartForegroundSnake();
+        StartForegroundTronTrail();
     }
 
 
@@ -390,28 +392,19 @@ public class PlayerController : MonoBehaviour
 
 
 
-    public void StartBackgroundSnake()
+    public void StartBackgroundTronTrail()
     {
-
-
         currentSnake.AddFinalPoint(transform.position);
-
         currentSnake = new TronTrail(IsCyan ? Color.cyan : Color.green, transform.position, false);
-
     }
-    public void StartForegroundSnake()
+    public void StartForegroundTronTrail()
     {
-
-
         if (currentSnake != null)//it can be null the first time we call this method
             currentSnake.AddFinalPoint(transform.position);
 
         currentSnake = new TronTrail(IsCyan ? Color.cyan : Color.green, transform.position, true);
-
-
-
-
     }
+
 
     void OnTriggerEnter2D(Collider2D collision)
     {

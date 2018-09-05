@@ -1,23 +1,22 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class PlayerCenterController : MonoBehaviour
 {
-    PlayerController pc;
+    private PlayerController _playerController = null;
+
 
     private void Start()
     {
-        pc = GetComponentInParent<PlayerController>();
+        _playerController = GetComponentInParent<PlayerController>();
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (  collision.gameObject.tag==
-            "SpriteMask")
+        if (collision.gameObject.tag == "SpriteMask")
         {
             Debug.Log("player center collided with sprite mask");
-            pc.StartBackgroundSnake();
+            _playerController.StartBackgroundTronTrail();
         }
     }
+
 }
