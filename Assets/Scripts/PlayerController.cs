@@ -4,105 +4,43 @@ using UnityEngine;
 
 public class TronTrail
 {
-    //public int HeadIndex;
-   // public int TailIndex;
-    public Color MyColor;
-    private List< Vector3> points;
-    private LineRenderer linerenderer;
-    public static int sortingLayerID;
+    private List<Vector3> _points = new List<Vector3>();
+    private LineRenderer _lineRenderer = null;
+    private const float _minSampleDistance = 0.1f;
+
 
     public TronTrail(Color color, Vector3 startPosition, bool inForeground)
     {
-        MyColor = color;
-        //const int MAXPOINTS = 348394;
-        points = new List<Vector3>();// new Vector3[MAXPOINTS];
-        points.Add(startPosition);
-        //points[0] = startPosition;// transform.position;
-        //   times[0] = Time.time;
-        // hasChanged = true;
-        //started = false;
-        //}
-        //        Vector3[] currentPoints = new Vector3[head - tail + 1];
-        //      System.Array.Copy(points, tail, currentPoints, 0, head - tail + 1);
+        GameObject gameObject = new GameObject("TronTrailHolder");
+        _lineRenderer = gameObject.AddComponent<LineRenderer>();
 
-        GameObject gObject = new GameObject("MyGameObject");
-        linerenderer = gObject.AddComponent<LineRenderer>();
+        _lineRenderer.sortingLayerName = inForeground ? "Player" : "RoomObjectsBehindPlayer";
+        _lineRenderer.sortingOrder = -10; //so that for example it is behind a portal effect
 
-        if (inForeground)
-        {
-            linerenderer.sortingLayerName = "Player";// .sortingLayerID = sortingLayerID;
+        _lineRenderer.startColor = _lineRenderer.endColor = color;
+        _lineRenderer.material = new Material(Shader.Find("Sprites/Default"));//or Shader.Find("Particles/Additive")); ?
+        //_lineRenderer.SetWidth(1, 1);
 
 
-        }
-        else
-        {
-            linerenderer.sortingLayerName = "RoomObjectsBehindPlayer";// .sortingLayerID = sortingLayerID;
-
-        }
-        linerenderer.sortingOrder = -10;
-
-
-        linerenderer.SetColors(color, color);// Color.red, Color.blue);
-                                             //  linerenderer.material = new Material(Shader.Find("Particles/Additive")); //or ?    
-        linerenderer.material = new Material(Shader.Find("Sprites/Default"));
-        linerenderer.SetWidth(1, 1);
-
-        //     linerenderer.SetPosition(0, Vector3.zero);
-        //   linerenderer.SetPosition(1, Vector3.one);
-
-        //??????????????????????????        linerenderer.positionCount = 1;// head - tail + 1;
-        linerenderer.positionCount = points.Count;
-        linerenderer.SetPositions(points.ToArray());// new Vector3[] { points[0] });
+        AddPoint(startPosition);
     }
-    [SerializeField] float minSampleDistance = 0.1f;
 
-
-    public void AddFinalPoint(Vector3 newPosition)
+    public void AddPoint(Vector3 position)
     {
-
-      //  HeadIndex++;
-        points.Add(newPosition);
-        //   points[HeadIndex] = newPosition;// transform.position;
-        //     times[head] = Time.time;
-        //   hasChanged = true;
-        // Vector3[] currentPoints = new Vector3[HeadIndex - TailIndex + 1];
-        //        System.Array.Copy(points, TailIndex, currentPoints, 0, HeadIndex - TailIndex + 1);
-        //????????????????????????????????????????????????        linerenderer.positionCount = HeadIndex  1;
-        linerenderer.positionCount = points.Count;
-        linerenderer.SetPositions(points.ToArray());// currentPoints);
+        _points.Add(position);
+        _lineRenderer.positionCount = _points.Count;
+        _lineRenderer.SetPositions(_points.ToArray());
     }
-
 
     public void CheckIfShouldAddPointAndIfYesAddIt(Vector3 newPosition)
     {
+        //if the latest position is significantly far from the previous point we add a new point
 
-
-        float sq = (newPosition - points[points.Count-1 ]).sqrMagnitude;
-
-        //add point if head far enough
-        if (//head < MAXPOINTS - 1 &&
-            sq > minSampleDistance * minSampleDistance)
-        {
-            AddFinalPoint(newPosition);
-        }
-
-        //     // remove old tail
-        //   if (Time.time - times[tail] > lifetime)
-        // {
-        //    tail++;
-        //   hasChanged = true;
-        //}
-
-        //   if (hasChanged)
-        // {
-        //  hasChanged = false;
-        //
-        //}
-
-
-        // setgradientcolor(Color.blue);
-
+        if ((newPosition - _points[_points.Count - 1]).sqrMagnitude > _minSampleDistance * _minSampleDistance)        
+            AddPoint(newPosition);       
     }
+
+
 }
 
 public class PlayerController : MonoBehaviour
@@ -171,7 +109,6 @@ public class PlayerController : MonoBehaviour
 
         _rigidbody = GetComponent<Rigidbody2D>();
         _spriteRenderer = GetComponent<SpriteRenderer>();
-        TronTrail.sortingLayerID = _spriteRenderer.sortingLayerID;
 
 
         Vector3 size = GetComponent<Collider2D>().bounds.size;
@@ -394,13 +331,13 @@ public class PlayerController : MonoBehaviour
 
     public void StartBackgroundTronTrail()
     {
-        currentSnake.AddFinalPoint(transform.position);
+        currentSnake.AddPoint(transform.position);
         currentSnake = new TronTrail(IsCyan ? Color.cyan : Color.green, transform.position, false);
     }
     public void StartForegroundTronTrail()
     {
         if (currentSnake != null)//it can be null the first time we call this method
-            currentSnake.AddFinalPoint(transform.position);
+            currentSnake.AddPoint(transform.position);
 
         currentSnake = new TronTrail(IsCyan ? Color.cyan : Color.green, transform.position, true);
     }
