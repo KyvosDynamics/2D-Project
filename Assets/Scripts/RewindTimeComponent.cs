@@ -5,7 +5,14 @@ using UnityEngine;
 public class StateGroupManager
 {
     public List<StateGroup> StateGroups = new List<StateGroup>();
-    public bool isRewinding;
+    public bool isRewinding = false;
+
+    PlayerController _playerController;
+
+    public StateGroupManager(PlayerController playerController)
+    {
+        _playerController = playerController;
+    }
 
     public void AddStateGroup(StateGroup stateGroup)
     {
@@ -15,14 +22,46 @@ public class StateGroupManager
 
     public void Rewind()
     {
+        int statesremoved=CurrentStateGroup.Rewind();
+        if(statesremoved!=-1)
+        {//the current stategroup has finished rewinding
+            //but has it finished rewinding because it reached the max allowed number of recorded states or because it has run out of states?
+            if(statesremoved<StateGroup.MaxNumOfStates)
+            {//it has run out of states
+                //we want to remove this state group if we have others
+                if (StateGroups.Count > 1)
+                {
 
+                    StateGroups.Remove(CurrentStateGroup);
+                    CurrentStateGroup = StateGroups[StateGroups.Count - 1];
+                }
+                else
+                {
+                    isRewinding = false;
+                }
+
+
+            }
+            else
+            {
+                isRewinding = false;
+            }
+
+
+        }
+
+    }
+    public void StartRewind()
+    {
+        isRewinding = true;
+        CurrentStateGroup.StartRewind();
     }
     public StateGroup CurrentStateGroup;
 }
 
 
 
-public class State
+public class State //TODO: register deltas instead of the actual values!
 {
     public Vector3 position;
     //public Quaternion rotation;
@@ -49,7 +88,7 @@ public class StateGroup
     public static int staticID = -1;
     public int myID;
 
-    public bool isRewinding = false;
+   // public bool isRewinding = false;
 
     private const float Seconds = 2f;
     Transform transform;
@@ -92,7 +131,7 @@ public class StateGroup
 
 
 
-    public void Rewind()
+    public int Rewind()
     {
         Debug.Log("inside rewind");
         if (_states.Count > 0)
@@ -107,16 +146,18 @@ public class StateGroup
             _statesRemovedDuringRewinding++;
 
             StatesChangedSoUpdateLineRenderer();
+            return -1; //minus one indicates that we haven't finished rewinding yet
         }
         else
         {
             StopRewind();
+            return _statesRemovedDuringRewinding;
         }
 
     }
 
 
-    int MaxNumOfStates =(int) Mathf.Round(Seconds / Time.fixedDeltaTime);
+  public static  int MaxNumOfStates =(int) Mathf.Round(Seconds / Time.fixedDeltaTime);
 
     public void AddState(State state)// Vector3 position)
     {
@@ -154,14 +195,14 @@ public class StateGroup
     {
         _statesRemovedDuringRewinding = 0;
         Debug.Log("started rewinding");
-        isRewinding = true;
+   //     isRewinding = true;
         //    rb.isKinematic = true;
     }
 
     public void StopRewind()
     {
         Debug.Log("stopped rewinding");
-        isRewinding = false;
+     //   isRewinding = false;
         //   rb.isKinematic = false;
     }
 

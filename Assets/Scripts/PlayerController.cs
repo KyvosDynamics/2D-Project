@@ -46,9 +46,12 @@ public class PlayerController : MonoBehaviour
 
 
 
+    public StateGroupManager _stateGroupManager = null;
+
     void Start()
     {
         Instance = this;
+        _stateGroupManager = new StateGroupManager(this);
 
         //RewindTimeComponent = GetComponent<RewindTimeComponent>();
 
@@ -77,16 +80,16 @@ public class PlayerController : MonoBehaviour
 
     void FixedUpdate()
     {
-        if (_stateGroupManager. CurrentStateGroup.isRewinding)
+        if (_stateGroupManager. isRewinding)
         {
             Debug.Log("command to initiate rewinding");
-            _stateGroupManager.CurrentStateGroup.Rewind();
+            _stateGroupManager.Rewind();
             return; //do not bother with physics when we are rewinding
         }
 
         if (transform.position.y < -5)
         {//player fell to the void
-            Debug.Log("trying to kill player because y<-5, isrewinding=" + _stateGroupManager.CurrentStateGroup.isRewinding + "   stategroupid=" + _stateGroupManager.CurrentStateGroup.myID);
+            Debug.Log("trying to kill player because y<-5, isrewinding=" + _stateGroupManager.isRewinding + "   stategroupid=" + _stateGroupManager.CurrentStateGroup.myID);
             TryToKillPlayer();// PlayerWasKilled();
             return;
         }
@@ -181,7 +184,7 @@ public class PlayerController : MonoBehaviour
     void Update()
     {//keyboard handling
 
-        if (_stateGroupManager.CurrentStateGroup.isRewinding) //do not respond to input when we are rewinding time
+        if (_stateGroupManager.isRewinding) //do not respond to input when we are rewinding time
             return;
 
 
@@ -201,8 +204,6 @@ public class PlayerController : MonoBehaviour
             }
         }
     }
-
-   public StateGroupManager _stateGroupManager = new StateGroupManager();
 
 
     private void TryToKillPlayer()
@@ -242,7 +243,7 @@ public class PlayerController : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D collision)
     {
-        if (_stateGroupManager.CurrentStateGroup.isRewinding) //do not bother with collisions when we we are rewinding
+        if (_stateGroupManager.isRewinding) //do not bother with collisions when we we are rewinding
             return;
 
 
@@ -346,7 +347,7 @@ public class RewindTimePowerUp : PowerUp
 
     public override void Activate()
     {
-        PlayerController.Instance._stateGroupManager.CurrentStateGroup.StartRewind();
+        PlayerController.Instance._stateGroupManager.StartRewind();
         base.Activate();
     }
 }
