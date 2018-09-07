@@ -2,22 +2,28 @@
 using System.Linq;
 using UnityEngine;
 
-public class StateRecorder
+public class StateGroupManager
 {
     public List<StateGroup> StateGroups = new List<StateGroup>();
+    public bool isRewinding;
 
     public void AddStateGroup(StateGroup stateGroup)
     {
         StateGroups.Add(stateGroup);
+        CurrentStateGroup = stateGroup;
     }
 
+    public void Rewind()
+    {
+
+    }
+    public StateGroup CurrentStateGroup;
 }
 
 
 
 public class State
 {
-
     public Vector3 position;
     //public Quaternion rotation;
     public bool iscyan;
@@ -31,19 +37,13 @@ public class State
 
 }
 
-//public class TronTrail
-//{ 
-//}
 
 
-public class StateGroup //: MonoBehaviour
+public class StateGroup
 {
     private List<State> _states = new List<State>();
 
     private LineRenderer _lineRenderer = null;
-
-
-
 
 
     public static int staticID = -1;
@@ -51,11 +51,12 @@ public class StateGroup //: MonoBehaviour
 
     public bool isRewinding = false;
 
-    private float Seconds = 3f;
+    private const float Seconds = 2f;
+    Transform transform;
 
-    //  List<State> _states;
+    PlayerController _playerController;
 
-    // Rigidbody2D rb;
+
 
     public StateGroup(Transform transform, PlayerController playerController, Vector3 startPosition, bool isCyan, bool inForeground)
     {
@@ -80,17 +81,14 @@ public class StateGroup //: MonoBehaviour
         //public StateGroup()//    void Start()
         //{
 
-
         //   _states = new List<State>();
         // rb = GetComponent<Rigidbody2D>();
         //GameObject mygameobject; mygameobject = gameObject;
+
         this.transform = transform;// gameObject.transform;
         _playerController = playerController;// mygameobject.GetComponent<PlayerController>();
     }
-    Transform transform;
-
-    PlayerController _playerController;
-
+   
 
 
 
@@ -99,14 +97,14 @@ public class StateGroup //: MonoBehaviour
         Debug.Log("inside rewind");
         if (_states.Count > 0)
         {
-            State pointInTime = _states[_states.Count - 1];
-            transform.position = pointInTime.position;
+            State latestState = _states[_states.Count - 1];
+            transform.position = latestState.position;
 
-
-            _playerController.IsCyan = pointInTime.iscyan;
+            _playerController.IsCyan = latestState.iscyan;
             _playerController.ApplyColorAccordingToFlag(false); //the false here is important, we don't want to initiate a new trail while rewinding
 
             _states.RemoveAt(_states.Count - 1);
+            _statesRemovedDuringRewinding++;
 
             StatesChangedSoUpdateLineRenderer();
         }
@@ -117,16 +115,24 @@ public class StateGroup //: MonoBehaviour
 
     }
 
+
+    int MaxNumOfStates =(int) Mathf.Round(Seconds / Time.fixedDeltaTime);
+
     public void AddState(State state)// Vector3 position)
     {
+        //it records one state per fixedupdate
+        //time between fixedupdate calls is Time.fixedDeltaTime seconds
+        //so one state every Time.fixedDeltaTime seconds
+        //in 1 second that give 1/Time.fixedDeltaTime states
+        //in Seconds seconds Seconds/Time.fixedDeltaTime states
 
-
-        if (_states.Count > Mathf.Round(Seconds / Time.fixedDeltaTime))
+        if (_states.Count > MaxNumOfStates)
         {
             _states.RemoveAt(0);// pointsInTime.Count - 1);
         }
 
         //        _states.Add();// transform.rotation));
+
         _states.Add(state);// new State(position, false));
 
 
@@ -141,8 +147,12 @@ public class StateGroup //: MonoBehaviour
         _lineRenderer.SetPositions(_states.Select(p => p.position).ToArray());// .ToList().ToArray());
     }
 
+
+    private int _statesRemovedDuringRewinding = 0;
+
     public void StartRewind()
     {
+        _statesRemovedDuringRewinding = 0;
         Debug.Log("started rewinding");
         isRewinding = true;
         //    rb.isKinematic = true;

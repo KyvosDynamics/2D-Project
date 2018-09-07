@@ -19,8 +19,8 @@ public class PlayerController : MonoBehaviour
     [HideInInspector]
     public bool JumpFromGround = false;
 
-    [HideInInspector]
-    public StateGroup CurrentStateGroup;
+ //   [HideInInspector]
+   // public StateGroup CurrentStateGroup;
     //private TronTrail _currentTronTrail = null;
 
 
@@ -77,16 +77,16 @@ public class PlayerController : MonoBehaviour
 
     void FixedUpdate()
     {
-        if (CurrentStateGroup.isRewinding)
+        if (_stateGroupManager. CurrentStateGroup.isRewinding)
         {
             Debug.Log("command to initiate rewinding");
-            CurrentStateGroup.Rewind();
+            _stateGroupManager.CurrentStateGroup.Rewind();
             return; //do not bother with physics when we are rewinding
         }
 
         if (transform.position.y < -5)
         {//player fell to the void
-            Debug.Log("trying to kill player because y<-5, isrewinding="+CurrentStateGroup.isRewinding+"   stategroupid="+CurrentStateGroup.myID);
+            Debug.Log("trying to kill player because y<-5, isrewinding=" + _stateGroupManager.CurrentStateGroup.isRewinding + "   stategroupid=" + _stateGroupManager.CurrentStateGroup.myID);
             TryToKillPlayer();// PlayerWasKilled();
             return;
         }
@@ -161,7 +161,7 @@ public class PlayerController : MonoBehaviour
 
 
 
-        CurrentStateGroup.AddState(new State(transform.position, IsCyan));//.AddPoint();
+        _stateGroupManager.CurrentStateGroup.AddState(new State(transform.position, IsCyan));//.AddPoint();
         //_currentTronTrail.AddPoint(transform.position);
     }
 
@@ -172,7 +172,7 @@ public class PlayerController : MonoBehaviour
     public void ApplyColorAccordingToFlag(bool initiateSimilarlyColoredTrail)
     {
         SpriteRenderer.color = IsCyan ? Color.cyan : Color.green;
-        if(initiateSimilarlyColoredTrail)
+        if (initiateSimilarlyColoredTrail)
             StartForegroundTronTrail();
     }
 
@@ -181,7 +181,7 @@ public class PlayerController : MonoBehaviour
     void Update()
     {//keyboard handling
 
-        if (CurrentStateGroup.isRewinding) //do not respond to input when we are rewinding time
+        if (_stateGroupManager.CurrentStateGroup.isRewinding) //do not respond to input when we are rewinding time
             return;
 
 
@@ -202,7 +202,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-
+   public StateGroupManager _stateGroupManager = new StateGroupManager();
 
 
     private void TryToKillPlayer()
@@ -226,21 +226,23 @@ public class PlayerController : MonoBehaviour
 
     public void StartForegroundTronTrail()
     {
-        if (CurrentStateGroup != null)//it can be null the first time we call this method
-            CurrentStateGroup.AddState(new State(transform.position, IsCyan));
+        if (_stateGroupManager.CurrentStateGroup != null)//it can be null the first time we call this method
+            _stateGroupManager.CurrentStateGroup.AddState(new State(transform.position, IsCyan));
 
-        CurrentStateGroup = new StateGroup(transform,this, transform.position, IsCyan, true);
+        _stateGroupManager.CurrentStateGroup = new StateGroup(transform, this, transform.position, IsCyan, true);
+        _stateGroupManager.AddStateGroup(_stateGroupManager.CurrentStateGroup);
     }
     public void StartBackgroundTronTrail()
     {//eg when the player is passing through a portal. We don't want the trail to pass on top of the portal effect
-        CurrentStateGroup.AddState(new State(transform.position, IsCyan));
-        CurrentStateGroup = new StateGroup(transform,this, transform.position, IsCyan, false); //false for background
+        _stateGroupManager.CurrentStateGroup.AddState(new State(transform.position, IsCyan));
+        _stateGroupManager.CurrentStateGroup = new StateGroup(transform, this, transform.position, IsCyan, false); //false for background
+        _stateGroupManager.AddStateGroup(_stateGroupManager.CurrentStateGroup);
     }
 
 
     void OnTriggerEnter2D(Collider2D collision)
     {
-        if (CurrentStateGroup.isRewinding) //do not bother with collisions when we we are rewinding
+        if (_stateGroupManager.CurrentStateGroup.isRewinding) //do not bother with collisions when we we are rewinding
             return;
 
 
@@ -344,7 +346,7 @@ public class RewindTimePowerUp : PowerUp
 
     public override void Activate()
     {
-        PlayerController.Instance.CurrentStateGroup.StartRewind();
+        PlayerController.Instance._stateGroupManager.CurrentStateGroup.StartRewind();
         base.Activate();
     }
 }
