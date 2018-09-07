@@ -1,13 +1,14 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
 public class StateGroupManager
 {
     public List<StateGroup> StateGroups = new List<StateGroup>();
-    public bool isRewinding = false;
-
+    public bool IsRewinding = false;
     PlayerController _playerController;
+
 
     public StateGroupManager(PlayerController playerController)
     {
@@ -20,13 +21,13 @@ public class StateGroupManager
         CurrentStateGroup = stateGroup;
     }
 
-    public void Rewind()
+    public void OneRewind()
     {
-        int statesremoved=CurrentStateGroup.Rewind();
-        if(statesremoved!=-1)
+        int statesremoved = CurrentStateGroup.Rewind();
+        if (statesremoved != -1)
         {//the current stategroup has finished rewinding
             //but has it finished rewinding because it reached the max allowed number of recorded states or because it has run out of states?
-            if(statesremoved<StateGroup.MaxNumOfStates)
+            if (statesremoved < StateGroup.MaxNumOfStates)
             {//it has run out of states
                 //we want to remove this state group if we have others
                 if (StateGroups.Count > 1)
@@ -34,29 +35,49 @@ public class StateGroupManager
 
                     StateGroups.Remove(CurrentStateGroup);
                     CurrentStateGroup = StateGroups[StateGroups.Count - 1];
+                    CurrentStateGroup.ResetStatesRemovedDuringRewindingCounter();
                 }
                 else
                 {
-                    isRewinding = false;
+                    IsRewinding = false;
                 }
 
 
             }
             else
             {
-                isRewinding = false;
+                IsRewinding = false;
             }
 
 
         }
 
     }
-    public void StartRewind()
+    public void InitiateRewinding()
     {
-        isRewinding = true;
-        CurrentStateGroup.StartRewind();
+        IsRewinding = true;
+        CurrentStateGroup.ResetStatesRemovedDuringRewindingCounter();
     }
     public StateGroup CurrentStateGroup;
+
+    internal void AddNewStateGroupA(Transform transform, PlayerController playerController, bool isCyan)
+    {
+
+        if (this.CurrentStateGroup != null)//it can be null the first time we call this method
+            this.CurrentStateGroup.AddState(new State(transform.position, isCyan));
+
+        this.CurrentStateGroup = new StateGroup(transform, playerController, transform.position, isCyan, true);
+        this.AddStateGroup(this.CurrentStateGroup);
+
+    }
+
+    internal void AddStateGroupB(Transform transform, PlayerController playerController, bool isCyan)
+    {
+
+        this.CurrentStateGroup.AddState(new State(transform.position, isCyan));
+        this.CurrentStateGroup = new StateGroup(transform, playerController, transform.position, isCyan, false); //false for background
+        this.AddStateGroup(this.CurrentStateGroup);
+    }
 }
 
 
@@ -88,7 +109,6 @@ public class StateGroup
     public static int staticID = -1;
     public int myID;
 
-   // public bool isRewinding = false;
 
     private const float Seconds = 2f;
     Transform transform;
@@ -119,7 +139,6 @@ public class StateGroup
         //}
         //public StateGroup()//    void Start()
         //{
-
         //   _states = new List<State>();
         // rb = GetComponent<Rigidbody2D>();
         //GameObject mygameobject; mygameobject = gameObject;
@@ -127,7 +146,7 @@ public class StateGroup
         this.transform = transform;// gameObject.transform;
         _playerController = playerController;// mygameobject.GetComponent<PlayerController>();
     }
-   
+
 
 
 
@@ -150,14 +169,14 @@ public class StateGroup
         }
         else
         {
-            StopRewind();
+            //StopRewind();
             return _statesRemovedDuringRewinding;
         }
 
     }
 
 
-  public static  int MaxNumOfStates =(int) Mathf.Round(Seconds / Time.fixedDeltaTime);
+    public static int MaxNumOfStates = (int)Mathf.Round(Seconds / Time.fixedDeltaTime);
 
     public void AddState(State state)// Vector3 position)
     {
@@ -191,20 +210,11 @@ public class StateGroup
 
     private int _statesRemovedDuringRewinding = 0;
 
-    public void StartRewind()
+    public void ResetStatesRemovedDuringRewindingCounter()
     {
         _statesRemovedDuringRewinding = 0;
-        Debug.Log("started rewinding");
-   //     isRewinding = true;
-        //    rb.isKinematic = true;
     }
 
-    public void StopRewind()
-    {
-        Debug.Log("stopped rewinding");
-     //   isRewinding = false;
-        //   rb.isKinematic = false;
-    }
 
 
 
