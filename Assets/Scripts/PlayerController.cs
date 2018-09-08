@@ -3,6 +3,136 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
+public enum FieldNames { Cyan, TrailInForeground, X, Y };
+public struct FieldDelta
+{
+    public FieldNames FieldName;
+    public object DeltaValue;
+}
+
+public class PlayerStateDeltas
+{
+
+
+    //    public bool DeltaCyan;
+    //  public bool DeltaTrailInForeground;
+    // public float DeltaX;
+    //public float DeltaY;
+
+    //    public PlayerStateDeltas()
+    //  {
+    //
+    //}
+
+
+//    public override string ToString()
+  //  {
+    //    return 
+    //}
+
+
+    public void AddFieldDelta( FieldDelta fieldDelta)
+    {
+        ChangedValues.Add(fieldDelta);
+    }
+
+    public List<FieldDelta> ChangedValues = new List<FieldDelta>();
+}
+
+public class PlayerState //TODO: register deltas instead of the actual values!
+{    
+    public Vector3 position;
+    public bool IsCyan;
+    public bool IsTrailInForeground;
+
+    public PlayerState()
+    {
+
+    }
+
+    public PlayerState(PlayerState playerState)
+    {//for cloning purposes
+
+        position = playerState.position;
+        IsCyan = playerState.IsCyan;
+        IsTrailInForeground = playerState.IsTrailInForeground;
+    }
+
+
+    internal static PlayerState SubtractFromPlayerState(PlayerState playerState, PlayerStateDeltas stateDeltas)
+    {
+        //PlayerState result;
+
+   //     if(clone)
+     //   {//do not change the original, create a clone instead
+       //     result = new PlayerState(this);
+        //}/
+        //else
+       // {
+          //  result = this;
+        //}
+        foreach(FieldDelta fd in stateDeltas.ChangedValues)
+        {
+            switch(fd.FieldName)
+            {
+                case FieldNames.Cyan:
+                    playerState.  IsCyan = !playerState. IsCyan;
+                    break;
+                case FieldNames.TrailInForeground:
+                    playerState.IsTrailInForeground = !playerState. IsTrailInForeground;
+                    break;
+                case FieldNames.X:
+                    playerState.position.x -= (float)fd.DeltaValue;
+                    break;
+                case FieldNames.Y:
+                    playerState.position.y -= (float)fd.DeltaValue;
+                    break;
+            }
+
+        }
+
+        return playerState;
+    }
+
+    internal PlayerStateDeltas FindDeltasToState(PlayerState state)
+    {
+
+        PlayerStateDeltas result = new PlayerStateDeltas();
+
+        if(IsCyan!=state.IsCyan)
+        {
+            FieldDelta fd = new FieldDelta();
+            fd.FieldName = FieldNames.Cyan;
+            //no need to specify deltavalue for boolean
+            result.AddFieldDelta(fd);
+        }
+        if(IsTrailInForeground!= state.IsTrailInForeground)
+        {
+            FieldDelta fd = new FieldDelta();
+            fd.FieldName = FieldNames.TrailInForeground;
+            //no need to specify deltavalue for boolean
+            result.AddFieldDelta(fd);
+        }
+        if(position.x!=state.position.x)
+        {
+            FieldDelta fd = new FieldDelta();
+            fd.FieldName = FieldNames.X;
+            fd.DeltaValue = state.position.x - position.x;
+            result.AddFieldDelta(fd);
+        }
+        if (position.y != state.position.y)
+        {
+            FieldDelta fd = new FieldDelta();
+            fd.FieldName = FieldNames.Y;
+            fd.DeltaValue = state.position.y - position.y;
+            result.AddFieldDelta(fd);
+        }
+
+        return result;
+    }
+}
+
+
 public class PlayerController : MonoBehaviour
 {
     public static PlayerController Instance = null;
@@ -10,8 +140,6 @@ public class PlayerController : MonoBehaviour
     [HideInInspector]
     public Dictionary<PowerUpType, PowerUp> CollectedPowerUps = new Dictionary<PowerUpType, PowerUp>();
 
-  //  [HideInInspector]
-    //public bool IsCyan;
 
     [HideInInspector]
     public SpriteRenderer SpriteRenderer;
@@ -42,6 +170,7 @@ public class PlayerController : MonoBehaviour
     private Vector3 _rightVectorWithMagnitude;
 
     public StateGroupManager StateGroupManager = new StateGroupManager();
+    public PlayerState MyState = new PlayerState();
 
 
     void Start()
@@ -65,7 +194,7 @@ public class PlayerController : MonoBehaviour
 
         transform.position = new Vector3(6.28125f / 2, 1);
 
-      MyState.iscyan = true; //start cyan
+        MyState.IsCyan = true; //start cyan
         ApplyColorAccordingToFlag(true);
 
 
@@ -147,7 +276,7 @@ public class PlayerController : MonoBehaviour
             _switchcolor = false;
 
 
-        MyState.iscyan= !MyState.iscyan;
+            MyState.IsCyan = !MyState.IsCyan;
             ApplyColorAccordingToFlag(true);
 
             if (CollectedPowerUps.ContainsKey(PowerUpType.Ghost))// .Contains("Ghost"))// hasGhost)
@@ -159,21 +288,22 @@ public class PlayerController : MonoBehaviour
 
 
 
-        MyState.position = transform.position;
-        StateGroupManager.CurrentStateGroup.AddState(MyState);// new State() { position = transform.position, iscyan = IsCyan, InForeground = inforeground });// new StateValues(transform.position, IsCyan));//.AddPoint();
-        //_currentTronTrail.AddPoint(transform.position);
+        
+        
+        MyState .position = transform.position;
+        StateGroupManager.CurrentStateGroup.AddState(MyState);
     }
 
-//    bool inforeground = true;
+
 
     internal void SetPosition(Vector3 position)
     {
-        MyState.position = transform.position = position;        
+        MyState.position = transform.position = position;
     }
 
     public void ApplyColorAccordingToFlag(bool initiateSimilarlyColoredTrail)
     {
-        SpriteRenderer.color = MyState.iscyan ? Color.cyan : Color.green;
+        SpriteRenderer.color = MyState.IsCyan ? Color.cyan : Color.green;
         if (initiateSimilarlyColoredTrail)
             StartForegroundTronTrail();
     }
@@ -223,26 +353,25 @@ public class PlayerController : MonoBehaviour
     }
 
 
-    public State MyState = new State();
 
 
     public void StartForegroundTronTrail()
     {
-        //todo: are the following two lines really necessary?
-        MyState.position = transform.position;
-        StateGroupManager.CloseCurrentStateGroup(MyState);// new State() { position = transform.position, iscyan = IsCyan, InForeground = inforeground });
+//        //todo: are the following two lines really necessary?
+  //      MyState.position = transform.position;
+     //   StateGroupManager.CloseCurrentStateGroup(MyState);// new State() { position = transform.position, iscyan = IsCyan, InForeground = inforeground });
 
-       MyState.InForeground = true;
+        MyState.IsTrailInForeground = true;
         StateGroupManager.StartNewStateGroup(MyState);// new State() { position = transform.position, iscyan = IsCyan, InForeground = inforeground });// IsCyan);
 
     }
     public void StartBackgroundTronTrail()
     {//eg when the player is passing through a portal. We don't want the trail to pass on top of the portal effect
      //todo: are the following two lines really necessary?
-        MyState.position = transform.position;
-        StateGroupManager.CloseCurrentStateGroup(MyState);// new State() { position = transform.position, iscyan = IsCyan, InForeground = inforeground });
+    //    MyState.position =transform.position;
+      //  StateGroupManager.CloseCurrentStateGroup(MyState);// new State() { position = transform.position, iscyan = IsCyan, InForeground = inforeground });
 
-       MyState.InForeground = false;
+        MyState.IsTrailInForeground = false;
         StateGroupManager.StartNewStateGroup(MyState);// new State() { position = transform.position, iscyan = IsCyan, InForeground = inforeground });// IsCyan);
     }
 
@@ -256,12 +385,12 @@ public class PlayerController : MonoBehaviour
         switch (collision.gameObject.tag)
         {
             case "CyanSaw":
-                if (!MyState.iscyan)
+                if (!MyState.IsCyan)
                     TryToKillPlayer();
                 break;
 
             case "GreenSaw":
-                if (MyState.iscyan)
+                if (MyState.IsCyan)
                     TryToKillPlayer();
                 break;
 
