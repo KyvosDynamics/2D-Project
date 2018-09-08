@@ -7,16 +7,10 @@ public class StateGroupManager
     public StateGroup CurrentStateGroup { get; private set; }
     public bool IsRewinding { get; private set; }
     private List<StateGroup> _stateGroups = new List<StateGroup>();
-    private PlayerController _playerController;
-   // private Transform _transform;
+    //private PlayerController _playerController;
 
 
 
-    public StateGroupManager(PlayerController playerController)//, Transform transform)
-    {
-        _playerController = playerController;
-        //_transform = transform;
-    }
 
 
     public void OneRewind()
@@ -51,58 +45,49 @@ public class StateGroupManager
         }
 
     }
+
     public void InitiateRewinding()
     {
         IsRewinding = true;
         CurrentStateGroup.ResetStatesRemovedDuringRewindingCounter();
     }
 
-    internal void CloseCurrentStateGroup(StateValues lastState)
+    internal void CloseCurrentStateGroup(State lastState)
     {
-        if (this.CurrentStateGroup != null)//it can be null the first time we call this method
-        {
-            this.CurrentStateGroup.AddState(lastState);// new StateValues() { position = _transform.position, iscyan = lastState.iscyan, InForeground = true));
-        }
+        if (CurrentStateGroup != null)//it can be null the first time we call this method        
+            CurrentStateGroup.AddState(lastState);        
     }
-    internal void AddNewStateGroupA(StateValues firstState)// bool isCyan)
+    internal void StartNewStateGroup(State firstState)
     {
-        this.CurrentStateGroup = new StateGroup(_playerController, firstState);// _transform, _playerController,  isCyan, true);
+        Debug.Log("started new state group");
+        CurrentStateGroup = new StateGroup( firstState);
         _stateGroups.Add(CurrentStateGroup);
     }
 
-//    internal void AddStateGroupB( bool isCyan)
-  //  {
+    //    internal void AddStateGroupB( bool isCyan)
+    //  {
     //    this.CurrentStateGroup.AddState(new StateValues(_transform.position, isCyan));
     //    this.CurrentStateGroup = new StateGroup(_transform, _playerController, isCyan, false); //false for background
-      //  _stateGroups.Add(CurrentStateGroup);
-      //
+    //  _stateGroups.Add(CurrentStateGroup);
+    //
     //}
 }
 
 
 
-public struct StateValues //TODO: register deltas instead of the actual values!
+public struct State //TODO: register deltas instead of the actual values!
 {
     public Vector3 position;
-    //public Quaternion rotation;
     public bool iscyan;
     public bool InForeground;
-
-//    public StateValues(Vector3 _position, bool iscyan)// Quaternion _rotation)
-  //  {
-    //    position = _position;
-      //  //rotation = _rotation;
-       // this.iscyan = iscyan;
-    //}
-
 }
 
 
 
 public class StateGroup
 {
-  
-    private List<StateValues> _states = new List<StateValues>();
+
+    private List<State> _states = new List<State>();
 
     private LineRenderer _lineRenderer = null;
 
@@ -112,18 +97,21 @@ public class StateGroup
 
 
     private const float Seconds = 2f;
-   // Transform transform;
 
-    PlayerController _playerController;
-
+    //PlayerController _playerController;
 
 
-    public StateGroup(//Transform transform, 
-        PlayerController playerController, StateValues initialState)// bool isCyan, bool inForeground)
+
+    public StateGroup(State initialState)
     {
-       // Vector3 startPosition = transform.position;
-
         Debug.Log("inside stategroup constructor");
+
+        // _playerController = playerController;
+      
+
+        // Vector3 startPosition = transform.position;
+
+     
         staticID++;
         myID = staticID;
 
@@ -137,7 +125,9 @@ public class StateGroup
         _lineRenderer.material = new Material(Shader.Find("Sprites/Default"));//or Shader.Find("Particles/Additive")); ?
         _lineRenderer.startWidth = _lineRenderer.endWidth = 0.5f;
 
-        AddState(new StateValues() { position = initialState.position, iscyan = initialState.iscyan, InForeground = initialState.InForeground });// startPosition, isCyan));
+
+        //it is important that we first initialize the lineRenderer then add the initial state
+        AddState(initialState);
 
 
         //}
@@ -147,8 +137,9 @@ public class StateGroup
         // rb = GetComponent<Rigidbody2D>();
         //GameObject mygameobject; mygameobject = gameObject;
 
-       // this.transform = transform;// gameObject.transform;
-        _playerController = playerController;// mygameobject.GetComponent<PlayerController>();
+        // this.transform = transform;// gameObject.transform;
+
+        // mygameobject.GetComponent<PlayerController>();
     }
 
 
@@ -159,11 +150,13 @@ public class StateGroup
         Debug.Log("inside rewind");
         if (_states.Count > 0)
         {
-            StateValues latestState = _states[_states.Count - 1];
-           _playerController.SetPosition( latestState.position);
+            State latestState = _states[_states.Count - 1];
 
-            _playerController.IsCyan = latestState.iscyan;
-            _playerController.ApplyColorAccordingToFlag(false); //the false here is important, we don't want to initiate a new trail while rewinding
+            PlayerController.Instance.SetPosition(latestState.position);
+
+            PlayerController.Instance.IsCyan = latestState.iscyan;
+            PlayerController.Instance.ApplyColorAccordingToFlag(false); //the false here is important, we don't want to initiate a new trail while rewinding
+
 
             _states.RemoveAt(_states.Count - 1);
             _statesRemovedDuringRewinding++;
@@ -182,7 +175,7 @@ public class StateGroup
 
     public static int MaxNumOfStates = (int)Mathf.Round(Seconds / Time.fixedDeltaTime);
 
-    public void AddState(StateValues state)// Vector3 position)
+    public void AddState(State state)// Vector3 position)
     {
         //it records one state per fixedupdate
         //time between fixedupdate calls is Time.fixedDeltaTime seconds

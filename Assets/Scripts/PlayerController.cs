@@ -41,14 +41,12 @@ public class PlayerController : MonoBehaviour
     private Vector3 _downVectorWithMagnitude;
     private Vector3 _rightVectorWithMagnitude;
 
+    public StateGroupManager StateGroupManager = new StateGroupManager();
 
-
-    public StateGroupManager StateGroupManager = null;
 
     void Start()
     {
         Instance = this;
-        StateGroupManager = new StateGroupManager(this);
 
         //RewindTimeComponent = GetComponent<RewindTimeComponent>();
 
@@ -160,12 +158,22 @@ public class PlayerController : MonoBehaviour
 
 
 
+        if(StateGroupManager==null)
+        {
+            int kjdf34 = 43;
+            Debug.Log("stategroupmanager is null");
+        }
+        if(StateGroupManager.CurrentStateGroup==null)
+        {
+            int kdsjf = 34;
+            Debug.Log("currentstategroup is null");
+        }
 
-        StateGroupManager.CurrentStateGroup.AddState(new StateValues() { position = transform.position, iscyan = IsCyan, InForeground = inforeground });// new StateValues(transform.position, IsCyan));//.AddPoint();
+        StateGroupManager.CurrentStateGroup.AddState(new State() { position = transform.position, iscyan = IsCyan, InForeground = inforeground });// new StateValues(transform.position, IsCyan));//.AddPoint();
         //_currentTronTrail.AddPoint(transform.position);
     }
 
-    bool inforeground;
+    bool inforeground = true;
 
     internal void SetPosition(Vector3 position)
     {
@@ -226,18 +234,18 @@ public class PlayerController : MonoBehaviour
 
 
     public void StartForegroundTronTrail()
-    {        
-        StateGroupManager.CloseCurrentStateGroup(new StateValues() { position = transform.position, iscyan = IsCyan, InForeground = inforeground });
+    {
+        StateGroupManager.CloseCurrentStateGroup(new State() { position = transform.position, iscyan = IsCyan, InForeground = inforeground });
         inforeground = true;
-        StateGroupManager.AddNewStateGroupA(new StateValues() { position = transform.position, iscyan = IsCyan, InForeground = inforeground });// IsCyan);
-        
+        StateGroupManager.StartNewStateGroup(new State() { position = transform.position, iscyan = IsCyan, InForeground = inforeground });// IsCyan);
+
     }
     public void StartBackgroundTronTrail()
     {//eg when the player is passing through a portal. We don't want the trail to pass on top of the portal effect
 
-        StateGroupManager.CloseCurrentStateGroup(new StateValues() { position = transform.position, iscyan = IsCyan, InForeground = inforeground });
+        StateGroupManager.CloseCurrentStateGroup(new State() { position = transform.position, iscyan = IsCyan, InForeground = inforeground });
         inforeground = false;
-        StateGroupManager.AddNewStateGroupA(new StateValues() { position = transform.position, iscyan = IsCyan, InForeground = inforeground });// IsCyan);
+        StateGroupManager.StartNewStateGroup(new State() { position = transform.position, iscyan = IsCyan, InForeground = inforeground });// IsCyan);
     }
 
 
