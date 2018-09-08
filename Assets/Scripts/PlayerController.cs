@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
-public enum FieldNames { Cyan, TrailInForeground, X, Y };
+public enum DeltaName { TrailCyan, TrailInForeground, X, Y, PlayerColor };
 public struct FieldDelta
 {
-    public FieldNames FieldName;
+    public DeltaName DeltaName;
     public object DeltaValue;
 }
 
@@ -14,24 +14,7 @@ public class PlayerStateDeltas
 {
 
 
-    //    public bool DeltaCyan;
-    //  public bool DeltaTrailInForeground;
-    // public float DeltaX;
-    //public float DeltaY;
-
-    //    public PlayerStateDeltas()
-    //  {
-    //
-    //}
-
-
-//    public override string ToString()
-  //  {
-    //    return 
-    //}
-
-
-    public void AddFieldDelta( FieldDelta fieldDelta)
+    public void AddFieldDelta(FieldDelta fieldDelta)
     {
         ChangedValues.Add(fieldDelta);
     }
@@ -39,52 +22,48 @@ public class PlayerStateDeltas
     public List<FieldDelta> ChangedValues = new List<FieldDelta>();
 }
 
-public class PlayerState //TODO: register deltas instead of the actual values!
-{    
+public enum PlayerColor { Transparent, Cyan, Green }
+
+public class PlayerState
+{
     public Vector3 position;
-    public bool IsCyan;
+    public PlayerColor PlayerColor;
+    public bool IsTrailCyan;
     public bool IsTrailInForeground;
 
     public PlayerState()
     {
-
     }
 
     public PlayerState(PlayerState playerState)
     {//for cloning purposes
 
         position = playerState.position;
-        IsCyan = playerState.IsCyan;
+        PlayerColor = playerState.PlayerColor;
+        IsTrailCyan = playerState.IsTrailCyan;
         IsTrailInForeground = playerState.IsTrailInForeground;
     }
 
 
     internal static PlayerState SubtractFromPlayerState(PlayerState playerState, PlayerStateDeltas stateDeltas)
     {
-        //PlayerState result;
-
-   //     if(clone)
-     //   {//do not change the original, create a clone instead
-       //     result = new PlayerState(this);
-        //}/
-        //else
-       // {
-          //  result = this;
-        //}
-        foreach(FieldDelta fd in stateDeltas.ChangedValues)
+        foreach (FieldDelta fd in stateDeltas.ChangedValues)
         {
-            switch(fd.FieldName)
+            switch (fd.DeltaName)
             {
-                case FieldNames.Cyan:
-                    playerState.  IsCyan = !playerState. IsCyan;
+                case DeltaName.TrailCyan:
+                    playerState.IsTrailCyan = !playerState.IsTrailCyan;
                     break;
-                case FieldNames.TrailInForeground:
-                    playerState.IsTrailInForeground = !playerState. IsTrailInForeground;
+                case DeltaName.PlayerColor:
+                    playerState.PlayerColor += (int)fd.DeltaValue;
                     break;
-                case FieldNames.X:
+                case DeltaName.TrailInForeground:
+                    playerState.IsTrailInForeground = !playerState.IsTrailInForeground;
+                    break;
+                case DeltaName.X:
                     playerState.position.x -= (float)fd.DeltaValue;
                     break;
-                case FieldNames.Y:
+                case DeltaName.Y:
                     playerState.position.y -= (float)fd.DeltaValue;
                     break;
             }
@@ -96,34 +75,40 @@ public class PlayerState //TODO: register deltas instead of the actual values!
 
     internal PlayerStateDeltas FindDeltasToState(PlayerState state)
     {
-
         PlayerStateDeltas result = new PlayerStateDeltas();
 
-        if(IsCyan!=state.IsCyan)
+        if (IsTrailCyan != state.IsTrailCyan)
         {
             FieldDelta fd = new FieldDelta();
-            fd.FieldName = FieldNames.Cyan;
+            fd.DeltaName = DeltaName.TrailCyan;
             //no need to specify deltavalue for boolean
             result.AddFieldDelta(fd);
         }
-        if(IsTrailInForeground!= state.IsTrailInForeground)
+        if (PlayerColor != state.PlayerColor)// IsCyan != state.IsCyan)
         {
             FieldDelta fd = new FieldDelta();
-            fd.FieldName = FieldNames.TrailInForeground;
+            fd.DeltaName = DeltaName.PlayerColor;// = FieldNames.Cyan;
+            fd.DeltaValue = state.PlayerColor - PlayerColor;
+            result.AddFieldDelta(fd);
+        }
+        if (IsTrailInForeground != state.IsTrailInForeground)
+        {
+            FieldDelta fd = new FieldDelta();
+            fd.DeltaName = DeltaName.TrailInForeground;
             //no need to specify deltavalue for boolean
             result.AddFieldDelta(fd);
         }
-        if(position.x!=state.position.x)
+        if (position.x != state.position.x)
         {
             FieldDelta fd = new FieldDelta();
-            fd.FieldName = FieldNames.X;
+            fd.DeltaName = DeltaName.X;
             fd.DeltaValue = state.position.x - position.x;
             result.AddFieldDelta(fd);
         }
         if (position.y != state.position.y)
         {
             FieldDelta fd = new FieldDelta();
-            fd.FieldName = FieldNames.Y;
+            fd.DeltaName = DeltaName.Y;
             fd.DeltaValue = state.position.y - position.y;
             result.AddFieldDelta(fd);
         }
@@ -143,6 +128,20 @@ public class PlayerController : MonoBehaviour
 
     [HideInInspector]
     public SpriteRenderer SpriteRenderer;
+
+    internal void PutPlayerInState(PlayerState state)
+    {
+        MyState.position = state.position;
+        RefreshPlayerPosition();
+
+        MyState.PlayerColor = state.PlayerColor;
+        RefreshPlayerOnlyColor();
+
+        MyState.IsTrailInForeground = state.IsTrailInForeground;
+        MyState.IsTrailCyan = state.IsTrailCyan;
+        if (StateGroupManager.IsRewinding == false) //don't start new trail while we are rewinding!        
+            StartNewTrail();        
+    }
 
     [HideInInspector]
     public bool JumpFromGround = false;
@@ -169,7 +168,7 @@ public class PlayerController : MonoBehaviour
     private Vector3 _downVectorWithMagnitude;
     private Vector3 _rightVectorWithMagnitude;
 
-    public StateGroupManager StateGroupManager = new StateGroupManager();
+    public StateDeltasGroupManager StateGroupManager = new StateDeltasGroupManager();
     public PlayerState MyState = new PlayerState();
 
 
@@ -194,8 +193,13 @@ public class PlayerController : MonoBehaviour
 
         transform.position = new Vector3(6.28125f / 2, 1);
 
-        MyState.IsCyan = true; //start cyan
-        ApplyColorAccordingToFlag(true);
+
+
+        MyState.PlayerColor = PlayerColor.Cyan;// .IsCyan = true; //start cyan
+        RefreshPlayerOnlyColor();
+        MyState.IsTrailCyan = true;
+        MyState.IsTrailInForeground = true;
+        StartNewTrail();
 
 
         //CurrentStateGroup = new StateGroup(transform, this, transform.position, IsCyan, true);
@@ -213,7 +217,9 @@ public class PlayerController : MonoBehaviour
 
         if (transform.position.y < -5)
         {//player fell to the void
-            Debug.Log("trying to kill player because y<-5, isrewinding=" + StateGroupManager.IsRewinding + "   stategroupid=" + StateGroupManager.CurrentStateGroup.myID);
+
+            //Debug.Log("trying to kill player because y<-5, isrewinding=" + StateGroupManager.IsRewinding + "   stategroupid=" + StateGroupManager.CurrentStateGroup.myID);
+
             TryToKillPlayer();// PlayerWasKilled();
             return;
         }
@@ -271,43 +277,113 @@ public class PlayerController : MonoBehaviour
 
 
 
+
+
+
+
         if (_switchcolor)
         {
             _switchcolor = false;
 
 
-            MyState.IsCyan = !MyState.IsCyan;
-            ApplyColorAccordingToFlag(true);
 
-            if (CollectedPowerUps.ContainsKey(PowerUpType.Ghost))// .Contains("Ghost"))// hasGhost)
-                CollectedPowerUps[PowerUpType.Ghost].Activate();// _spriteRenderer.color = new Color(255, 255, 255, 0);
+            if (MyState.PlayerColor == PlayerColor.Cyan)
+            {
+                MyState.PlayerColor = PlayerColor.Green;
+            }
+            else if (MyState.PlayerColor == PlayerColor.Green)
+            {
+                MyState.PlayerColor = PlayerColor.Cyan;
+            }
+            else
+            {//transparent!
+            }
+            RefreshPlayerOnlyColor();
+
+
+            MyState.IsTrailCyan = !MyState.IsTrailCyan;
+
+            MyState.IsTrailInForeground = true;
+            StartNewTrail();
+
+
+
+
+            //MyState.IsCyan = !MyState.IsCyan;
+            //ApplyColorAccordingToFlag();
+
+
+            //            if (CollectedPowerUps.ContainsKey(PowerUpType.Ghost))// .Contains("Ghost"))// hasGhost)
+            //              CollectedPowerUps[PowerUpType.Ghost].Activate();// _spriteRenderer.color = new Color(255, 255, 255, 0);
 
         }
 
 
 
 
-
-        
-        
-        MyState .position = transform.position;
+        MyState.position = transform.position;
         StateGroupManager.CurrentStateGroup.AddState(MyState);
     }
 
 
 
-    internal void SetPosition(Vector3 position)
+
+
+
+
+    //   public void ApplyColorAccordingToFlag()
+    //  {
+    //  SetRendererOnlyColor();
+    //        if (StateGroupManager.IsRewinding==false)//the false here is important, we don't want to initiate a new trail while rewinding
+    //          StartForegroundTronTrail();
+    //  }
+
+
+
+    public void RefreshPlayerPosition()
     {
-        MyState.position = transform.position = position;
+        transform.position = MyState.position;
+    }
+    public void RefreshPlayerOnlyColor()
+    {//this does not instatiate a new trail, it doesn't affect the trail
+
+        Color color;
+        switch (MyState.PlayerColor)
+        {
+            case PlayerColor.Cyan:
+                color = Color.cyan;
+                break;
+            case PlayerColor.Green:
+                color = Color.green;
+                break;
+            default://            case PlayerColor.Transparent:
+                color = new Color(0, 0, 0, 0); //(transparent)
+                break;
+        }
+
+        SpriteRenderer.color = color;//  MyState.IsCyan ? Color.cyan : Color.green;
     }
 
-    public void ApplyColorAccordingToFlag(bool initiateSimilarlyColoredTrail)
+
+
+    public void StartNewTrail()
     {
-        SpriteRenderer.color = MyState.IsCyan ? Color.cyan : Color.green;
-        if (initiateSimilarlyColoredTrail)
-            StartForegroundTronTrail();
+        //        //todo: are the following two lines really necessary?
+        //      MyState.position = transform.position;
+        //   StateGroupManager.CloseCurrentStateGroup(MyState);// new State() { position = transform.position, iscyan = IsCyan, InForeground = inforeground });
+
+        StateGroupManager.StartNewStateGroup(MyState);// new State() { position = transform.position, iscyan = IsCyan, InForeground = inforeground });// IsCyan);
     }
 
+    //    public void StartBackgroundTronTrail()
+    //   {//eg when the player is passing through a portal. 
+    //  //todo: are the following two lines really necessary?
+    ////    MyState.position =transform.position;
+    ////  StateGroupManager.CloseCurrentStateGroup(MyState);// new State() { position = transform.position, iscyan = IsCyan, InForeground = inforeground });
+    //
+    //  MyState.IsTrailInForeground = false;
+    //  StateGroupManager.StartNewStateGroup(MyState);// new State() { position = transform.position, iscyan = IsCyan, InForeground = inforeground });// IsCyan);
+    // }
 
 
     void Update()
@@ -355,26 +431,6 @@ public class PlayerController : MonoBehaviour
 
 
 
-    public void StartForegroundTronTrail()
-    {
-//        //todo: are the following two lines really necessary?
-  //      MyState.position = transform.position;
-     //   StateGroupManager.CloseCurrentStateGroup(MyState);// new State() { position = transform.position, iscyan = IsCyan, InForeground = inforeground });
-
-        MyState.IsTrailInForeground = true;
-        StateGroupManager.StartNewStateGroup(MyState);// new State() { position = transform.position, iscyan = IsCyan, InForeground = inforeground });// IsCyan);
-
-    }
-    public void StartBackgroundTronTrail()
-    {//eg when the player is passing through a portal. We don't want the trail to pass on top of the portal effect
-     //todo: are the following two lines really necessary?
-    //    MyState.position =transform.position;
-      //  StateGroupManager.CloseCurrentStateGroup(MyState);// new State() { position = transform.position, iscyan = IsCyan, InForeground = inforeground });
-
-        MyState.IsTrailInForeground = false;
-        StateGroupManager.StartNewStateGroup(MyState);// new State() { position = transform.position, iscyan = IsCyan, InForeground = inforeground });// IsCyan);
-    }
-
 
     void OnTriggerEnter2D(Collider2D collision)
     {
@@ -385,12 +441,12 @@ public class PlayerController : MonoBehaviour
         switch (collision.gameObject.tag)
         {
             case "CyanSaw":
-                if (!MyState.IsCyan)
+                if (MyState.PlayerColor == PlayerColor.Green)//  .IsCyan)
                     TryToKillPlayer();
                 break;
 
             case "GreenSaw":
-                if (MyState.IsCyan)
+                if (MyState.PlayerColor == PlayerColor.Cyan)// .IsCyan)
                     TryToKillPlayer();
                 break;
 
@@ -472,7 +528,7 @@ public class GhostPowerUp : PowerUp
     }
     public override void Deactivate()
     {
-        PlayerController.Instance.ApplyColorAccordingToFlag(false); //restore color according to the IsCyan flag, we set false because the trail was active anyway
+        PlayerController.Instance.RefreshPlayerOnlyColor();
         base.Deactivate();
     }
 }

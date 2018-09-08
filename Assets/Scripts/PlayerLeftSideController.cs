@@ -15,7 +15,10 @@ public class PlayerLeftSideController : MonoBehaviour
         if (collision.gameObject.tag == "SpriteMask")
         {
             Debug.Log("player left side exited sprite mask");
-            _playerController.StartForegroundTronTrail();
+
+            PlayerController.Instance.MyState.IsTrailInForeground = true;
+            PlayerController.Instance.StartNewTrail();
+            //_playerController.StartForegroundTronTrail();
         }
     }
 

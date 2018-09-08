@@ -1,12 +1,11 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
-public class StateGroupManager
+public class StateDeltasGroupManager
 {
-    public StateGroup CurrentStateGroup { get; private set; }
+    public StateDeltasGroup CurrentStateGroup { get; private set; }
     public bool IsRewinding { get; private set; }
-    private List<StateGroup> _stateGroups = new List<StateGroup>();
+    private List<StateDeltasGroup> _stateDeltasGroups = new List<StateDeltasGroup>();
 
 
 
@@ -17,14 +16,14 @@ public class StateGroupManager
         if (statesremoved != -1)
         {//the current stategroup has finished rewinding
             //but has it finished rewinding because it reached the max allowed number of recorded states or because it has run out of states?
-            if (statesremoved < StateGroup.MaxNumOfStates)
+            if (statesremoved < StateDeltasGroup.MaxNumOfStates)
             {//it has run out of states
                 //we want to remove this state group if we have others
-                if (_stateGroups.Count > 1)
+                if (_stateDeltasGroups.Count > 1)
                 {
 
-                    _stateGroups.Remove(CurrentStateGroup);
-                    CurrentStateGroup = _stateGroups[_stateGroups.Count - 1];
+                    _stateDeltasGroups.Remove(CurrentStateGroup);
+                    CurrentStateGroup = _stateDeltasGroups[_stateDeltasGroups.Count - 1];
                     CurrentStateGroup.ResetStatesRemovedDuringRewindingCounter();
                 }
                 else
@@ -57,9 +56,10 @@ public class StateGroupManager
     //}
     internal void StartNewStateGroup(PlayerState firstState)
     {
-        Debug.Log("started new state group");
-        CurrentStateGroup = new StateGroup(firstState);
-        _stateGroups.Add(CurrentStateGroup);
+        //Debug.Log("started new state group");
+
+        CurrentStateGroup = new StateDeltasGroup(firstState);
+        _stateDeltasGroups.Add(CurrentStateGroup);
     }
 
 }
@@ -67,7 +67,7 @@ public class StateGroupManager
 
 
 
-public class StateGroup
+public class StateDeltasGroup
 {
 
     private List<PlayerStateDeltas> _stateDeltas = new List<PlayerStateDeltas>();
@@ -75,8 +75,8 @@ public class StateGroup
     private LineRenderer _lineRenderer = null;
 
 
-    public static int staticID = -1;
-    public int myID;
+    // public static int staticID = -1;
+    //public int myID;
 
 
     private const float Seconds = 2f;
@@ -85,10 +85,11 @@ public class StateGroup
 
 
 
-    public StateGroup(PlayerState initialState)
+    public StateDeltasGroup(PlayerState initialState)
     {
         LastState = initialState;
-        Debug.Log("inside stategroup constructor");
+
+        //Debug.Log("inside stategroup constructor");
 
         // _playerController = playerController;
 
@@ -96,15 +97,16 @@ public class StateGroup
         // Vector3 startPosition = transform.position;
 
 
-        staticID++;
-        myID = staticID;
+        //  staticID++;
+        //  myID = staticID;
 
         GameObject TronTrailHolder = new GameObject("TronTrailHolder");
         _lineRenderer = TronTrailHolder.AddComponent<LineRenderer>();
         _lineRenderer.sortingLayerName = initialState.IsTrailInForeground ? "Player" : "RoomObjectsBehindPlayer";
         _lineRenderer.sortingOrder = -10; //so that for example it is behind a portal effect
 
-        Color color = initialState.IsCyan ? Color.cyan : Color.green;
+
+        Color color = initialState.IsTrailCyan ? Color.cyan : Color.green;
         _lineRenderer.startColor = _lineRenderer.endColor = color;
         _lineRenderer.material = new Material(Shader.Find("Sprites/Default"));//or Shader.Find("Particles/Additive")); ?
         _lineRenderer.startWidth = _lineRenderer.endWidth = 0.5f;
@@ -131,10 +133,12 @@ public class StateGroup
 
 
 
-            PlayerController.Instance.SetPosition(LastState.position);
 
-            PlayerController.Instance.MyState.IsCyan = LastState.IsCyan;
-            PlayerController.Instance.ApplyColorAccordingToFlag(false); //the false here is important, we don't want to initiate a new trail while rewinding
+            PlayerController.Instance.PutPlayerInState(LastState);
+
+
+
+            //PlayerController.Instance.ApplyColorAccordingToFlag();
 
 
             _stateDeltas.RemoveAt(_stateDeltas.Count - 1);
@@ -187,8 +191,6 @@ public class StateGroup
 
         // state);// new State(position, false));
 
-
-
         //     }
 
 
@@ -203,20 +205,20 @@ public class StateGroup
         Vector3[] positions = new Vector3[_lineRenderer.positionCount];
 
 
-    //    Debug.Log("" + _lineRenderer.positionCount + " positions:");
+        //    Debug.Log("" + _lineRenderer.positionCount + " positions:");
 
         positions[positions.Length - 1] = LastState.position;
         int ii = positions.Length - 1;
-   //     Debug.Log("position " + ii + " =" + positions[ii].ToString());
+        //     Debug.Log("position " + ii + " =" + positions[ii].ToString());
 
 
         PlayerState clone = new PlayerState(LastState);
         for (int i = positions.Length - 2; i >= 0; i--) //from most recent one to oldest one
         {
-          //  Debug.Log("about to subtract deltas " + _stateDeltas[i].ToString());
+            //  Debug.Log("about to subtract deltas " + _stateDeltas[i].ToString());
             clone = PlayerState.SubtractFromPlayerState(clone, _stateDeltas[i]);
             positions[i] = clone.position;// LastState.Subtract(_states[i], true));
-          //  Debug.Log("position " + i + " =" + positions[i].ToString());
+                                          //  Debug.Log("position " + i + " =" + positions[i].ToString());
         }
 
         _lineRenderer.SetPositions(positions);// _states.Select(p => p.position).ToArray());// .ToList().ToArray());
