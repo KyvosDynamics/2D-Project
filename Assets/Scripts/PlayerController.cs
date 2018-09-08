@@ -161,13 +161,16 @@ public class PlayerController : MonoBehaviour
 
 
 
-        StateGroupManager.CurrentStateGroup.AddState(new State(transform.position, IsCyan));//.AddPoint();
+        StateGroupManager.CurrentStateGroup.AddState(new StateValues() { position = transform.position, iscyan = IsCyan, InForeground = inforeground });// new StateValues(transform.position, IsCyan));//.AddPoint();
         //_currentTronTrail.AddPoint(transform.position);
     }
 
+    bool inforeground;
 
-
-
+    internal void SetPosition(Vector3 position)
+    {
+        transform.position = position;
+    }
 
     public void ApplyColorAccordingToFlag(bool initiateSimilarlyColoredTrail)
     {
@@ -223,13 +226,18 @@ public class PlayerController : MonoBehaviour
 
 
     public void StartForegroundTronTrail()
-    {
-        StateGroupManager.AddNewStateGroupA(transform, IsCyan);
+    {        
+        StateGroupManager.CloseCurrentStateGroup(new StateValues() { position = transform.position, iscyan = IsCyan, InForeground = inforeground });
+        inforeground = true;
+        StateGroupManager.AddNewStateGroupA(new StateValues() { position = transform.position, iscyan = IsCyan, InForeground = inforeground });// IsCyan);
+        
     }
     public void StartBackgroundTronTrail()
     {//eg when the player is passing through a portal. We don't want the trail to pass on top of the portal effect
 
-        StateGroupManager.AddStateGroupB(transform, IsCyan);
+        StateGroupManager.CloseCurrentStateGroup(new StateValues() { position = transform.position, iscyan = IsCyan, InForeground = inforeground });
+        inforeground = false;
+        StateGroupManager.AddNewStateGroupA(new StateValues() { position = transform.position, iscyan = IsCyan, InForeground = inforeground });// IsCyan);
     }
 
 
