@@ -1,13 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
 public class StateGroupManager
 {
-    public List<StateGroup> StateGroups = new List<StateGroup>();
-    public bool IsRewinding = false;
-    PlayerController _playerController;
+    public StateGroup CurrentStateGroup { get; private set; }
+    public bool IsRewinding { get; private set; }
+    private List<StateGroup> _stateGroups = new List<StateGroup>();
+    private PlayerController _playerController;
+
 
 
     public StateGroupManager(PlayerController playerController)
@@ -15,11 +16,6 @@ public class StateGroupManager
         _playerController = playerController;
     }
 
-    public void AddStateGroup(StateGroup stateGroup)
-    {
-        StateGroups.Add(stateGroup);
-        CurrentStateGroup = stateGroup;
-    }
 
     public void OneRewind()
     {
@@ -30,11 +26,11 @@ public class StateGroupManager
             if (statesremoved < StateGroup.MaxNumOfStates)
             {//it has run out of states
                 //we want to remove this state group if we have others
-                if (StateGroups.Count > 1)
+                if (_stateGroups.Count > 1)
                 {
 
-                    StateGroups.Remove(CurrentStateGroup);
-                    CurrentStateGroup = StateGroups[StateGroups.Count - 1];
+                    _stateGroups.Remove(CurrentStateGroup);
+                    CurrentStateGroup = _stateGroups[_stateGroups.Count - 1];
                     CurrentStateGroup.ResetStatesRemovedDuringRewindingCounter();
                 }
                 else
@@ -58,25 +54,25 @@ public class StateGroupManager
         IsRewinding = true;
         CurrentStateGroup.ResetStatesRemovedDuringRewindingCounter();
     }
-    public StateGroup CurrentStateGroup;
 
-    internal void AddNewStateGroupA(Transform transform, PlayerController playerController, bool isCyan)
+    internal void AddNewStateGroupA(Transform transform,  bool isCyan)
     {
 
         if (this.CurrentStateGroup != null)//it can be null the first time we call this method
             this.CurrentStateGroup.AddState(new State(transform.position, isCyan));
 
-        this.CurrentStateGroup = new StateGroup(transform, playerController, transform.position, isCyan, true);
-        this.AddStateGroup(this.CurrentStateGroup);
+        this.CurrentStateGroup = new StateGroup(transform, _playerController, transform.position, isCyan, true);
+        _stateGroups.Add(CurrentStateGroup);
 
     }
 
-    internal void AddStateGroupB(Transform transform, PlayerController playerController, bool isCyan)
+    internal void AddStateGroupB(Transform transform, bool isCyan)
     {
 
         this.CurrentStateGroup.AddState(new State(transform.position, isCyan));
-        this.CurrentStateGroup = new StateGroup(transform, playerController, transform.position, isCyan, false); //false for background
-        this.AddStateGroup(this.CurrentStateGroup);
+        this.CurrentStateGroup = new StateGroup(transform, _playerController, transform.position, isCyan, false); //false for background
+        _stateGroups.Add(CurrentStateGroup);
+
     }
 }
 
