@@ -10,8 +10,8 @@ public class PlayerController : MonoBehaviour
     [HideInInspector]
     public Dictionary<PowerUpType, PowerUp> CollectedPowerUps = new Dictionary<PowerUpType, PowerUp>();
 
-    [HideInInspector]
-    public bool IsCyan;
+  //  [HideInInspector]
+    //public bool IsCyan;
 
     [HideInInspector]
     public SpriteRenderer SpriteRenderer;
@@ -65,7 +65,7 @@ public class PlayerController : MonoBehaviour
 
         transform.position = new Vector3(6.28125f / 2, 1);
 
-        IsCyan = true; //start cyan
+      MyState.iscyan = true; //start cyan
         ApplyColorAccordingToFlag(true);
 
 
@@ -147,7 +147,7 @@ public class PlayerController : MonoBehaviour
             _switchcolor = false;
 
 
-            IsCyan = !IsCyan;
+        MyState.iscyan= !MyState.iscyan;
             ApplyColorAccordingToFlag(true);
 
             if (CollectedPowerUps.ContainsKey(PowerUpType.Ghost))// .Contains("Ghost"))// hasGhost)
@@ -158,31 +158,22 @@ public class PlayerController : MonoBehaviour
 
 
 
-        if(StateGroupManager==null)
-        {
-            int kjdf34 = 43;
-            Debug.Log("stategroupmanager is null");
-        }
-        if(StateGroupManager.CurrentStateGroup==null)
-        {
-            int kdsjf = 34;
-            Debug.Log("currentstategroup is null");
-        }
 
-        StateGroupManager.CurrentStateGroup.AddState(new State() { position = transform.position, iscyan = IsCyan, InForeground = inforeground });// new StateValues(transform.position, IsCyan));//.AddPoint();
+        MyState.position = transform.position;
+        StateGroupManager.CurrentStateGroup.AddState(MyState);// new State() { position = transform.position, iscyan = IsCyan, InForeground = inforeground });// new StateValues(transform.position, IsCyan));//.AddPoint();
         //_currentTronTrail.AddPoint(transform.position);
     }
 
-    bool inforeground = true;
+//    bool inforeground = true;
 
     internal void SetPosition(Vector3 position)
     {
-        transform.position = position;
+        MyState.position = transform.position = position;        
     }
 
     public void ApplyColorAccordingToFlag(bool initiateSimilarlyColoredTrail)
     {
-        SpriteRenderer.color = IsCyan ? Color.cyan : Color.green;
+        SpriteRenderer.color = MyState.iscyan ? Color.cyan : Color.green;
         if (initiateSimilarlyColoredTrail)
             StartForegroundTronTrail();
     }
@@ -232,20 +223,27 @@ public class PlayerController : MonoBehaviour
     }
 
 
+    public State MyState = new State();
+
 
     public void StartForegroundTronTrail()
     {
-        StateGroupManager.CloseCurrentStateGroup(new State() { position = transform.position, iscyan = IsCyan, InForeground = inforeground });
-        inforeground = true;
-        StateGroupManager.StartNewStateGroup(new State() { position = transform.position, iscyan = IsCyan, InForeground = inforeground });// IsCyan);
+        //todo: are the following two lines really necessary?
+        MyState.position = transform.position;
+        StateGroupManager.CloseCurrentStateGroup(MyState);// new State() { position = transform.position, iscyan = IsCyan, InForeground = inforeground });
+
+       MyState.InForeground = true;
+        StateGroupManager.StartNewStateGroup(MyState);// new State() { position = transform.position, iscyan = IsCyan, InForeground = inforeground });// IsCyan);
 
     }
     public void StartBackgroundTronTrail()
     {//eg when the player is passing through a portal. We don't want the trail to pass on top of the portal effect
+     //todo: are the following two lines really necessary?
+        MyState.position = transform.position;
+        StateGroupManager.CloseCurrentStateGroup(MyState);// new State() { position = transform.position, iscyan = IsCyan, InForeground = inforeground });
 
-        StateGroupManager.CloseCurrentStateGroup(new State() { position = transform.position, iscyan = IsCyan, InForeground = inforeground });
-        inforeground = false;
-        StateGroupManager.StartNewStateGroup(new State() { position = transform.position, iscyan = IsCyan, InForeground = inforeground });// IsCyan);
+       MyState.InForeground = false;
+        StateGroupManager.StartNewStateGroup(MyState);// new State() { position = transform.position, iscyan = IsCyan, InForeground = inforeground });// IsCyan);
     }
 
 
@@ -258,12 +256,12 @@ public class PlayerController : MonoBehaviour
         switch (collision.gameObject.tag)
         {
             case "CyanSaw":
-                if (!IsCyan)
+                if (!MyState.iscyan)
                     TryToKillPlayer();
                 break;
 
             case "GreenSaw":
-                if (IsCyan)
+                if (MyState.iscyan)
                     TryToKillPlayer();
                 break;
 

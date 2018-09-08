@@ -26,7 +26,7 @@ public class SawController : MonoBehaviour
         {
             _changedColorOnce = true; //do not change again
 
-            if (_playerTransform.GetComponent<PlayerController>().IsCyan)
+            if (_playerTransform.GetComponent<PlayerController>().MyState.iscyan)
             {
                 _spriteRenderer.color = Color.green;
                 gameObject.tag = "GreenSaw";

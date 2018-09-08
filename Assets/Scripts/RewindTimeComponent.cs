@@ -7,8 +7,6 @@ public class StateGroupManager
     public StateGroup CurrentStateGroup { get; private set; }
     public bool IsRewinding { get; private set; }
     private List<StateGroup> _stateGroups = new List<StateGroup>();
-    //private PlayerController _playerController;
-
 
 
 
@@ -55,22 +53,15 @@ public class StateGroupManager
     internal void CloseCurrentStateGroup(State lastState)
     {
         if (CurrentStateGroup != null)//it can be null the first time we call this method        
-            CurrentStateGroup.AddState(lastState);        
+            CurrentStateGroup.AddState(lastState);
     }
     internal void StartNewStateGroup(State firstState)
     {
         Debug.Log("started new state group");
-        CurrentStateGroup = new StateGroup( firstState);
+        CurrentStateGroup = new StateGroup(firstState);
         _stateGroups.Add(CurrentStateGroup);
     }
 
-    //    internal void AddStateGroupB( bool isCyan)
-    //  {
-    //    this.CurrentStateGroup.AddState(new StateValues(_transform.position, isCyan));
-    //    this.CurrentStateGroup = new StateGroup(_transform, _playerController, isCyan, false); //false for background
-    //  _stateGroups.Add(CurrentStateGroup);
-    //
-    //}
 }
 
 
@@ -107,11 +98,11 @@ public class StateGroup
         Debug.Log("inside stategroup constructor");
 
         // _playerController = playerController;
-      
+
 
         // Vector3 startPosition = transform.position;
 
-     
+
         staticID++;
         myID = staticID;
 
@@ -130,16 +121,6 @@ public class StateGroup
         AddState(initialState);
 
 
-        //}
-        //public StateGroup()//    void Start()
-        //{
-        //   _states = new List<State>();
-        // rb = GetComponent<Rigidbody2D>();
-        //GameObject mygameobject; mygameobject = gameObject;
-
-        // this.transform = transform;// gameObject.transform;
-
-        // mygameobject.GetComponent<PlayerController>();
     }
 
 
@@ -154,7 +135,7 @@ public class StateGroup
 
             PlayerController.Instance.SetPosition(latestState.position);
 
-            PlayerController.Instance.IsCyan = latestState.iscyan;
+            PlayerController.Instance.MyState.iscyan = latestState.iscyan;
             PlayerController.Instance.ApplyColorAccordingToFlag(false); //the false here is important, we don't want to initiate a new trail while rewinding
 
 
