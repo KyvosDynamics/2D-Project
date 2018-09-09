@@ -49,15 +49,8 @@ public class StateDeltasGroupManager
         CurrentStateGroup.ResetStatesRemovedDuringRewindingCounter();
     }
 
-    //    internal void CloseCurrentStateGroup(PlayerState lastState)
-    //  {
-    //    if (CurrentStateGroup != null)//it can be null the first time we call this method        
-    //      CurrentStateGroup.AddState(lastState);
-    //}
     internal void StartNewStateGroup(PlayerState firstState)
     {
-        //Debug.Log("started new state group");
-
         CurrentStateGroup = new StateDeltasGroup(firstState);
         _stateDeltasGroups.Add(CurrentStateGroup);
     }
@@ -104,8 +97,8 @@ public class StateDeltasGroup
         _lineRenderer.startWidth = _lineRenderer.endWidth = 0.5f;
 
 
-       //it is important that we first initialize the lineRenderer then add the initial state
-//           AddState(initialState);
+        //it is important that we first initialize the lineRenderer then add the initial state
+        //           AddState(initialState);
 
     }
 
@@ -129,7 +122,6 @@ public class StateDeltasGroup
 
 
 
-            //PlayerController.Instance.ApplyColorAccordingToFlag();
 
 
             _stateDeltas.RemoveAt(_stateDeltas.Count - 1);
@@ -162,10 +154,10 @@ public class StateDeltasGroup
         //   else
         //   {
 
-        if(LastState==null)
+        if (LastState == null)
         {
 
-          //  _stateDeltas.Add(state.FindDeltasToState(state));//zero deltas
+            //  _stateDeltas.Add(state.FindDeltasToState(state));//zero deltas
         }
         else
             _stateDeltas.Add(LastState.FindDeltasToState(state));
@@ -213,7 +205,7 @@ public class StateDeltasGroup
 
 
         PlayerState clone = new PlayerState(LastState);
-        for (int i = positions.Length - 2; i >= 0; i--) 
+        for (int i = positions.Length - 2; i >= 0; i--)
         {
             //  Debug.Log("about to subtract deltas " + _stateDeltas[i].ToString());
             clone = PlayerState.SubtractFromPlayerState(clone, _stateDeltas[i]);

@@ -280,6 +280,8 @@ public class PlayerController : MonoBehaviour
 
 
 
+
+
         MyState.position = transform.position;
 
 
@@ -287,11 +289,14 @@ public class PlayerController : MonoBehaviour
         {//should create new stategroup
             _switchcolor = false;
 
+            //before we start the new one inform the previous one about the latest position state
+            CloseCurrentTrail();
 
-            if (MyState.PlayerColor == PlayerColor.Cyan)            
-                MyState.PlayerColor = PlayerColor.Green;            
-            else if (MyState.PlayerColor == PlayerColor.Green)            
-                MyState.PlayerColor = PlayerColor.Cyan;            
+
+            if (MyState.PlayerColor == PlayerColor.Cyan)
+                MyState.PlayerColor = PlayerColor.Green;
+            else if (MyState.PlayerColor == PlayerColor.Green)
+                MyState.PlayerColor = PlayerColor.Cyan;
             //else transparent!
 
             RefreshPlayerOnlyColor();
@@ -302,7 +307,6 @@ public class PlayerController : MonoBehaviour
         }
         else
         {//continue with the same stategroup
-
             StateGroupManager.CurrentStateGroup.AddState(MyState);
         }
 
@@ -343,15 +347,16 @@ public class PlayerController : MonoBehaviour
     }
 
 
+    public void CloseCurrentTrail()
+    {
+        
+      //  if (StateGroupManager.CurrentStateGroup != null) //it can be null the first time we call this method
+            StateGroupManager.CurrentStateGroup.AddState(MyState);
+
+    }
 
     public void StartNewTrail()
     {
-        //        //todo: are the following two lines really necessary?
-              //MyState.position = transform.position;
-           //StateGroupManager.CloseCurrentStateGroup(MyState);// new State() { position = transform.position, iscyan = IsCyan, InForeground = inforeground });
-
-        if(StateGroupManager.CurrentStateGroup!=null) //it can be null the first time we call this method
-            StateGroupManager.CurrentStateGroup.AddState(MyState);
 
         StateGroupManager.StartNewStateGroup(MyState);
     }
