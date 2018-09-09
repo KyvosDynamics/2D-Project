@@ -55,7 +55,7 @@ public class PlayerState
                     playerState.IsTrailCyan = !playerState.IsTrailCyan;
                     break;
                 case DeltaName.PlayerColor:
-                    playerState.PlayerColor += (int)fd.DeltaValue;
+                    playerState.PlayerColor -= (int)fd.DeltaValue;
                     break;
                 case DeltaName.TrailInForeground:
                     playerState.IsTrailInForeground = !playerState.IsTrailInForeground;
@@ -140,7 +140,7 @@ public class PlayerController : MonoBehaviour
         MyState.IsTrailInForeground = state.IsTrailInForeground;
         MyState.IsTrailCyan = state.IsTrailCyan;
         if (StateGroupManager.IsRewinding == false) //don't start new trail while we are rewinding!        
-            StartNewTrail();        
+            StartNewTrail();
     }
 
     [HideInInspector]
@@ -280,63 +280,41 @@ public class PlayerController : MonoBehaviour
 
 
 
+        MyState.position = transform.position;
+
 
         if (_switchcolor)
-        {
+        {//should create new stategroup
             _switchcolor = false;
 
 
+            if (MyState.PlayerColor == PlayerColor.Cyan)            
+                MyState.PlayerColor = PlayerColor.Green;            
+            else if (MyState.PlayerColor == PlayerColor.Green)            
+                MyState.PlayerColor = PlayerColor.Cyan;            
+            //else transparent!
 
-            if (MyState.PlayerColor == PlayerColor.Cyan)
-            {
-                MyState.PlayerColor = PlayerColor.Green;
-            }
-            else if (MyState.PlayerColor == PlayerColor.Green)
-            {
-                MyState.PlayerColor = PlayerColor.Cyan;
-            }
-            else
-            {//transparent!
-            }
             RefreshPlayerOnlyColor();
 
-
             MyState.IsTrailCyan = !MyState.IsTrailCyan;
+            StartNewTrail(); //there is no such thing as refresh the trail, instead it starts a new one
 
-            MyState.IsTrailInForeground = true;
-            StartNewTrail();
+        }
+        else
+        {//continue with the same stategroup
 
-
-
-
-            //MyState.IsCyan = !MyState.IsCyan;
-            //ApplyColorAccordingToFlag();
-
-
-            //            if (CollectedPowerUps.ContainsKey(PowerUpType.Ghost))// .Contains("Ghost"))// hasGhost)
-            //              CollectedPowerUps[PowerUpType.Ghost].Activate();// _spriteRenderer.color = new Color(255, 255, 255, 0);
-
+            StateGroupManager.CurrentStateGroup.AddState(MyState);
         }
 
 
 
 
-        MyState.position = transform.position;
-        StateGroupManager.CurrentStateGroup.AddState(MyState);
     }
 
 
 
 
 
-
-
-    //   public void ApplyColorAccordingToFlag()
-    //  {
-    //  SetRendererOnlyColor();
-    //        if (StateGroupManager.IsRewinding==false)//the false here is important, we don't want to initiate a new trail while rewinding
-    //          StartForegroundTronTrail();
-    //  }
 
 
 
@@ -369,21 +347,15 @@ public class PlayerController : MonoBehaviour
     public void StartNewTrail()
     {
         //        //todo: are the following two lines really necessary?
-        //      MyState.position = transform.position;
-        //   StateGroupManager.CloseCurrentStateGroup(MyState);// new State() { position = transform.position, iscyan = IsCyan, InForeground = inforeground });
+              //MyState.position = transform.position;
+           //StateGroupManager.CloseCurrentStateGroup(MyState);// new State() { position = transform.position, iscyan = IsCyan, InForeground = inforeground });
 
-        StateGroupManager.StartNewStateGroup(MyState);// new State() { position = transform.position, iscyan = IsCyan, InForeground = inforeground });// IsCyan);
+        if(StateGroupManager.CurrentStateGroup!=null) //it can be null the first time we call this method
+            StateGroupManager.CurrentStateGroup.AddState(MyState);
+
+        StateGroupManager.StartNewStateGroup(MyState);
     }
 
-    //    public void StartBackgroundTronTrail()
-    //   {//eg when the player is passing through a portal. 
-    //  //todo: are the following two lines really necessary?
-    ////    MyState.position =transform.position;
-    ////  StateGroupManager.CloseCurrentStateGroup(MyState);// new State() { position = transform.position, iscyan = IsCyan, InForeground = inforeground });
-    //
-    //  MyState.IsTrailInForeground = false;
-    //  StateGroupManager.StartNewStateGroup(MyState);// new State() { position = transform.position, iscyan = IsCyan, InForeground = inforeground });// IsCyan);
-    // }
 
 
     void Update()

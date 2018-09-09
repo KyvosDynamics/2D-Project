@@ -87,34 +87,25 @@ public class StateDeltasGroup
 
     public StateDeltasGroup(PlayerState initialState)
     {
-        LastState = initialState;
-
+        //LastState = initialState;
+        LastState = new PlayerState(initialState);
         //Debug.Log("inside stategroup constructor");
-
         // _playerController = playerController;
-
-
         // Vector3 startPosition = transform.position;
-
-
         //  staticID++;
         //  myID = staticID;
 
         GameObject TronTrailHolder = new GameObject("TronTrailHolder");
         _lineRenderer = TronTrailHolder.AddComponent<LineRenderer>();
         _lineRenderer.sortingLayerName = initialState.IsTrailInForeground ? "Player" : "RoomObjectsBehindPlayer";
-        _lineRenderer.sortingOrder = -10; //so that for example it is behind a portal effect
-
-
-        Color color = initialState.IsTrailCyan ? Color.cyan : Color.green;
-        _lineRenderer.startColor = _lineRenderer.endColor = color;
+        _lineRenderer.sortingOrder = -10; //so that for example it is behind a portal effect        
+        _lineRenderer.startColor = _lineRenderer.endColor = initialState.IsTrailCyan ? Color.cyan : Color.green;
         _lineRenderer.material = new Material(Shader.Find("Sprites/Default"));//or Shader.Find("Particles/Additive")); ?
         _lineRenderer.startWidth = _lineRenderer.endWidth = 0.5f;
 
 
-        //it is important that we first initialize the lineRenderer then add the initial state
-        //   AddState(initialState);
-
+       //it is important that we first initialize the lineRenderer then add the initial state
+//           AddState(initialState);
 
     }
 
@@ -171,7 +162,13 @@ public class StateDeltasGroup
         //   else
         //   {
 
-        _stateDeltas.Add(LastState.FindDeltasToState(state));
+        if(LastState==null)
+        {
+
+          //  _stateDeltas.Add(state.FindDeltasToState(state));//zero deltas
+        }
+        else
+            _stateDeltas.Add(LastState.FindDeltasToState(state));
 
         LastState = new PlayerState(state);
 
@@ -207,13 +204,16 @@ public class StateDeltasGroup
 
         //    Debug.Log("" + _lineRenderer.positionCount + " positions:");
 
+
+
+        //from most recent one to oldest one
         positions[positions.Length - 1] = LastState.position;
         int ii = positions.Length - 1;
         //     Debug.Log("position " + ii + " =" + positions[ii].ToString());
 
 
         PlayerState clone = new PlayerState(LastState);
-        for (int i = positions.Length - 2; i >= 0; i--) //from most recent one to oldest one
+        for (int i = positions.Length - 2; i >= 0; i--) 
         {
             //  Debug.Log("about to subtract deltas " + _stateDeltas[i].ToString());
             clone = PlayerState.SubtractFromPlayerState(clone, _stateDeltas[i]);
