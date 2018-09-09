@@ -16,7 +16,7 @@ public class PlayerLeftSideController : MonoBehaviour
         {
             Debug.Log("player left side exited sprite mask");
 
-            PlayerController.Instance.MyState.IsTrailInForeground = true;
+            PlayerController.Instance.CurrentState.IsTrailInForeground = true;
             PlayerController.Instance.StartNewTrail();
             //_playerController.StartForegroundTronTrail();
         }

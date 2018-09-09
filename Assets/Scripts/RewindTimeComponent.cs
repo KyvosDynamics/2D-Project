@@ -55,6 +55,10 @@ public class StateDeltasGroupManager
         _stateDeltasGroups.Add(CurrentStateGroup);
     }
 
+    internal void AddStateToCurrentGroup(PlayerState myState)
+    {
+        CurrentStateGroup.AddState(myState);
+    }
 }
 
 
@@ -68,25 +72,15 @@ public class StateDeltasGroup
     private LineRenderer _lineRenderer = null;
 
 
-    // public static int staticID = -1;
-    //public int myID;
-
-
     private const float Seconds = 2f;
 
-    //PlayerController _playerController;
 
 
 
     public StateDeltasGroup(PlayerState initialState)
     {
-        //LastState = initialState;
-        LastState = new PlayerState(initialState);
-        //Debug.Log("inside stategroup constructor");
-        // _playerController = playerController;
-        // Vector3 startPosition = transform.position;
-        //  staticID++;
-        //  myID = staticID;
+        LatestState = initialState;
+
 
         GameObject TronTrailHolder = new GameObject("TronTrailHolder");
         _lineRenderer = TronTrailHolder.AddComponent<LineRenderer>();
@@ -95,11 +89,6 @@ public class StateDeltasGroup
         _lineRenderer.startColor = _lineRenderer.endColor = initialState.IsTrailCyan ? Color.cyan : Color.green;
         _lineRenderer.material = new Material(Shader.Find("Sprites/Default"));//or Shader.Find("Particles/Additive")); ?
         _lineRenderer.startWidth = _lineRenderer.endWidth = 0.5f;
-
-
-        //it is important that we first initialize the lineRenderer then add the initial state
-        //           AddState(initialState);
-
     }
 
 
@@ -113,12 +102,12 @@ public class StateDeltasGroup
 
             PlayerStateDeltas psd = _stateDeltas[_stateDeltas.Count - 1];
 
-            LastState = PlayerState.SubtractFromPlayerState(LastState, psd);
+            LatestState = PlayerState.SubtractFromPlayerState(LatestState, psd);
 
 
 
 
-            PlayerController.Instance.PutPlayerInState(LastState);
+            PlayerController.Instance.PutPlayerInState(LatestState);
 
 
 
@@ -141,7 +130,7 @@ public class StateDeltasGroup
 
     public static int MaxNumOfStates = (int)Mathf.Round(Seconds / Time.fixedDeltaTime);
 
-    public PlayerState LastState;
+    public PlayerState LatestState;
 
 
     public void AddState(PlayerState state)// Vector3 position)
@@ -154,15 +143,17 @@ public class StateDeltasGroup
         //   else
         //   {
 
-        if (LastState == null)
-        {
+        //      if (LastState == null)
+        //    {
+        //
+        //      //  _stateDeltas.Add(state.FindDeltasToState(state));//zero deltas
+        // }
+        //else
 
-            //  _stateDeltas.Add(state.FindDeltasToState(state));//zero deltas
-        }
-        else
-            _stateDeltas.Add(LastState.FindDeltasToState(state));
 
-        LastState = new PlayerState(state);
+        _stateDeltas.Add(LatestState.FindDeltasToState(state));
+
+        LatestState = state;// new PlayerState(state);
 
 
 
@@ -199,12 +190,12 @@ public class StateDeltasGroup
 
 
         //from most recent one to oldest one
-        positions[positions.Length - 1] = LastState.position;
+        positions[positions.Length - 1] = LatestState.position;
         int ii = positions.Length - 1;
         //     Debug.Log("position " + ii + " =" + positions[ii].ToString());
 
 
-        PlayerState clone = new PlayerState(LastState);
+        PlayerState clone = new PlayerState(LatestState);
         for (int i = positions.Length - 2; i >= 0; i--)
         {
             //  Debug.Log("about to subtract deltas " + _stateDeltas[i].ToString());

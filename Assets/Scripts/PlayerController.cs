@@ -31,6 +31,7 @@ public class PlayerState
     public bool IsTrailCyan;
     public bool IsTrailInForeground;
 
+
     public PlayerState()
     {
     }
@@ -129,19 +130,7 @@ public class PlayerController : MonoBehaviour
     [HideInInspector]
     public SpriteRenderer SpriteRenderer;
 
-    internal void PutPlayerInState(PlayerState state)
-    {
-        MyState.position = state.position;
-        RefreshPlayerPosition();
-
-        MyState.PlayerColor = state.PlayerColor;
-        RefreshPlayerOnlyColor();
-
-        MyState.IsTrailInForeground = state.IsTrailInForeground;
-        MyState.IsTrailCyan = state.IsTrailCyan;
-        if (StateGroupManager.IsRewinding == false) //don't start new trail while we are rewinding!        
-            StartNewTrail();
-    }
+   
 
     [HideInInspector]
     public bool JumpFromGround = false;
@@ -169,7 +158,7 @@ public class PlayerController : MonoBehaviour
     private Vector3 _rightVectorWithMagnitude;
 
     public StateDeltasGroupManager StateGroupManager = new StateDeltasGroupManager();
-    public PlayerState MyState = new PlayerState();
+    public PlayerState CurrentState = new PlayerState();
 
 
     void Start()
@@ -191,20 +180,34 @@ public class PlayerController : MonoBehaviour
         _downVectorWithMagnitude = Vector3.down * (size.y / 2 + 0.01f); //don't mind the 0.01f
         _rightVectorWithMagnitude = Vector3.right * size.x / 2;
 
-        transform.position = new Vector3(6.28125f / 2, 1);
 
 
 
-        MyState.PlayerColor = PlayerColor.Cyan;// .IsCyan = true; //start cyan
+
+
+
+        CurrentState.position = new Vector3(6.28125f / 2, 1);
+        CurrentState.PlayerColor = PlayerColor.Cyan;
+        CurrentState.IsTrailCyan = true;
+        CurrentState.IsTrailInForeground = true;
+
+        RefreshPlayerPosition();
         RefreshPlayerOnlyColor();
-        MyState.IsTrailCyan = true;
-        MyState.IsTrailInForeground = true;
         StartNewTrail();
-
-
-        //CurrentStateGroup = new StateGroup(transform, this, transform.position, IsCyan, true);
     }
 
+    internal void PutPlayerInState(PlayerState state)
+    {
+        CurrentState.position = state.position;
+        CurrentState.PlayerColor = state.PlayerColor;
+        CurrentState.IsTrailInForeground = state.IsTrailInForeground;
+        CurrentState.IsTrailCyan = state.IsTrailCyan;
+
+        RefreshPlayerPosition();
+        RefreshPlayerOnlyColor();
+        if (StateGroupManager.IsRewinding == false) //don't start new trail while we are rewinding!        
+            StartNewTrail();
+    }
 
     void FixedUpdate()
     {
@@ -282,7 +285,6 @@ public class PlayerController : MonoBehaviour
 
 
 
-        MyState.position = transform.position;
 
 
         if (_switchcolor)
@@ -290,27 +292,32 @@ public class PlayerController : MonoBehaviour
             _switchcolor = false;
 
             //before we start the new one inform the previous one about the latest position state
-            CloseCurrentTrail();
+            PlayerState lastStateOfPreviousTrail = new PlayerState(CurrentState); //important: we do not set it to the original state but we create a clone
+            lastStateOfPreviousTrail.position = transform.position;
+            CloseCurrentTrail(lastStateOfPreviousTrail);
 
 
-            if (MyState.PlayerColor == PlayerColor.Cyan)
-                MyState.PlayerColor = PlayerColor.Green;
-            else if (MyState.PlayerColor == PlayerColor.Green)
-                MyState.PlayerColor = PlayerColor.Cyan;
+            CurrentState.position = transform.position;
+
+            if (CurrentState.PlayerColor == PlayerColor.Cyan)
+                CurrentState.PlayerColor = PlayerColor.Green;
+            else if (CurrentState.PlayerColor == PlayerColor.Green)
+                CurrentState.PlayerColor = PlayerColor.Cyan;
             //else transparent!
 
-            RefreshPlayerOnlyColor();
+            CurrentState.IsTrailCyan = !CurrentState.IsTrailCyan;
 
-            MyState.IsTrailCyan = !MyState.IsTrailCyan;
+            RefreshPlayerPosition();
+            RefreshPlayerOnlyColor();
             StartNewTrail(); //there is no such thing as refresh the trail, instead it starts a new one
 
         }
         else
         {//continue with the same stategroup
-            StateGroupManager.CurrentStateGroup.AddState(MyState);
+            CurrentState.position = transform.position;
+
+            StateGroupManager.AddStateToCurrentGroup(new PlayerState(CurrentState)); //important: we do not pass the original state but a clone
         }
-
-
 
 
     }
@@ -324,13 +331,13 @@ public class PlayerController : MonoBehaviour
 
     public void RefreshPlayerPosition()
     {
-        transform.position = MyState.position;
+        transform.position = CurrentState.position;
     }
     public void RefreshPlayerOnlyColor()
     {//this does not instatiate a new trail, it doesn't affect the trail
 
         Color color;
-        switch (MyState.PlayerColor)
+        switch (CurrentState.PlayerColor)
         {
             case PlayerColor.Cyan:
                 color = Color.cyan;
@@ -347,18 +354,15 @@ public class PlayerController : MonoBehaviour
     }
 
 
-    public void CloseCurrentTrail()
-    {
-        
-      //  if (StateGroupManager.CurrentStateGroup != null) //it can be null the first time we call this method
-            StateGroupManager.CurrentStateGroup.AddState(MyState);
 
+    public void CloseCurrentTrail(PlayerState lastState)
+    {
+        StateGroupManager.AddStateToCurrentGroup(lastState);
     }
 
     public void StartNewTrail()
     {
-
-        StateGroupManager.StartNewStateGroup(MyState);
+        StateGroupManager.StartNewStateGroup(new PlayerState( CurrentState)); //important: we do not pass the original state but a clone
     }
 
 
@@ -418,12 +422,12 @@ public class PlayerController : MonoBehaviour
         switch (collision.gameObject.tag)
         {
             case "CyanSaw":
-                if (MyState.PlayerColor == PlayerColor.Green)//  .IsCyan)
+                if (CurrentState.PlayerColor == PlayerColor.Green)//  .IsCyan)
                     TryToKillPlayer();
                 break;
 
             case "GreenSaw":
-                if (MyState.PlayerColor == PlayerColor.Cyan)// .IsCyan)
+                if (CurrentState.PlayerColor == PlayerColor.Cyan)// .IsCyan)
                     TryToKillPlayer();
                 break;
 
