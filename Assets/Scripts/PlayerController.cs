@@ -130,7 +130,7 @@ public class PlayerController : MonoBehaviour
     [HideInInspector]
     public SpriteRenderer SpriteRenderer;
 
-   
+
 
     [HideInInspector]
     public bool JumpFromGround = false;
@@ -185,29 +185,19 @@ public class PlayerController : MonoBehaviour
 
 
 
+        PlayerState state = new PlayerState();
+        state.position = new Vector3(6.28125f / 2, 1);
+        state.PlayerColor = PlayerColor.Cyan;
+        state.IsTrailCyan = true;
+        state.IsTrailInForeground = true;
 
-        CurrentState.position = new Vector3(6.28125f / 2, 1);
-        CurrentState.PlayerColor = PlayerColor.Cyan;
-        CurrentState.IsTrailCyan = true;
-        CurrentState.IsTrailInForeground = true;
 
-        RefreshPlayerPosition();
-        RefreshPlayerOnlyColor();
-        StartNewTrail();
+        PutPlayerInState(state);
     }
 
-    internal void PutPlayerInState(PlayerState state)
-    {
-        CurrentState.position = state.position;
-        CurrentState.PlayerColor = state.PlayerColor;
-        CurrentState.IsTrailInForeground = state.IsTrailInForeground;
-        CurrentState.IsTrailCyan = state.IsTrailCyan;
+  
 
-        RefreshPlayerPosition();
-        RefreshPlayerOnlyColor();
-        if (StateGroupManager.IsRewinding == false) //don't start new trail while we are rewinding!        
-            StartNewTrail();
-    }
+    
 
     void FixedUpdate()
     {
@@ -297,33 +287,50 @@ public class PlayerController : MonoBehaviour
             CloseCurrentTrail(lastStateOfPreviousTrail);
 
 
-            CurrentState.position = transform.position;
+
+
+            PlayerState newState = new PlayerState(CurrentState); //important: we do not set it to the original state but we create a clone
+
+            newState.position = transform.position;
 
             if (CurrentState.PlayerColor == PlayerColor.Cyan)
-                CurrentState.PlayerColor = PlayerColor.Green;
+                newState.PlayerColor = PlayerColor.Green;
             else if (CurrentState.PlayerColor == PlayerColor.Green)
-                CurrentState.PlayerColor = PlayerColor.Cyan;
+                newState.PlayerColor = PlayerColor.Cyan;
             //else transparent!
 
-            CurrentState.IsTrailCyan = !CurrentState.IsTrailCyan;
+            newState.IsTrailCyan = !CurrentState.IsTrailCyan;
 
-            RefreshPlayerPosition();
-            RefreshPlayerOnlyColor();
-            StartNewTrail(); //there is no such thing as refresh the trail, instead it starts a new one
+            PutPlayerInState(newState);
+
 
         }
         else
         {//continue with the same stategroup
-            CurrentState.position = transform.position;
 
-            StateGroupManager.AddStateToCurrentGroup(new PlayerState(CurrentState)); //important: we do not pass the original state but a clone
+            PlayerState state = new PlayerState(CurrentState); //important: we do not set it to the original state but we create a clone
+            state.position = transform.position;
+            CurrentState = state;
+            StateGroupManager.AddStateToCurrentGroup(state);
         }
 
 
     }
 
 
+    internal void PutPlayerInState(PlayerState state)
+    {
+        CurrentState = state;
+        //     CurrentState.position = state.position;
+        //  CurrentState.PlayerColor = state.PlayerColor;
+        //  CurrentState.IsTrailInForeground = state.IsTrailInForeground;
+        //  CurrentState.IsTrailCyan = state.IsTrailCyan;
 
+        RefreshPlayerPosition();
+        RefreshPlayerOnlyColor();
+        if (StateGroupManager.IsRewinding == false) //don't start new trail while we are rewinding!        
+            StartNewTrail(); //there is no such thing as refresh the trail, instead it starts a new one
+    }
 
 
 
@@ -362,7 +369,7 @@ public class PlayerController : MonoBehaviour
 
     public void StartNewTrail()
     {
-        StateGroupManager.StartNewStateGroup(new PlayerState( CurrentState)); //important: we do not pass the original state but a clone
+        StateGroupManager.StartNewStateGroup(new PlayerState(CurrentState)); //important: we do not pass the original state but a clone
     }
 
 
