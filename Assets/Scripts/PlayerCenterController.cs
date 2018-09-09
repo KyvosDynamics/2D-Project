@@ -18,7 +18,7 @@ public class PlayerCenterController : MonoBehaviour
             //_playerController.StartBackgroundTronTrail();
 
             PlayerController.Instance.CurrentState.IsTrailInForeground = false; //because we don't want the trail to pass on top of the portal effect!
-            PlayerController.Instance.StartNewTrail();
+//temporarily disabled            PlayerController.Instance.StartNewTrail();
 
         }
     }
