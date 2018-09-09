@@ -318,17 +318,47 @@ public class PlayerController : MonoBehaviour
     }
 
 
-    internal void PutPlayerInState(PlayerState state)
-    {
-        CurrentState = state;
-        //     CurrentState.position = state.position;
-        //  CurrentState.PlayerColor = state.PlayerColor;
-        //  CurrentState.IsTrailInForeground = state.IsTrailInForeground;
-        //  CurrentState.IsTrailCyan = state.IsTrailCyan;
 
-        RefreshPlayerPosition();
-        RefreshPlayerOnlyColor();
-        if (StateGroupManager.IsRewinding == false) //don't start new trail while we are rewinding!        
+
+    internal void PutPlayerInState(PlayerState newState)
+    {
+        //find what changed
+        bool playerPositionChanged = false;
+        bool playerColorChanged = false;
+        bool trailChanged = false;
+
+
+        if (CurrentState.position.x!= newState.position.x
+            || CurrentState.position.y != newState.position.y
+               || CurrentState.position.z != newState.position.z
+            //!= newState.position
+            )
+            playerPositionChanged = true;
+        if (CurrentState.PlayerColor != newState.PlayerColor)
+            playerColorChanged = true;
+        if (CurrentState.IsTrailCyan != newState.IsTrailCyan
+            || CurrentState.IsTrailInForeground != newState.IsTrailInForeground
+            )
+            trailChanged = true;
+
+        CurrentState = newState;
+
+
+        if(playerPositionChanged)
+            RefreshPlayerPosition();
+//        else
+  //      {
+    //        if(StateGroupManager.IsRewinding)
+      //      {
+        //        Debug.Log(CurrentState.position.ToString() + "     " + newState.position.ToString());
+          //  }
+        //}
+
+        if(playerColorChanged)
+            RefreshPlayerOnlyColor();
+        if (StateGroupManager.IsRewinding == false  //don't start new trail while we are rewinding!        
+            && trailChanged
+            )
             StartNewTrail(); //there is no such thing as refresh the trail, instead it starts a new one
     }
 

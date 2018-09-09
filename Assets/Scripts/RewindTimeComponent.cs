@@ -107,7 +107,7 @@ public class StateDeltasGroup
 
 
 
-            PlayerController.Instance.PutPlayerInState(LatestState);
+            PlayerController.Instance.PutPlayerInState(new PlayerState( LatestState));
 
 
 
