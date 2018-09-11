@@ -73,16 +73,13 @@ public class StateDeltasGroup
     private LineRenderer _lineRenderer = null;
 
 
-    private const float Seconds = 2f;
+    private const float Seconds = 12f;
 
 
 
 
     public StateDeltasGroup(PlayerState initialState)
     {
-        // LatestState = initialState;
-
-
         GameObject TronTrailHolder = new GameObject("TronTrailHolder");
         _lineRenderer = TronTrailHolder.AddComponent<LineRenderer>();
         _lineRenderer.sortingLayerName = initialState.IsTrailInForeground ? "Player" : "RoomObjectsBehindPlayer";
@@ -131,7 +128,6 @@ public class StateDeltasGroup
 
     public static int MaxNumOfStates = (int)Mathf.Round(Seconds / Time.fixedDeltaTime);
 
-    //public PlayerState LatestState;
 
 
     public void AddState(PlayerState newState)// Vector3 position)
@@ -153,8 +149,8 @@ public class StateDeltasGroup
 
         _stateDeltas.Add(PlayerController.Instance.CurrentState.FindDeltasToState(newState));
 
-        //   LatestState = state;// new PlayerState(state);
 
+        //   LatestState = state;// new PlayerState(state);
 
         //it records one state per fixedupdate
         //time between fixedupdate calls is Time.fixedDeltaTime seconds

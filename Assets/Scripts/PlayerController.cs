@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
-public enum DeltaName { TrailCyan, TrailInForeground, X, Y, PlayerColor };
+public enum DeltaName { TrailCyan, TrailInForeground, X, Y, PlayerColor, SpeedX, SpeedY };
 public struct FieldDelta
 {
     public DeltaName DeltaName;
@@ -12,7 +12,6 @@ public struct FieldDelta
 
 public class PlayerStateDeltas
 {
-
 
     public void AddFieldDelta(FieldDelta fieldDelta)
     {
@@ -27,6 +26,7 @@ public enum PlayerColor { Transparent, Cyan, Green }
 public class PlayerState
 {
     public Vector3 Position;
+    public Vector3 Velocity;
     public PlayerColor PlayerColor;
     public bool IsTrailCyan;
     public bool IsTrailInForeground;
@@ -40,6 +40,7 @@ public class PlayerState
     {//for cloning purposes
 
         Position = playerState.Position;
+        Velocity = playerState.Velocity;
         PlayerColor = playerState.PlayerColor;
         IsTrailCyan = playerState.IsTrailCyan;
         IsTrailInForeground = playerState.IsTrailInForeground;
@@ -69,6 +70,12 @@ public class PlayerState
                     break;
                 case DeltaName.Y:
                     clone.Position.y -= (float)fd.DeltaValue;
+                    break;
+                case DeltaName.SpeedX:
+                    clone.Velocity.x -= (float)fd.DeltaValue;
+                    break;
+                case DeltaName.SpeedY:
+                    clone.Velocity.y -= (float)fd.DeltaValue;
                     break;
             }
 
@@ -116,6 +123,20 @@ public class PlayerState
             fd.DeltaValue = state.Position.y - Position.y;
             result.AddFieldDelta(fd);
         }
+        if (Velocity.x != state.Velocity.x)
+        {
+            FieldDelta fd = new FieldDelta();
+            fd.DeltaName = DeltaName.SpeedX;
+            fd.DeltaValue = state.Velocity.x - Velocity.x;
+            result.AddFieldDelta(fd);
+        }
+        if (Velocity.y != state.Velocity.y)
+        {
+            FieldDelta fd = new FieldDelta();
+            fd.DeltaName = DeltaName.SpeedY;
+            fd.DeltaValue = state.Velocity.y - Velocity.y;
+            result.AddFieldDelta(fd);
+        }
 
         return result;
     }
@@ -129,11 +150,8 @@ public class PlayerController : MonoBehaviour
     [HideInInspector]
     public Dictionary<PowerUpType, PowerUp> CollectedPowerUps = new Dictionary<PowerUpType, PowerUp>();
 
-
     [HideInInspector]
     public SpriteRenderer SpriteRenderer;
-
-
 
     [HideInInspector]
     public bool JumpFromGround = false;
@@ -164,6 +182,7 @@ public class PlayerController : MonoBehaviour
     public PlayerState CurrentState = new PlayerState();
 
 
+
     void Start()
     {
         Instance = this;
@@ -182,8 +201,6 @@ public class PlayerController : MonoBehaviour
 
         _downVectorWithMagnitude = Vector3.down * (size.y / 2 + 0.01f); //don't mind the 0.01f
         _rightVectorWithMagnitude = Vector3.right * size.x / 2;
-
-
 
 
 
@@ -217,7 +234,7 @@ public class PlayerController : MonoBehaviour
             //Debug.Log("trying to kill player because y<-5, isrewinding=" + StateGroupManager.IsRewinding + "   stategroupid=" + StateGroupManager.CurrentStateGroup.myID);
 
 
-          //  CurrentState.position = transform.position;
+            //  CurrentState.position = transform.position;
             TryToKillPlayer();// PlayerWasKilled();
             return;
         }
@@ -247,7 +264,9 @@ public class PlayerController : MonoBehaviour
 
 
 
+
         float yVel = _rigidbody.velocity.y;
+
         if (_jumpFromPonger)
         {
             _jumpFromPonger = false;
@@ -271,7 +290,8 @@ public class PlayerController : MonoBehaviour
         }
 
 
-        _rigidbody.velocity = new Vector2(Speed, yVel);
+        Vector2 velocity = new Vector2(Speed, yVel);
+        //_rigidbody.velocity = velocity;
 
 
 
@@ -282,22 +302,12 @@ public class PlayerController : MonoBehaviour
 
         PlayerState newState = new PlayerState(CurrentState);
         newState.Position = transform.position;
+        newState.Velocity = velocity;
 
 
         if (_switchcolor)
         {//should create new stategroup
             _switchcolor = false;
-
-
-            /*
-            //before we start the new one inform the previous one about the latest position state
-            PlayerState lastStateOfPreviousTrail = new PlayerState(CurrentState); //important: we do not set it to the original state but we create a clone
-            lastStateOfPreviousTrail.position = transform.position;
-            //CloseCurrentTrail(lastStateOfPreviousTrail);
-            StateGroupManager.AddStateToCurrentGroup(lastStateOfPreviousTrail);
-
-            PlayerState newState = new PlayerState(CurrentState); //important: we do not set it to the original state but we create a clone
-            newState.position = transform.position;*/
 
             if (newState.PlayerColor == PlayerColor.Cyan)
                 newState.PlayerColor = PlayerColor.Green;
@@ -307,22 +317,9 @@ public class PlayerController : MonoBehaviour
 
             newState.IsTrailCyan = !newState.IsTrailCyan;
 
-
-            //PutPlayerInState(newState);
-
         }
-        //    else
-        //  {//continue with the same stategroup
-
-        /*
-        PlayerState newState = new PlayerState(CurrentState); //important: we do not set it to the original state but we create a clone
-        newState.position = transform.position;
 
 
-        CurrentState = newState;
-        //PutPlayerInState(newState);
-        */
-        //  }
 
 
         PutPlayerInState(newState);
@@ -331,27 +328,28 @@ public class PlayerController : MonoBehaviour
 
 
 
-    internal void PutPlayerInState(PlayerState newState, bool force = false)
+    internal void PutPlayerInState(PlayerState newState, bool force = false) //when force is true it sets everything no matter what changed (useful for initialization)
     {
         //find what changed
         bool playerPositionChanged = false;
+        bool playerVelocityChanged = false;
         bool playerColorChanged = false;
         bool trailChanged = false;
 
-
-        if (CurrentState.Position.x != newState.Position.x
-            || CurrentState.Position.y != newState.Position.y
-               || CurrentState.Position.z != newState.Position.z
-            //!= newState.position
-            )
+        if (CurrentState.Position!=newState.Position)
             playerPositionChanged = true;
+
+        if (CurrentState.Velocity != newState.Velocity)
+            playerVelocityChanged = true;
 
         if (CurrentState.PlayerColor != newState.PlayerColor)
             playerColorChanged = true;
 
-        if (CurrentState.IsTrailCyan != newState.IsTrailCyan
-            || CurrentState.IsTrailInForeground != newState.IsTrailInForeground
-            )
+        if (
+            CurrentState.IsTrailCyan != newState.IsTrailCyan
+            || 
+            CurrentState.IsTrailInForeground != newState.IsTrailInForeground
+           )
             trailChanged = true;
 
 
@@ -359,52 +357,31 @@ public class PlayerController : MonoBehaviour
 
         if (playerPositionChanged || force)
             RefreshPlayerPosition(newState);
-        //        else
-        //      {
-        //        if(StateGroupManager.IsRewinding)
-        //      {
-        //        Debug.Log(CurrentState.position.ToString() + "     " + newState.position.ToString());
-        //  }
-        //}
+
+        if (playerVelocityChanged || force)
+            RefreshPlayerVelocity(newState);
+
 
         if (playerColorChanged || force)
             RefreshPlayerOnlyColor(newState);
 
 
-        if (StateGroupManager.IsRewinding == false)
+
+
+
+        if (StateGroupManager.IsRewinding == false) //(don't add state while we are rewinding)
         {
+            StateGroupManager.AddStateToCurrentGroup(newState); //add the new state
+            //(it is important that we first add the state to the current group and then start a new group is necessary
+
+
             if (trailChanged || force)
-            {
-
-              //  PlayerState temp = new PlayerState(CurrentState);
-                //temp.Position = newState.Position;//temp has old trail features but the new position
-
-                //CurrentState.position = newState.position; 
-                StateGroupManager.AddStateToCurrentGroup(newState);//to close the current trail  //                CloseCurrentTrail(CurrentState);
-
-                //StartNewTrail(newState); //there is no such thing as refresh the trail, instead it starts a new one
-
-                //start new trail:
-                StateGroupManager.StartNewStateGroup(newState);// new PlayerState(CurrentState)); //important: we do not pass the original state but a clone
-
-            }
-            else
-            {
-                StateGroupManager.AddStateToCurrentGroup(newState);
-
+            { //there's no such thing as refresh the trail, we must start a new one:
+                StateGroupManager.StartNewStateGroup(newState);
             }
         }
 
 
-        if (StateGroupManager.IsRewinding == false  //don't start new trail while we are rewinding!        
-            && trailChanged
-            )
-        {
-        }
-        else
-        {
-
-        }
 
 
         CurrentState = new PlayerState(newState);
@@ -414,11 +391,17 @@ public class PlayerController : MonoBehaviour
 
 
 
-    public void RefreshPlayerPosition(PlayerState newState)
+
+    private void RefreshPlayerPosition(PlayerState newState)
     {
         transform.position = newState.Position;
     }
-    public void RefreshPlayerOnlyColor(PlayerState newState)
+    private void RefreshPlayerVelocity(PlayerState newState)
+    {
+        _rigidbody.velocity = newState.Velocity;       
+    }
+
+    private void RefreshPlayerOnlyColor(PlayerState newState)
     {//this does not instatiate a new trail, it doesn't affect the trail
 
         Color color;
@@ -440,13 +423,6 @@ public class PlayerController : MonoBehaviour
 
 
 
-    //    public void CloseCurrentTrail(PlayerState lastState)
-    //  {
-    // }
-
-//    public void StartNewTrail(PlayerState newState)
-  //  {
-    //}
 
 
 
