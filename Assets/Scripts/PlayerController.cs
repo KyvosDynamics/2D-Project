@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
-public enum DeltaName { TrailCyan, TrailInForeground, X, Y, PlayerColor, SpeedX, SpeedY };
+public enum DeltaName { TrailCyan, TrailInForeground, X, Y, PlayerColor, SpeedX, SpeedY };//,PowerUps};
 public struct FieldDelta
 {
     public DeltaName DeltaName;
@@ -29,7 +29,8 @@ public class PlayerState
     public Vector3 Velocity;
     public PlayerColor PlayerColor;
     public bool IsTrailCyan;
-    public bool IsTrailInForeground;
+    public bool IsTrailInForeground;    
+    public Dictionary<PowerUpType, PowerUp> CollectedPowerUps = new Dictionary<PowerUpType, PowerUp>();
 
 
     public PlayerState()
@@ -44,6 +45,7 @@ public class PlayerState
         PlayerColor = playerState.PlayerColor;
         IsTrailCyan = playerState.IsTrailCyan;
         IsTrailInForeground = playerState.IsTrailInForeground;
+        CollectedPowerUps = playerState.CollectedPowerUps;
     }
 
 
@@ -137,6 +139,13 @@ public class PlayerState
             fd.DeltaValue = state.Velocity.y - Velocity.y;
             result.AddFieldDelta(fd);
         }
+   //    if(CollectedPowerUps.GetHashCode() != state.CollectedPowerUps.GetHashCode() )
+     //   {
+       //     FieldDelta fd = new FieldDelta();
+         //   fd.DeltaName = DeltaName.PowerUps;
+         //   //for the powerups we don't really use a delta but the actual values
+           // //fd.DeltaValue=
+        //}
 
         return result;
     }
@@ -146,17 +155,18 @@ public class PlayerState
 public class PlayerController : MonoBehaviour
 {
     public static PlayerController Instance = null;
-
-    [HideInInspector]
-    public Dictionary<PowerUpType, PowerUp> CollectedPowerUps = new Dictionary<PowerUpType, PowerUp>();
-
+  
     [HideInInspector]
     public SpriteRenderer SpriteRenderer;
 
     [HideInInspector]
     public bool JumpFromGround = false;
 
+    [HideInInspector]
+    public StateDeltasGroupManager StateGroupManager = new StateDeltasGroupManager();
 
+    [HideInInspector]
+    public PlayerState CurrentState = new PlayerState();
 
     public float Speed;
     public LayerMask GroundLayer;
@@ -178,8 +188,6 @@ public class PlayerController : MonoBehaviour
     private Vector3 _downVectorWithMagnitude;
     private Vector3 _rightVectorWithMagnitude;
 
-    public StateDeltasGroupManager StateGroupManager = new StateDeltasGroupManager();
-    public PlayerState CurrentState = new PlayerState();
 
 
 
@@ -290,8 +298,6 @@ public class PlayerController : MonoBehaviour
         }
 
 
-        Vector2 velocity = new Vector2(Speed, yVel);
-        //_rigidbody.velocity = velocity;
 
 
 
@@ -302,7 +308,7 @@ public class PlayerController : MonoBehaviour
 
         PlayerState newState = new PlayerState(CurrentState);
         newState.Position = transform.position;
-        newState.Velocity = velocity;
+        newState.Velocity = new Vector2(Speed, yVel);
 
 
         if (_switchcolor)
@@ -336,7 +342,7 @@ public class PlayerController : MonoBehaviour
         bool playerColorChanged = false;
         bool trailChanged = false;
 
-        if (CurrentState.Position!=newState.Position)
+        if (CurrentState.Position != newState.Position)
             playerPositionChanged = true;
 
         if (CurrentState.Velocity != newState.Velocity)
@@ -347,7 +353,7 @@ public class PlayerController : MonoBehaviour
 
         if (
             CurrentState.IsTrailCyan != newState.IsTrailCyan
-            || 
+            ||
             CurrentState.IsTrailInForeground != newState.IsTrailInForeground
            )
             trailChanged = true;
@@ -398,7 +404,7 @@ public class PlayerController : MonoBehaviour
     }
     private void RefreshPlayerVelocity(PlayerState newState)
     {
-        _rigidbody.velocity = newState.Velocity;       
+        _rigidbody.velocity = newState.Velocity;
     }
 
     private void RefreshPlayerOnlyColor(PlayerState newState)
@@ -444,8 +450,8 @@ public class PlayerController : MonoBehaviour
                 _jumpFromWall = true;
             else
             {//it may still be possible to jump if we have the doublejump powerup
-                if (CollectedPowerUps.ContainsKey(PowerUpType.DoubleJump))
-                    CollectedPowerUps[PowerUpType.DoubleJump].Activate();
+                if (CurrentState. CollectedPowerUps.ContainsKey(PowerUpType.DoubleJump))
+                    CurrentState.CollectedPowerUps[PowerUpType.DoubleJump].Activate();
             }
         }
     }
@@ -456,13 +462,13 @@ public class PlayerController : MonoBehaviour
 
         Debug.Log("trying to kill player");
 
-        if (CollectedPowerUps.ContainsKey(PowerUpType.Ghost))
+        if (CurrentState.CollectedPowerUps.ContainsKey(PowerUpType.Ghost))
         {//we are a ghost, we cannot be killed! But we lose that ability now
-            CollectedPowerUps[PowerUpType.Ghost].Deactivate();
+            CurrentState.CollectedPowerUps[PowerUpType.Ghost].Deactivate();
         }
-        else if (CollectedPowerUps.ContainsKey(PowerUpType.RewindTime))
+        else if (CurrentState.CollectedPowerUps.ContainsKey(PowerUpType.RewindTime))
         {//we are not a ghost and we can be killed BUT we can rewind time ;)
-            CollectedPowerUps[PowerUpType.RewindTime].Activate();
+            CurrentState.CollectedPowerUps[PowerUpType.RewindTime].Activate();
         }
         else //no powerups are protecting us from death
             PlayerWasKilled();
@@ -511,13 +517,13 @@ public class PlayerController : MonoBehaviour
                     string secondpart = collision.gameObject.tag.Substring(8); //(to remove the PowerUp_ string from the tag)
 
                     PowerUpType poweruptype = (PowerUpType)Enum.Parse(typeof(PowerUpType), secondpart);
-                    if (CollectedPowerUps.ContainsKey(poweruptype)) //we already have this powerup
+                    if (CurrentState.CollectedPowerUps.ContainsKey(poweruptype)) //we already have this powerup
                         return;
 
                     var powerupHandle = Activator.CreateInstance(null, secondpart + "PowerUp"); //(by convention we name the class as the powerup tag +"PowerUp", eg GhostPowerUp)
                     PowerUp powerup = (PowerUp)powerupHandle.Unwrap();
 
-                    CollectedPowerUps.Add(poweruptype, powerup);
+                    CurrentState.CollectedPowerUps.Add(poweruptype, powerup);
 
                     GameObject uiImage = GameObject.Find("UIcanvas").transform.Find(secondpart + "Image").gameObject; //(by convention we name the image as the powerup tag +"Image", eg GhostImage)
                     uiImage.SetActive(true);
@@ -608,7 +614,7 @@ public class PowerUp
 
     private void Remove()
     {
-        PlayerController.Instance.CollectedPowerUps.Remove(mytype);
+        PlayerController.Instance.CurrentState.CollectedPowerUps.Remove(mytype);
         GameObject uiImage = GameObject.Find("UIcanvas").transform.Find(mytype.ToString() + "Image").gameObject; //(by convention we name the image as the powerup tag +"Image", eg GhostImage)
         uiImage.SetActive(false);
     }
