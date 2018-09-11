@@ -3,22 +3,22 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
-public enum DeltaName { TrailCyan, TrailInForeground, X, Y, PlayerColor, SpeedX, SpeedY };//,PowerUps};
-public struct FieldDelta
+public enum ChangedFieldName { Position, Velocity, PlayerColor, IsTrailCyan, IsTrailInForeground };// TrailCyan, TrailInForeground, X, Y, PlayerColor, SpeedX, SpeedY };//,PowerUps};
+public struct ChangedField
 {
-    public DeltaName DeltaName;
-    public object DeltaValue;
+    public ChangedFieldName ChangedFieldName;
+    public object OldValue;
 }
 
-public class PlayerStateDeltas
+public class ChangedFieldsCollection
 {
 
-    public void AddFieldDelta(FieldDelta fieldDelta)
+    public void AddChangedField(ChangedField fieldDelta)
     {
-        ChangedValues.Add(fieldDelta);
+        ChangedFields.Add(fieldDelta);
     }
 
-    public List<FieldDelta> ChangedValues = new List<FieldDelta>();
+    public List<ChangedField> ChangedFields = new List<ChangedField>();
 }
 
 public enum PlayerColor { Transparent, Cyan, Green }
@@ -49,36 +49,36 @@ public class PlayerState
     }
 
 
-    internal PlayerState SubtractFromPlayerState(PlayerStateDeltas stateDeltas)
+    internal PlayerState RetrievePreviousState(ChangedFieldsCollection cfc)
     {//it doesn't affect the original object, it creates a clone
 
         PlayerState clone = new PlayerState(this);
 
-        foreach (FieldDelta fd in stateDeltas.ChangedValues)
+        foreach (ChangedField cf in cfc.ChangedFields)
         {
-            switch (fd.DeltaName)
+            switch (cf.ChangedFieldName)
             {
-                case DeltaName.TrailCyan:
-                    clone.IsTrailCyan = !clone.IsTrailCyan;
+                case ChangedFieldName.IsTrailCyan:// .TrailCyan:
+                    clone.IsTrailCyan =(bool) cf.OldValue;// = !clone.IsTrailCyan;
                     break;
-                case DeltaName.PlayerColor:
-                    clone.PlayerColor -= (int)fd.DeltaValue;
+                case ChangedFieldName.PlayerColor:
+                    clone.PlayerColor = (PlayerColor)cf.OldValue;// -= (int)fd.OldValue;
                     break;
-                case DeltaName.TrailInForeground:
-                    clone.IsTrailInForeground = !clone.IsTrailInForeground;
+                case ChangedFieldName.IsTrailInForeground:// .TrailInForeground:
+                    clone.IsTrailInForeground =(bool) cf.OldValue;// !clone.IsTrailInForeground;
                     break;
-                case DeltaName.X:
-                    clone.Position.x -= (float)fd.DeltaValue;
+                case ChangedFieldName.Position:// .X:
+                    clone.Position = (Vector3)cf.OldValue;
                     break;
-                case DeltaName.Y:
-                    clone.Position.y -= (float)fd.DeltaValue;
+                //case ChangedFieldName.Y:
+                //  clone.Position.y = (float)cf.OldValue;
+                // break;
+                case ChangedFieldName.Velocity:// .SpeedX:
+                    clone.Velocity = (Vector3)cf.OldValue;
                     break;
-                case DeltaName.SpeedX:
-                    clone.Velocity.x -= (float)fd.DeltaValue;
-                    break;
-                case DeltaName.SpeedY:
-                    clone.Velocity.y -= (float)fd.DeltaValue;
-                    break;
+                //case ChangedFieldName.SpeedY:
+                 //   clone.Velocity.y = (float)cf.OldValue;
+                   // break;
             }
 
         }
@@ -86,59 +86,61 @@ public class PlayerState
         return clone;
     }
 
-    internal PlayerStateDeltas FindDeltasToState(PlayerState state)
+    internal ChangedFieldsCollection FindDeltasToState(PlayerState state)
     {
-        PlayerStateDeltas result = new PlayerStateDeltas();
+        ChangedFieldsCollection result = new ChangedFieldsCollection();
 
         if (IsTrailCyan != state.IsTrailCyan)
         {
-            FieldDelta fd = new FieldDelta();
-            fd.DeltaName = DeltaName.TrailCyan;
+            ChangedField fd = new ChangedField();
+            fd.ChangedFieldName = ChangedFieldName.IsTrailCyan;// .TrailCyan;
             //no need to specify deltavalue for boolean
-            result.AddFieldDelta(fd);
+            fd.OldValue = IsTrailCyan;
+            result.AddChangedField(fd);
         }
         if (PlayerColor != state.PlayerColor)// IsCyan != state.IsCyan)
         {
-            FieldDelta fd = new FieldDelta();
-            fd.DeltaName = DeltaName.PlayerColor;// = FieldNames.Cyan;
-            fd.DeltaValue = state.PlayerColor - PlayerColor;
-            result.AddFieldDelta(fd);
+            ChangedField fd = new ChangedField();
+            fd.ChangedFieldName = ChangedFieldName.PlayerColor;// = FieldNames.Cyan;
+            fd.OldValue = PlayerColor;
+            result.AddChangedField(fd);
         }
         if (IsTrailInForeground != state.IsTrailInForeground)
         {
-            FieldDelta fd = new FieldDelta();
-            fd.DeltaName = DeltaName.TrailInForeground;
+            ChangedField fd = new ChangedField();
+            fd.ChangedFieldName = ChangedFieldName.IsTrailInForeground;// .TrailInForeground;
             //no need to specify deltavalue for boolean
-            result.AddFieldDelta(fd);
+            fd.OldValue = IsTrailInForeground;
+            result.AddChangedField(fd);
         }
-        if (Position.x != state.Position.x)
+        if (Position!=state.Position)// != state.Position.x)
         {
-            FieldDelta fd = new FieldDelta();
-            fd.DeltaName = DeltaName.X;
-            fd.DeltaValue = state.Position.x - Position.x;
-            result.AddFieldDelta(fd);
+            ChangedField fd = new ChangedField();
+            fd.ChangedFieldName = ChangedFieldName.Position;// ChangedFieldName.X;
+            fd.OldValue = Position;// state.Position.x - Position.x;
+            result.AddChangedField(fd);
         }
-        if (Position.y != state.Position.y)
+    //    if (Position.y != state.Position.y)
+      //  {
+        //    ChangedField fd = new ChangedField();
+         //   fd.ChangedFieldName = ChangedFieldName.Y;
+          //  fd.OldValue =  Position.y;
+           // result.AddChangedField(fd);
+       // }
+        if (Velocity!= state.Velocity)// .x != state.Velocity.x)
         {
-            FieldDelta fd = new FieldDelta();
-            fd.DeltaName = DeltaName.Y;
-            fd.DeltaValue = state.Position.y - Position.y;
-            result.AddFieldDelta(fd);
+            ChangedField fd = new ChangedField();
+            fd.ChangedFieldName = ChangedFieldName.Velocity;//  ChangedFieldName.SpeedX;
+            fd.OldValue = Velocity;
+            result.AddChangedField(fd);
         }
-        if (Velocity.x != state.Velocity.x)
-        {
-            FieldDelta fd = new FieldDelta();
-            fd.DeltaName = DeltaName.SpeedX;
-            fd.DeltaValue = state.Velocity.x - Velocity.x;
-            result.AddFieldDelta(fd);
-        }
-        if (Velocity.y != state.Velocity.y)
-        {
-            FieldDelta fd = new FieldDelta();
-            fd.DeltaName = DeltaName.SpeedY;
-            fd.DeltaValue = state.Velocity.y - Velocity.y;
-            result.AddFieldDelta(fd);
-        }
+//        if (Velocity.y != state.Velocity.y)
+  //      {
+    //        ChangedField fd = new ChangedField();
+      //      fd.ChangedFieldName = ChangedFieldName.SpeedY;
+        //    fd.OldValue =Velocity.y;
+          //  result.AddChangedField(fd);
+        //}
    //    if(CollectedPowerUps.GetHashCode() != state.CollectedPowerUps.GetHashCode() )
      //   {
        //     FieldDelta fd = new FieldDelta();

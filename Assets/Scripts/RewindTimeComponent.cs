@@ -68,7 +68,7 @@ public class StateDeltasGroupManager
 public class StateDeltasGroup
 {
 
-    private List<PlayerStateDeltas> _stateDeltas = new List<PlayerStateDeltas>();
+    private List<ChangedFieldsCollection> _stateDeltas = new List<ChangedFieldsCollection>();
 
     private LineRenderer _lineRenderer = null;
 
@@ -98,9 +98,9 @@ public class StateDeltasGroup
         if (_stateDeltas.Count > 0)
         {
 
-            PlayerStateDeltas psd = _stateDeltas[_stateDeltas.Count - 1];
+            ChangedFieldsCollection psd = _stateDeltas[_stateDeltas.Count - 1];
 
-            PlayerState previousState = PlayerController.Instance.CurrentState.SubtractFromPlayerState(psd);// PlayerState.SubtractFromPlayerState(new PlayerState(), psd);
+            PlayerState previousState = PlayerController.Instance.CurrentState.RetrievePreviousState(psd);// PlayerState.SubtractFromPlayerState(new PlayerState(), psd);
 
 
 
@@ -192,7 +192,7 @@ public class StateDeltasGroup
         for (int i = positions.Length - 2; i >= 0; i--)
         {
             //  Debug.Log("about to subtract deltas " + _stateDeltas[i].ToString());
-            clone = clone.SubtractFromPlayerState(_stateDeltas[i]);
+            clone = clone.RetrievePreviousState(_stateDeltas[i]);
             positions[i] = clone.Position;// LastState.Subtract(_states[i], true));
                                           //  Debug.Log("position " + i + " =" + positions[i].ToString());
         }
