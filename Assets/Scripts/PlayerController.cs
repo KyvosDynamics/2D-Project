@@ -29,7 +29,7 @@ public class PlayerState
     public Vector3 Velocity;
     public PlayerColor PlayerColor;
     public bool IsTrailCyan;
-    public bool IsTrailInForeground;    
+    public bool IsTrailInForeground;
     public Dictionary<PowerUpType, PowerUp> CollectedPowerUps = new Dictionary<PowerUpType, PowerUp>();
 
 
@@ -59,13 +59,13 @@ public class PlayerState
             switch (cf.ChangedFieldName)
             {
                 case ChangedFieldName.IsTrailCyan:// .TrailCyan:
-                    clone.IsTrailCyan =(bool) cf.OldValue;// = !clone.IsTrailCyan;
+                    clone.IsTrailCyan = (bool)cf.OldValue;// = !clone.IsTrailCyan;
                     break;
                 case ChangedFieldName.PlayerColor:
                     clone.PlayerColor = (PlayerColor)cf.OldValue;// -= (int)fd.OldValue;
                     break;
                 case ChangedFieldName.IsTrailInForeground:// .TrailInForeground:
-                    clone.IsTrailInForeground =(bool) cf.OldValue;// !clone.IsTrailInForeground;
+                    clone.IsTrailInForeground = (bool)cf.OldValue;// !clone.IsTrailInForeground;
                     break;
                 case ChangedFieldName.Position:// .X:
                     clone.Position = (Vector3)cf.OldValue;
@@ -76,9 +76,9 @@ public class PlayerState
                 case ChangedFieldName.Velocity:// .SpeedX:
                     clone.Velocity = (Vector3)cf.OldValue;
                     break;
-                //case ChangedFieldName.SpeedY:
-                 //   clone.Velocity.y = (float)cf.OldValue;
-                   // break;
+                    //case ChangedFieldName.SpeedY:
+                    //   clone.Velocity.y = (float)cf.OldValue;
+                    // break;
             }
 
         }
@@ -113,40 +113,40 @@ public class PlayerState
             fd.OldValue = IsTrailInForeground;
             result.AddChangedField(fd);
         }
-        if (Position!=state.Position)// != state.Position.x)
+        if (Position != state.Position)// != state.Position.x)
         {
             ChangedField fd = new ChangedField();
             fd.ChangedFieldName = ChangedFieldName.Position;// ChangedFieldName.X;
             fd.OldValue = Position;// state.Position.x - Position.x;
             result.AddChangedField(fd);
         }
-    //    if (Position.y != state.Position.y)
-      //  {
+        //    if (Position.y != state.Position.y)
+        //  {
         //    ChangedField fd = new ChangedField();
-         //   fd.ChangedFieldName = ChangedFieldName.Y;
-          //  fd.OldValue =  Position.y;
-           // result.AddChangedField(fd);
-       // }
-        if (Velocity!= state.Velocity)// .x != state.Velocity.x)
+        //   fd.ChangedFieldName = ChangedFieldName.Y;
+        //  fd.OldValue =  Position.y;
+        // result.AddChangedField(fd);
+        // }
+        if (Velocity != state.Velocity)// .x != state.Velocity.x)
         {
             ChangedField fd = new ChangedField();
             fd.ChangedFieldName = ChangedFieldName.Velocity;//  ChangedFieldName.SpeedX;
             fd.OldValue = Velocity;
             result.AddChangedField(fd);
         }
-//        if (Velocity.y != state.Velocity.y)
-  //      {
-    //        ChangedField fd = new ChangedField();
-      //      fd.ChangedFieldName = ChangedFieldName.SpeedY;
+        //        if (Velocity.y != state.Velocity.y)
+        //      {
+        //        ChangedField fd = new ChangedField();
+        //      fd.ChangedFieldName = ChangedFieldName.SpeedY;
         //    fd.OldValue =Velocity.y;
-          //  result.AddChangedField(fd);
+        //  result.AddChangedField(fd);
         //}
-   //    if(CollectedPowerUps.GetHashCode() != state.CollectedPowerUps.GetHashCode() )
-     //   {
-       //     FieldDelta fd = new FieldDelta();
-         //   fd.DeltaName = DeltaName.PowerUps;
-         //   //for the powerups we don't really use a delta but the actual values
-           // //fd.DeltaValue=
+        //    if(CollectedPowerUps.GetHashCode() != state.CollectedPowerUps.GetHashCode() )
+        //   {
+        //     FieldDelta fd = new FieldDelta();
+        //   fd.DeltaName = DeltaName.PowerUps;
+        //   //for the powerups we don't really use a delta but the actual values
+        // //fd.DeltaValue=
         //}
 
         return result;
@@ -157,7 +157,7 @@ public class PlayerState
 public class PlayerController : MonoBehaviour
 {
     public static PlayerController Instance = null;
-  
+
     [HideInInspector]
     public SpriteRenderer SpriteRenderer;
 
@@ -386,6 +386,7 @@ public class PlayerController : MonoBehaviour
             if (trailChanged || force)
             { //there's no such thing as refresh the trail, we must start a new one:
                 StateGroupManager.StartNewStateGroup(newState);
+                StateGroupManager.AddStateToCurrentGroup(newState); //add the new state
             }
         }
 
@@ -452,7 +453,7 @@ public class PlayerController : MonoBehaviour
                 _jumpFromWall = true;
             else
             {//it may still be possible to jump if we have the doublejump powerup
-                if (CurrentState. CollectedPowerUps.ContainsKey(PowerUpType.DoubleJump))
+                if (CurrentState.CollectedPowerUps.ContainsKey(PowerUpType.DoubleJump))
                     CurrentState.CollectedPowerUps[PowerUpType.DoubleJump].Activate();
             }
         }
