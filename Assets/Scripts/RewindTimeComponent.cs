@@ -105,6 +105,7 @@ public class StateDeltasGroup
 
 
 
+            Debug.Log("previous state powerups " + previousState.NumOfPowerUps);//.Count);
 
             PlayerController.Instance.PutPlayerInState(previousState);// new PlayerState(newState));
 
@@ -115,7 +116,7 @@ public class StateDeltasGroup
             _stateTransitions.RemoveAt(_stateTransitions.Count - 1);
             _statesRemovedDuringRewinding++;
 
-            _linePositions.RemoveAt(_linePositions.Count-1);
+            _linePositions.RemoveAt(_linePositions.Count - 1);
             StatesChangedSoUpdateLineRenderer();
 
 
@@ -152,7 +153,7 @@ public class StateDeltasGroup
         //else
 
 
-        if(_linePositions.Count>0)
+        if (_linePositions.Count > 0)
             _stateTransitions.Add(PlayerController.Instance.CurrentState.FindDeltasToState(newState));
 
         _linePositions.Add(newState.Position);
@@ -184,38 +185,34 @@ public class StateDeltasGroup
 
 
 
-        
+
         StatesChangedSoUpdateLineRenderer();
-        
+
     }
 
 
-    
+
 
     private void StatesChangedSoUpdateLineRenderer()//PlayerState newState)
     {
         _lineRenderer.positionCount = _linePositions.Count;// _stateTransitions.Count + 1; //plus 1 because for example for 3 points we have 2 intervals, so for 2 transitions 3 positions
 
+
         //Vector3[] positions = new Vector3[_lineRenderer.positionCount];
-
-
         //    Debug.Log("" + _lineRenderer.positionCount + " positions:");
-
-
-
- //       //from most recent one to oldest one
-   //     positions[positions.Length - 1] = newState.Position;// PlayerController.Instance.CurrentState.position;
-     //   int ii = positions.Length - 1;
-       // //     Debug.Log("position " + ii + " =" + positions[ii].ToString());
-       //
-       //
-     //   PlayerState clone = new PlayerState(newState);// PlayerController.Instance.CurrentState);//  LatestState);
-       // for (int i = positions.Length - 2; i >= 0; i--)
+        //       //from most recent one to oldest one
+        //     positions[positions.Length - 1] = newState.Position;// PlayerController.Instance.CurrentState.position;
+        //   int ii = positions.Length - 1;
+        // //     Debug.Log("position " + ii + " =" + positions[ii].ToString());
+        //
+        //
+        //   PlayerState clone = new PlayerState(newState);// PlayerController.Instance.CurrentState);//  LatestState);
+        // for (int i = positions.Length - 2; i >= 0; i--)
         //{
-         //   //  Debug.Log("about to subtract deltas " + _stateDeltas[i].ToString());
-          //  clone = clone.RetrievePreviousState(_stateTransitions[i]);
-           // positions[i] = clone.Position;// LastState.Subtract(_states[i], true));
-            //                              //  Debug.Log("position " + i + " =" + positions[i].ToString());
+        //   //  Debug.Log("about to subtract deltas " + _stateDeltas[i].ToString());
+        //  clone = clone.RetrievePreviousState(_stateTransitions[i]);
+        // positions[i] = clone.Position;// LastState.Subtract(_states[i], true));
+        //                              //  Debug.Log("position " + i + " =" + positions[i].ToString());
         //}
 
 

@@ -3,11 +3,17 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
-public enum ChangedFieldName { Position, Velocity, PlayerColor, IsTrailCyan, IsTrailInForeground };// TrailCyan, TrailInForeground, X, Y, PlayerColor, SpeedX, SpeedY };//,PowerUps};
+public enum ChangedFieldName { Position, Velocity, PlayerColor, IsTrailCyan, IsTrailInForeground, Trick };// PowerUps, NumOfPowerUps };
 public struct ChangedField
 {
     public ChangedFieldName ChangedFieldName;
     public object OldValue;
+
+    public ChangedField(ChangedFieldName changedFieldName, object oldValue)
+    {
+        ChangedFieldName = changedFieldName;
+        OldValue = oldValue;
+    }
 }
 
 public class ChangedFieldsCollection
@@ -31,7 +37,8 @@ public class PlayerState
     public bool IsTrailCyan;
     public bool IsTrailInForeground;
     public Dictionary<PowerUpType, PowerUp> CollectedPowerUps = new Dictionary<PowerUpType, PowerUp>();
-
+    public int NumOfPowerUps;
+    public List<PowerUpType> trick = new List<PowerUpType>();
 
     public PlayerState()
     {
@@ -45,7 +52,9 @@ public class PlayerState
         PlayerColor = playerState.PlayerColor;
         IsTrailCyan = playerState.IsTrailCyan;
         IsTrailInForeground = playerState.IsTrailInForeground;
-        CollectedPowerUps = playerState.CollectedPowerUps;
+        CollectedPowerUps = HelperClass.CloneDictionary(playerState.CollectedPowerUps);
+        trick = HelperClass.CloneTrick(playerState.trick);
+        NumOfPowerUps = playerState.NumOfPowerUps;
     }
 
 
@@ -58,27 +67,37 @@ public class PlayerState
         {
             switch (cf.ChangedFieldName)
             {
-                case ChangedFieldName.IsTrailCyan:// .TrailCyan:
-                    clone.IsTrailCyan = (bool)cf.OldValue;// = !clone.IsTrailCyan;
+                case ChangedFieldName.IsTrailCyan:
+                    clone.IsTrailCyan = (bool)cf.OldValue;
                     break;
                 case ChangedFieldName.PlayerColor:
-                    clone.PlayerColor = (PlayerColor)cf.OldValue;// -= (int)fd.OldValue;
+                    clone.PlayerColor = (PlayerColor)cf.OldValue;
                     break;
-                case ChangedFieldName.IsTrailInForeground:// .TrailInForeground:
-                    clone.IsTrailInForeground = (bool)cf.OldValue;// !clone.IsTrailInForeground;
+                case ChangedFieldName.IsTrailInForeground:
+                    clone.IsTrailInForeground = (bool)cf.OldValue;
                     break;
-                case ChangedFieldName.Position:// .X:
+                case ChangedFieldName.Position:
                     clone.Position = (Vector3)cf.OldValue;
                     break;
-                //case ChangedFieldName.Y:
-                //  clone.Position.y = (float)cf.OldValue;
-                // break;
-                case ChangedFieldName.Velocity:// .SpeedX:
+                case ChangedFieldName.Velocity:
                     clone.Velocity = (Vector3)cf.OldValue;
                     break;
-                    //case ChangedFieldName.SpeedY:
-                    //   clone.Velocity.y = (float)cf.OldValue;
-                    // break;
+
+                case ChangedFieldName.Trick:
+                    clone.trick = HelperClass.CloneTrick((List<PowerUpType>)cf.OldValue);
+                    break;
+                    /*
+                case ChangedFieldName.PowerUps:
+                    Dictionary<PowerUpType, PowerUp> dic = (Dictionary<PowerUpType, PowerUp>)cf.OldValue;
+
+                    Debug.Log("previous state dic length = " + dic.Count);
+                    //Time.timeScale = 0;
+
+                    clone.CollectedPowerUps = HelperClass.CloneDictionary(dic);
+                    break;
+                case ChangedFieldName.NumOfPowerUps:
+                    clone.NumOfPowerUps = (int)cf.OldValue;
+                    break;*/
             }
 
         }
@@ -92,32 +111,28 @@ public class PlayerState
 
         if (IsTrailCyan != state.IsTrailCyan)
         {
-            ChangedField fd = new ChangedField();
-            fd.ChangedFieldName = ChangedFieldName.IsTrailCyan;// .TrailCyan;
-            //no need to specify deltavalue for boolean
-            fd.OldValue = IsTrailCyan;
-            result.AddChangedField(fd);
+            result.AddChangedField(new ChangedField(ChangedFieldName.IsTrailCyan,IsTrailCyan));
         }
         if (PlayerColor != state.PlayerColor)// IsCyan != state.IsCyan)
         {
-            ChangedField fd = new ChangedField();
-            fd.ChangedFieldName = ChangedFieldName.PlayerColor;// = FieldNames.Cyan;
-            fd.OldValue = PlayerColor;
+            ChangedField fd = new ChangedField(
+       ChangedFieldName.PlayerColor
+           , PlayerColor);
             result.AddChangedField(fd);
         }
         if (IsTrailInForeground != state.IsTrailInForeground)
         {
-            ChangedField fd = new ChangedField();
-            fd.ChangedFieldName = ChangedFieldName.IsTrailInForeground;// .TrailInForeground;
-            //no need to specify deltavalue for boolean
-            fd.OldValue = IsTrailInForeground;
+            ChangedField fd = new ChangedField(
+             ChangedFieldName.IsTrailInForeground,
+
+            IsTrailInForeground);
             result.AddChangedField(fd);
         }
         if (Position != state.Position)// != state.Position.x)
         {
-            ChangedField fd = new ChangedField();
-            fd.ChangedFieldName = ChangedFieldName.Position;// ChangedFieldName.X;
-            fd.OldValue = Position;// state.Position.x - Position.x;
+            ChangedField fd = new ChangedField(
+             ChangedFieldName.Position,
+             Position);
             result.AddChangedField(fd);
         }
         //    if (Position.y != state.Position.y)
@@ -141,18 +156,84 @@ public class PlayerState
         //    fd.OldValue =Velocity.y;
         //  result.AddChangedField(fd);
         //}
-        //    if(CollectedPowerUps.GetHashCode() != state.CollectedPowerUps.GetHashCode() )
-        //   {
-        //     FieldDelta fd = new FieldDelta();
-        //   fd.DeltaName = DeltaName.PowerUps;
-        //   //for the powerups we don't really use a delta but the actual values
-        // //fd.DeltaValue=
-        //}
+
+
+
+        if(HelperClass.AreTheyDifferent(trick, state.trick))
+        {
+            ChangedField cf = new ChangedField(ChangedFieldName.Trick, HelperClass.CloneTrick(trick));
+            result.AddChangedField(cf);
+        }
+        /*
+        if (NumOfPowerUps != state.NumOfPowerUps)
+        {
+            ChangedField cf = new ChangedField(ChangedFieldName.NumOfPowerUps, NumOfPowerUps);
+            result.AddChangedField(cf);
+        }
+
+        if (CollectedPowerUps.Count != state.CollectedPowerUps.Count)// .GetHashCode() != state.CollectedPowerUps.GetHashCode())
+        {
+            Debug.Log("recording change");
+
+            // Debug.Log("different hash");
+            ChangedField fd = new ChangedField();
+            fd.ChangedFieldName = ChangedFieldName.PowerUps;// .p DeltaName.PowerUps;
+                                                            //for the powerups we don't really use a delta but the actual values
+                                                            //fd.DeltaValue=
+            var ha = HelperClass.CloneDictionary(CollectedPowerUps);// new Dictionary<PowerUpType, PowerUp>();
+
+            fd.OldValue = ha;
+            result.AddChangedField(fd);
+
+
+
+            // fd.OldValue= new Dictionary<PowerUpType,PowerUp>(CollectedPowerUps);
+            // result.AddChangedField(fd);
+        }*/
 
         return result;
     }
 }
 
+public static class HelperClass
+{
+    public static Dictionary<PowerUpType, PowerUp> CloneDictionary(Dictionary<PowerUpType, PowerUp> dic)
+    {
+        Dictionary<PowerUpType, PowerUp> result = new Dictionary<PowerUpType, PowerUp>();
+        foreach (var bla in dic)
+        {
+            result.Add(bla.Key, bla.Value);
+        }
+        return result;
+
+    }
+
+
+    public static bool AreTheyDifferent(List<PowerUpType> trick1, List<PowerUpType> trick2)
+    {//true if different
+        if (trick1.Count != trick2.Count)
+            return true;
+
+        for(int i=0; i<trick1.Count; i++)
+        {
+            if (trick1[i] != trick2[i])
+                return true;
+        }
+
+        return false;
+    }
+
+    public static List<PowerUpType> CloneTrick(List<PowerUpType> strings)
+    {
+        List<PowerUpType> result = new List<PowerUpType>();
+        foreach(PowerUpType s in strings)
+        {
+            result.Add(s);
+        }
+        return result;
+    }
+
+}
 
 public class PlayerController : MonoBehaviour
 {
@@ -220,7 +301,7 @@ public class PlayerController : MonoBehaviour
         state.PlayerColor = PlayerColor.Cyan;
         state.IsTrailCyan = true;
         state.IsTrailInForeground = true;
-
+        state.NumOfPowerUps = 0;
 
         PutPlayerInState(state, true);
     }
@@ -233,21 +314,12 @@ public class PlayerController : MonoBehaviour
     {
         if (StateGroupManager.IsRewinding)
         {
-            Debug.Log("command to initiate rewinding");
+            // Debug.Log("command to initiate rewinding");
             StateGroupManager.OneRewind();
             return; //do not bother with physics when we are rewinding
         }
 
-        if (transform.position.y < -5)
-        {//player fell to the void
 
-            //Debug.Log("trying to kill player because y<-5, isrewinding=" + StateGroupManager.IsRewinding + "   stategroupid=" + StateGroupManager.CurrentStateGroup.myID);
-
-
-            //  CurrentState.position = transform.position;
-            TryToKillPlayer();// PlayerWasKilled();
-            return;
-        }
 
         Vector3 bottommostPoint = transform.position + _downVectorWithMagnitude;
         Vector3 bottommostRightmostPoint = bottommostPoint + _rightVectorWithMagnitude;
@@ -313,27 +385,120 @@ public class PlayerController : MonoBehaviour
         newState.Velocity = new Vector2(Speed, yVel);
 
 
+
+        if (poweruptoadd != null)
+        {
+            AddOrRemovePowerUp(newState,poweruptoadd, true);
+        }
+
+
         if (_switchcolor)
         {//should create new stategroup
             _switchcolor = false;
 
-            if (newState.PlayerColor == PlayerColor.Cyan)
+            if (CurrentState.PlayerColor == PlayerColor.Cyan)
                 newState.PlayerColor = PlayerColor.Green;
-            else if (newState.PlayerColor == PlayerColor.Green)
+            else if (CurrentState.PlayerColor == PlayerColor.Green)
                 newState.PlayerColor = PlayerColor.Cyan;
             //else transparent!
 
-            newState.IsTrailCyan = !newState.IsTrailCyan;
+            newState.IsTrailCyan = !CurrentState.IsTrailCyan;
 
         }
 
 
-
+        newState.NumOfPowerUps = newState.CollectedPowerUps.Count;
 
         PutPlayerInState(newState);
+
+        if (transform.position.y < -5)
+        {//player fell to the void
+
+            //Debug.Log("trying to kill player because y<-5, isrewinding=" + StateGroupManager.IsRewinding + "   stategroupid=" + StateGroupManager.CurrentStateGroup.myID);
+
+
+            //  CurrentState.position = transform.position;
+            TryToKillPlayer();// PlayerWasKilled();
+            return;
+        }
     }
 
 
+
+    public void AddOrRemovePowerUp(PlayerState newState, string poweruptoadd,bool add)
+    {
+        if(add)
+        {
+            PowerUpType poweruptype = (PowerUpType)Enum.Parse(typeof(PowerUpType), poweruptoadd);
+            if (CurrentState.CollectedPowerUps.ContainsKey(poweruptype) == false) //we don't have this powerup
+            {
+                Debug.Log("trap");
+
+                var powerupHandle = Activator.CreateInstance(null, poweruptoadd + "PowerUp"); //(by convention we name the class as the powerup tag +"PowerUp", eg GhostPowerUp)
+                PowerUp powerup = (PowerUp)powerupHandle.Unwrap();
+
+
+                newState.CollectedPowerUps = HelperClass.CloneDictionary(CurrentState.CollectedPowerUps);
+                newState.CollectedPowerUps.Add(poweruptype, powerup);
+
+                newState.trick.Add(poweruptype);
+
+                GameObject uiImage = GameObject.Find("UIcanvas").transform.Find(poweruptoadd + "Image").gameObject; //(by convention we name the image as the powerup tag +"Image", eg GhostImage)
+                                                                                                                    //                  uiImage.SetActive(true);
+                                                                                                                    //UpdatePowerUpsUI();
+
+                uiImage.GetComponent<AudioSource>().Play();
+
+                if (powerup.IsActivatedImmediately) //eg Ghost
+                    powerup.Activate();
+            }
+
+            poweruptoadd = null;
+
+
+        }
+        else
+        {
+
+            //PlayerState newState = new PlayerState(PlayerController.Instance.CurrentState);
+
+
+            PowerUpType poweruptype = (PowerUpType)Enum.Parse(typeof(PowerUpType), poweruptoadd);
+            if (PlayerController.Instance.CurrentState.CollectedPowerUps.ContainsKey(poweruptype))
+            {
+
+                var powerupHandle = Activator.CreateInstance(null, poweruptoadd + "PowerUp"); //(by convention we name the class as the powerup tag +"PowerUp", eg GhostPowerUp)
+                PowerUp powerup = (PowerUp)powerupHandle.Unwrap();
+
+
+                //    newState.CollectedPowerUps = HelperClass.CloneDictionary(PlayerController.Instance.CurrentState.CollectedPowerUps);
+                PlayerController.Instance.CurrentState.CollectedPowerUps.Remove(poweruptype);// .Add(poweruptype, powerup);
+
+                //   GameObject uiImage = GameObject.Find("UIcanvas").transform.Find(poweruptoremove + "Image").gameObject; //(by convention we name the image as the powerup tag +"Image", eg GhostImage)
+                //                  uiImage.SetActive(true);
+                // UpdatePowerUpsUI();
+
+                //            uiImage.GetComponent<AudioSource>().Play();
+                //
+                //          if (powerup.IsActivatedImmediately) //eg Ghost
+                //            powerup.Activate();
+
+                //          //=====        GameObject uiImage = GameObject.Find("UIcanvas").transform.Find(mytype.ToString() + "Image").gameObject; //(by convention we name the image as the powerup tag +"Image", eg GhostImage)
+                //            uiImage.SetActive(false);
+
+            }
+
+
+
+
+        }
+
+
+    }
+
+
+    // public PowerUpType PowerUpToAdd = null;
+    //   public PowerUp PowerUpToRemove=null;
 
 
     internal void PutPlayerInState(PlayerState newState, bool force = false) //when force is true it sets everything no matter what changed (useful for initialization)
@@ -343,6 +508,7 @@ public class PlayerController : MonoBehaviour
         bool playerVelocityChanged = false;
         bool playerColorChanged = false;
         bool trailChanged = false;
+      
 
         if (CurrentState.Position != newState.Position)
             playerPositionChanged = true;
@@ -363,6 +529,29 @@ public class PlayerController : MonoBehaviour
 
 
 
+        /*
+        if (CurrentState.CollectedPowerUps.Count != newState.CollectedPowerUps.Count)//.GetHashCode() != newState.CollectedPowerUps.GetHashCode())
+        {
+            Debug.Log("player's state has changed powerups. Previously: "+CurrentState.CollectedPowerUps.Count+"  now: "+newState.CollectedPowerUps.Count);
+            //  Debug.Log("haha hash");
+            powerUpsChanged = true;
+        }
+
+
+        if(CurrentState.NumOfPowerUps!= newState.NumOfPowerUps)
+        {
+            Debug.Log("new numofpowerups=" + newState.NumOfPowerUps);
+        }*/
+        bool powerUpsChanged = false;
+
+        if (HelperClass.AreTheyDifferent(CurrentState.trick, newState.trick))
+        {
+            powerUpsChanged = true;
+        }
+
+
+
+
         if (playerPositionChanged || force)
             RefreshPlayerPosition(newState);
 
@@ -373,30 +562,56 @@ public class PlayerController : MonoBehaviour
         if (playerColorChanged || force)
             RefreshPlayerOnlyColor(newState);
 
-
+        if(powerUpsChanged || force)
+        {
+            RefreshPowerUpsUI(newState);
+        }
 
 
 
         if (StateGroupManager.IsRewinding == false) //(don't add state while we are rewinding)
         {
             StateGroupManager.AddStateToCurrentGroup(newState); //add the new state
-            //(it is important that we first add the state to the current group and then start a new group is necessary
-
+            //(it is important that we first add the state to the current group and then start a new group if necessary)
 
             if (trailChanged || force)
             { //there's no such thing as refresh the trail, we must start a new one:
                 StateGroupManager.StartNewStateGroup(newState);
-                StateGroupManager.AddStateToCurrentGroup(newState); //add the new state
+                StateGroupManager.AddStateToCurrentGroup(newState); //this is necessary because the above line merely initiated a new empty stategroup
             }
         }
 
 
 
 
-        CurrentState = new PlayerState(newState);
+        CurrentState = new PlayerState(newState);     
     }
 
 
+
+    private void RefreshPowerUpsUI(PlayerState newState)
+    {
+//        if (powerUpsChanged)
+  //      {
+
+            List<PowerUpType> allTypes = new List<PowerUpType>() { PowerUpType.DoubleJump, PowerUpType.Ghost, PowerUpType.RewindTime };
+
+            foreach (PowerUpType mytype in allTypes)
+            {
+                GameObject uiImage = GameObject.Find("UIcanvas").transform.Find(mytype.ToString() + "Image").gameObject; //(by convention we name the image as the powerup tag +"Image", eg GhostImage)
+                uiImage.SetActive(false);
+            }
+
+            Debug.Log("inside updatepowerupsui, there are " + CurrentState.CollectedPowerUps.Count + " powerups");
+
+            foreach (PowerUpType mytype in newState.trick)// .CollectedPowerUps.Keys)
+            {
+                GameObject uiImage = GameObject.Find("UIcanvas").transform.Find(mytype.ToString() + "Image").gameObject; //(by convention we name the image as the powerup tag +"Image", eg GhostImage)
+                uiImage.SetActive(true);
+
+            }
+        //}
+    }
 
 
 
@@ -463,7 +678,7 @@ public class PlayerController : MonoBehaviour
     private void TryToKillPlayer()
     {//TODO: make it check the reason of death. If we fell into the abyss there is no need to check for the ghost powerup!
 
-        Debug.Log("trying to kill player");
+        //   Debug.Log("trying to kill player");
 
         if (CurrentState.CollectedPowerUps.ContainsKey(PowerUpType.Ghost))
         {//we are a ghost, we cannot be killed! But we lose that ability now
@@ -519,26 +734,18 @@ public class PlayerController : MonoBehaviour
 
                     string secondpart = collision.gameObject.tag.Substring(8); //(to remove the PowerUp_ string from the tag)
 
-                    PowerUpType poweruptype = (PowerUpType)Enum.Parse(typeof(PowerUpType), secondpart);
-                    if (CurrentState.CollectedPowerUps.ContainsKey(poweruptype)) //we already have this powerup
-                        return;
+                    poweruptoadd = secondpart;
 
-                    var powerupHandle = Activator.CreateInstance(null, secondpart + "PowerUp"); //(by convention we name the class as the powerup tag +"PowerUp", eg GhostPowerUp)
-                    PowerUp powerup = (PowerUp)powerupHandle.Unwrap();
-
-                    CurrentState.CollectedPowerUps.Add(poweruptype, powerup);
-
-                    GameObject uiImage = GameObject.Find("UIcanvas").transform.Find(secondpart + "Image").gameObject; //(by convention we name the image as the powerup tag +"Image", eg GhostImage)
-                    uiImage.SetActive(true);
-                    uiImage.GetComponent<AudioSource>().Play();
-
-                    if (powerup.IsActivatedImmediately) //eg Ghost
-                        powerup.Activate();
                 }
                 break;
         }
     }
 
+    string poweruptoadd = null;
+   // public string poweruptoremove = null;
+
+
+   
 
     private void PlayerWasKilled()
     {
@@ -587,8 +794,8 @@ public class RewindTimePowerUp : PowerUp
 
     public override void Activate()
     {
-        PlayerController.Instance.StateGroupManager.InitiateRewinding();
         base.Activate();
+        PlayerController.Instance.StateGroupManager.InitiateRewinding();
     }
 }
 
@@ -617,9 +824,11 @@ public class PowerUp
 
     private void Remove()
     {
-        PlayerController.Instance.CurrentState.CollectedPowerUps.Remove(mytype);
-        GameObject uiImage = GameObject.Find("UIcanvas").transform.Find(mytype.ToString() + "Image").gameObject; //(by convention we name the image as the powerup tag +"Image", eg GhostImage)
-        uiImage.SetActive(false);
+        string poweruptoremove = mytype.ToString();// .CurrentState.CollectedPowerUps.Remove(mytype);
+
+        PlayerState newState = new PlayerState(PlayerController.Instance. CurrentState);
+        PlayerController.Instance.AddOrRemovePowerUp(newState, poweruptoremove, false);
+        PlayerController.Instance.PutPlayerInState(newState);
     }
 
 }
