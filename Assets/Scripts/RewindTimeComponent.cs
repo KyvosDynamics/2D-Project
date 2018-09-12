@@ -105,7 +105,7 @@ public class StateDeltasGroup
 
 
 
-            Debug.Log("previous state powerups " + previousState.NumOfPowerUps);//.Count);
+            //Debug.Log("previous state powerups " + previousState.NumOfPowerUps);//.Count);
 
             PlayerController.Instance.PutPlayerInState(previousState);// new PlayerState(newState));
 
