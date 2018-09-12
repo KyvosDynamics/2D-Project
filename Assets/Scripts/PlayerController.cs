@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using UnityEngine;
 using System.Linq;
+using UnityEngine;
 
 public enum ChangedFieldName { Position, Velocity, PlayerColor, IsTrailCyan, IsTrailInForeground, PowerUpTypes };
 public struct ChangedField
@@ -183,6 +183,12 @@ public class PlayerController : MonoBehaviour
     [HideInInspector]
     public Dictionary<PowerUpType, PowerUp> CollectedPowerUps = new Dictionary<PowerUpType, PowerUp>();
 
+    [HideInInspector]
+    public PowerUpType? PowerUpTypeToAddOrRemove = null;
+    [HideInInspector]
+    public bool AddPowerUp = false;
+
+
     public float Speed;
     public LayerMask GroundLayer;
     public GameObject PlayerWasKilledUI;
@@ -204,6 +210,9 @@ public class PlayerController : MonoBehaviour
     private Vector3 _rightVectorWithMagnitude;
 
 
+    public GameObject RewindTimePrefab;
+    public GameObject DoubleJumpPrefab;
+    public GameObject GhostPrefab;
 
 
     void Start()
@@ -392,9 +401,9 @@ public class PlayerController : MonoBehaviour
             trailChanged = true;
 
 
-        if (HelperClass.AreTheyDifferent(CurrentState.CollectedPowerUpTypes, newState.CollectedPowerUpTypes))        
+        if (HelperClass.AreTheyDifferent(CurrentState.CollectedPowerUpTypes, newState.CollectedPowerUpTypes))
             powerUpsChanged = true;
-        
+
 
 
 
@@ -409,9 +418,9 @@ public class PlayerController : MonoBehaviour
         if (playerColorChanged || force)
             RefreshPlayerOnlyColor(newState);
 
-        if (powerUpsChanged || force)        
+        if (powerUpsChanged || force)
             RefreshPowerUps(newState);
-        
+
 
 
 
@@ -437,21 +446,6 @@ public class PlayerController : MonoBehaviour
 
     private void RefreshPowerUps(PlayerState newState)
     {
-
-
-        //    List<PowerUpType> allTypes = new List<PowerUpType>() { PowerUpType.DoubleJump, PowerUpType.Ghost, PowerUpType.RewindTime };
-        //
-        //   foreach (PowerUpType mytype in allTypes)
-        //  {
-        //     GameObject uiImage = GameObject.Find("UIcanvas").transform.Find(mytype.ToString() + "Image").gameObject; //(by convention we name the image as the powerup tag +"Image", eg GhostImage)
-        //    uiImage.SetActive(false);
-        //}
-
-
-
-        // var copy = HelperClass.CloneTrick(CollectedPowerUps.Keys.ToList());
-        //CollectedPowerUps.Clear();
-
         //1,2,3
         //1,2
         //->3
@@ -464,59 +458,49 @@ public class PlayerController : MonoBehaviour
 
 
 
-
-
-        foreach (PowerUpType mytype in hadButNoMore)
+        foreach (PowerUpType type in hadButNoMore)
         {
-            GameObject uiImage = GameObject.Find("UIcanvas").transform.Find(mytype.ToString() + "Image").gameObject; //(by convention we name the image as the powerup tag +"Image", eg GhostImage)
+            GameObject uiImage = GameObject.Find("UIcanvas").transform.Find(type.ToString() + "Image").gameObject; //(by convention we name the image as the powerup tag +"Image", eg GhostImage)
             uiImage.SetActive(false);
+            CollectedPowerUps.Remove(type);
 
-            //var powerupHandle = Activator.CreateInstance(null, mytype.ToString() + "PowerUp"); //(by convention we name the class as the powerup tag +"PowerUp", eg GhostPowerUp)
-            //PowerUp powerup = (PowerUp)powerupHandle.Unwrap();
+            if(StateGroupManager.IsRewinding)
+            {//time is going backwards and we just lost a powerup. This means that we haven't collected it yet!. So place it
+
+               
+                switch(type)
+                {
+                    case PowerUpType.DoubleJump:
+                        UnityEngine.Object.Instantiate(DoubleJumpPrefab, transform.position, Quaternion.identity);
+                        break;
+                    case PowerUpType.Ghost:
+                        UnityEngine.Object.Instantiate(GhostPrefab, transform.position, Quaternion.identity);
+                        break;
+                    case PowerUpType.RewindTime:
+                        UnityEngine.Object.Instantiate(RewindTimePrefab, transform.position, Quaternion.identity);
+                        break;
+                }
 
 
-            CollectedPowerUps.Remove(mytype);//, powerup);
-
-
+            }
         }
-        foreach (PowerUpType mytype in hasButDidnt)
+
+        foreach (PowerUpType type in hasButDidnt)
         {
-            GameObject uiImage = GameObject.Find("UIcanvas").transform.Find(mytype.ToString() + "Image").gameObject; //(by convention we name the image as the powerup tag +"Image", eg GhostImage)
+            GameObject uiImage = GameObject.Find("UIcanvas").transform.Find(type.ToString() + "Image").gameObject; //(by convention we name the image as the powerup tag +"Image", eg GhostImage)
             uiImage.SetActive(true);
-
-            var powerupHandle = Activator.CreateInstance(null, mytype.ToString() + "PowerUp"); //(by convention we name the class as the powerup tag +"PowerUp", eg GhostPowerUp)
-            PowerUp powerup = (PowerUp)powerupHandle.Unwrap();
-
-
-            CollectedPowerUps.Add(mytype, powerup);
-
-
-
-            //      if (copy.Contains(mytype) == false)
-            //  {//it didn't have it before
+            
+            PowerUp powerup = (PowerUp)Activator.CreateInstance(null, type.ToString() + "PowerUp").Unwrap(); //(by convention we name the class as the powerup tag +"PowerUp", eg GhostPowerUp)
+            CollectedPowerUps.Add(type, powerup);
 
             if (StateGroupManager.IsRewinding == false)
-                {//we don't want to activate powerups while rewinding
-                    uiImage.GetComponent<AudioSource>().Play();
-                    if (powerup.IsActivatedImmediately) //eg Ghost
-                        powerup.Activate();
-                }
-       //     }
+            {//we don't want to activate powerups while rewinding
+                uiImage.GetComponent<AudioSource>().Play();
+                if (powerup.IsActivatedImmediately) //eg Ghost
+                    powerup.Activate();
+            }
         }
 
-
-
-     //   foreach (PowerUpType mytype in newState.CollectedPowerUpTypes)
-       // {
-         //   GameObject uiImage = GameObject.Find("UIcanvas").transform.Find(mytype.ToString() + "Image").gameObject; //(by convention we name the image as the powerup tag +"Image", eg GhostImage)
-           // uiImage.SetActive(true);
-
-
-          
-
-
-
-       // }
 
     }
 
@@ -656,9 +640,6 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    //string poweruptoadd = null;
-    public PowerUpType? PowerUpTypeToAddOrRemove = null;
-    public bool AddPowerUp = false;
 
 
 

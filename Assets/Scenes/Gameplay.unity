@@ -516,6 +516,24 @@ Prefab:
       propertyPath: Speed
       value: 9
       objectReference: {fileID: 0}
+    - target: {fileID: 114031257902860868, guid: 9a1f1c1b4ca019d43ba28dd49d290589,
+        type: 2}
+      propertyPath: RewindTimePrefab
+      value: 
+      objectReference: {fileID: 1465349354079078, guid: 6c7b3fac583bfe644a8b6e305ea7db06,
+        type: 2}
+    - target: {fileID: 114031257902860868, guid: 9a1f1c1b4ca019d43ba28dd49d290589,
+        type: 2}
+      propertyPath: GhostPrefab
+      value: 
+      objectReference: {fileID: 1238502082857936, guid: 659fb1f1c89a3c24e875785585fd3b99,
+        type: 2}
+    - target: {fileID: 114031257902860868, guid: 9a1f1c1b4ca019d43ba28dd49d290589,
+        type: 2}
+      propertyPath: DoubleJumpPrefab
+      value: 
+      objectReference: {fileID: 1987288272596108, guid: 28fb1a8bcdf4853449259034aa56f562,
+        type: 2}
     m_RemovedComponents:
     - {fileID: 96036871287191636, guid: 9a1f1c1b4ca019d43ba28dd49d290589, type: 2}
     - {fileID: 114603632731569786, guid: 9a1f1c1b4ca019d43ba28dd49d290589, type: 2}
