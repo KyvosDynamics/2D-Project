@@ -36,9 +36,8 @@ public class PlayerState
     public PlayerColor PlayerColor;
     public bool IsTrailCyan;
     public bool IsTrailInForeground;
-  
-//    public int NumOfPowerUps;
-    public List<PowerUpType> trick = new List<PowerUpType>();
+    public List<PowerUpType> CollectedPowerUpTypes = new List<PowerUpType>();
+
 
     public PlayerState()
     {
@@ -52,9 +51,7 @@ public class PlayerState
         PlayerColor = playerState.PlayerColor;
         IsTrailCyan = playerState.IsTrailCyan;
         IsTrailInForeground = playerState.IsTrailInForeground;
-        //CollectedPowerUps = HelperClass.CloneDictionary(playerState.CollectedPowerUps);
-        trick = HelperClass.CloneTrick(playerState.trick);
-        //NumOfPowerUps = playerState.NumOfPowerUps;
+        CollectedPowerUpTypes = HelperClass.CloneTrick(playerState.CollectedPowerUpTypes);
     }
 
 
@@ -82,22 +79,9 @@ public class PlayerState
                 case ChangedFieldName.Velocity:
                     clone.Velocity = (Vector3)cf.OldValue;
                     break;
-
                 case ChangedFieldName.PowerUpTypes:
-                    clone.trick = HelperClass.CloneTrick((List<PowerUpType>)cf.OldValue);
+                    clone.CollectedPowerUpTypes = HelperClass.CloneTrick((List<PowerUpType>)cf.OldValue);
                     break;
-                    /*
-                case ChangedFieldName.PowerUps:
-                    Dictionary<PowerUpType, PowerUp> dic = (Dictionary<PowerUpType, PowerUp>)cf.OldValue;
-
-                    Debug.Log("previous state dic length = " + dic.Count);
-                    //Time.timeScale = 0;
-
-                    clone.CollectedPowerUps = HelperClass.CloneDictionary(dic);
-                    break;
-                case ChangedFieldName.NumOfPowerUps:
-                    clone.NumOfPowerUps = (int)cf.OldValue;
-                    break;*/
             }
 
         }
@@ -135,13 +119,6 @@ public class PlayerState
              Position);
             result.AddChangedField(fd);
         }
-        //    if (Position.y != state.Position.y)
-        //  {
-        //    ChangedField fd = new ChangedField();
-        //   fd.ChangedFieldName = ChangedFieldName.Y;
-        //  fd.OldValue =  Position.y;
-        // result.AddChangedField(fd);
-        // }
         if (Velocity != state.Velocity)// .x != state.Velocity.x)
         {
             ChangedField fd = new ChangedField();
@@ -149,47 +126,12 @@ public class PlayerState
             fd.OldValue = Velocity;
             result.AddChangedField(fd);
         }
-        //        if (Velocity.y != state.Velocity.y)
-        //      {
-        //        ChangedField fd = new ChangedField();
-        //      fd.ChangedFieldName = ChangedFieldName.SpeedY;
-        //    fd.OldValue =Velocity.y;
-        //  result.AddChangedField(fd);
-        //}
 
-
-
-        if (HelperClass.AreTheyDifferent(trick, state.trick))
+        if (HelperClass.AreTheyDifferent(CollectedPowerUpTypes, state.CollectedPowerUpTypes))
         {
-            ChangedField cf = new ChangedField(ChangedFieldName.PowerUpTypes, HelperClass.CloneTrick(trick));
+            ChangedField cf = new ChangedField(ChangedFieldName.PowerUpTypes, HelperClass.CloneTrick(CollectedPowerUpTypes));
             result.AddChangedField(cf);
         }
-        /*
-        if (NumOfPowerUps != state.NumOfPowerUps)
-        {
-            ChangedField cf = new ChangedField(ChangedFieldName.NumOfPowerUps, NumOfPowerUps);
-            result.AddChangedField(cf);
-        }
-
-        if (CollectedPowerUps.Count != state.CollectedPowerUps.Count)// .GetHashCode() != state.CollectedPowerUps.GetHashCode())
-        {
-            Debug.Log("recording change");
-
-            // Debug.Log("different hash");
-            ChangedField fd = new ChangedField();
-            fd.ChangedFieldName = ChangedFieldName.PowerUps;// .p DeltaName.PowerUps;
-                                                            //for the powerups we don't really use a delta but the actual values
-                                                            //fd.DeltaValue=
-            var ha = HelperClass.CloneDictionary(CollectedPowerUps);// new Dictionary<PowerUpType, PowerUp>();
-
-            fd.OldValue = ha;
-            result.AddChangedField(fd);
-
-
-
-            // fd.OldValue= new Dictionary<PowerUpType,PowerUp>(CollectedPowerUps);
-            // result.AddChangedField(fd);
-        }*/
 
         return result;
     }
@@ -337,8 +279,6 @@ public class PlayerController : MonoBehaviour
         }
 
 
-
-
         float yVel = _rigidbody.velocity.y;
 
         if (_jumpFromPonger)
@@ -395,19 +335,18 @@ public class PlayerController : MonoBehaviour
             //else transparent!
 
             newState.IsTrailCyan = !CurrentState.IsTrailCyan;
-
         }
 
 
-       // newState.NumOfPowerUps = newState.CollectedPowerUps.Count;
 
         PutPlayerInState(newState);
+
+
 
         if (transform.position.y < -5)
         {//player fell to the void
 
             //Debug.Log("trying to kill player because y<-5, isrewinding=" + StateGroupManager.IsRewinding + "   stategroupid=" + StateGroupManager.CurrentStateGroup.myID);
-
 
             //  CurrentState.position = transform.position;
             TryToKillPlayer();// PlayerWasKilled();
@@ -424,25 +363,25 @@ public class PlayerController : MonoBehaviour
             PowerUpType poweruptype = (PowerUpType)Enum.Parse(typeof(PowerUpType), poweruptoadd);
             if (CollectedPowerUps.ContainsKey(poweruptype) == false) //we don't have this powerup
             {
-                Debug.Log("trap");
+              //  Debug.Log("trap");
 
-                var powerupHandle = Activator.CreateInstance(null, poweruptoadd + "PowerUp"); //(by convention we name the class as the powerup tag +"PowerUp", eg GhostPowerUp)
-                PowerUp powerup = (PowerUp)powerupHandle.Unwrap();
+           //     var powerupHandle = Activator.CreateInstance(null, poweruptoadd + "PowerUp"); //(by convention we name the class as the powerup tag +"PowerUp", eg GhostPowerUp)
+         //       PowerUp powerup = (PowerUp)powerupHandle.Unwrap();
 
 
-              //  newState.CollectedPowerUps = HelperClass.CloneDictionary(CurrentState.CollectedPowerUps);
-                CollectedPowerUps.Add(poweruptype, powerup);
+                //  newState.CollectedPowerUps = HelperClass.CloneDictionary(CurrentState.CollectedPowerUps);
+             //   CollectedPowerUps.Add(poweruptype, powerup);
 
-                newState.trick.Add(poweruptype);
+                newState.CollectedPowerUpTypes.Add(poweruptype);
 
-                GameObject uiImage = GameObject.Find("UIcanvas").transform.Find(poweruptoadd + "Image").gameObject; //(by convention we name the image as the powerup tag +"Image", eg GhostImage)
+             //   GameObject uiImage = GameObject.Find("UIcanvas").transform.Find(poweruptoadd + "Image").gameObject; //(by convention we name the image as the powerup tag +"Image", eg GhostImage)
                                                                                                                     //                  uiImage.SetActive(true);
                                                                                                                     //UpdatePowerUpsUI();
 
-                uiImage.GetComponent<AudioSource>().Play();
+             //   uiImage.GetComponent<AudioSource>().Play();
 
-                if (powerup.IsActivatedImmediately) //eg Ghost
-                    powerup.Activate();
+               // if (powerup.IsActivatedImmediately) //eg Ghost
+                 //   powerup.Activate();
             }
 
             poweruptoadd = null;
@@ -456,15 +395,15 @@ public class PlayerController : MonoBehaviour
 
 
             PowerUpType poweruptype = (PowerUpType)Enum.Parse(typeof(PowerUpType), poweruptoadd);
-            if (PlayerController.Instance.CollectedPowerUps.ContainsKey(poweruptype))
-            {
+        //    if (PlayerController.Instance.CollectedPowerUps.ContainsKey(poweruptype))
+           // {
 
-                var powerupHandle = Activator.CreateInstance(null, poweruptoadd + "PowerUp"); //(by convention we name the class as the powerup tag +"PowerUp", eg GhostPowerUp)
-                PowerUp powerup = (PowerUp)powerupHandle.Unwrap();
+                //var powerupHandle = Activator.CreateInstance(null, poweruptoadd + "PowerUp"); //(by convention we name the class as the powerup tag +"PowerUp", eg GhostPowerUp)
+             //   PowerUp powerup = (PowerUp)powerupHandle.Unwrap();
 
 
                 //    newState.CollectedPowerUps = HelperClass.CloneDictionary(PlayerController.Instance.CurrentState.CollectedPowerUps);
-                PlayerController.Instance.CollectedPowerUps.Remove(poweruptype);// .Add(poweruptype, powerup);
+                newState.CollectedPowerUpTypes.Remove(poweruptype);// .Add(poweruptype, powerup);
 
                 //   GameObject uiImage = GameObject.Find("UIcanvas").transform.Find(poweruptoremove + "Image").gameObject; //(by convention we name the image as the powerup tag +"Image", eg GhostImage)
                 //                  uiImage.SetActive(true);
@@ -478,7 +417,7 @@ public class PlayerController : MonoBehaviour
                 //          //=====        GameObject uiImage = GameObject.Find("UIcanvas").transform.Find(mytype.ToString() + "Image").gameObject; //(by convention we name the image as the powerup tag +"Image", eg GhostImage)
                 //            uiImage.SetActive(false);
 
-            }
+            //}
 
 
 
@@ -489,8 +428,6 @@ public class PlayerController : MonoBehaviour
     }
 
 
-    // public PowerUpType PowerUpToAdd = null;
-    //   public PowerUp PowerUpToRemove=null;
 
 
     internal void PutPlayerInState(PlayerState newState, bool force = false) //when force is true it sets everything no matter what changed (useful for initialization)
@@ -520,23 +457,9 @@ public class PlayerController : MonoBehaviour
 
 
 
-
-        /*
-        if (CurrentState.CollectedPowerUps.Count != newState.CollectedPowerUps.Count)//.GetHashCode() != newState.CollectedPowerUps.GetHashCode())
-        {
-            Debug.Log("player's state has changed powerups. Previously: "+CurrentState.CollectedPowerUps.Count+"  now: "+newState.CollectedPowerUps.Count);
-            //  Debug.Log("haha hash");
-            powerUpsChanged = true;
-        }
-
-
-        if(CurrentState.NumOfPowerUps!= newState.NumOfPowerUps)
-        {
-            Debug.Log("new numofpowerups=" + newState.NumOfPowerUps);
-        }*/
         bool powerUpsChanged = false;
 
-        if (HelperClass.AreTheyDifferent(CurrentState.trick, newState.trick))
+        if (HelperClass.AreTheyDifferent(CurrentState.CollectedPowerUpTypes, newState.CollectedPowerUpTypes))
         {
             powerUpsChanged = true;
         }
@@ -556,6 +479,9 @@ public class PlayerController : MonoBehaviour
 
         if (powerUpsChanged || force)
         {
+          
+
+
             RefreshPowerUpsUI(newState);
         }
 
@@ -583,9 +509,6 @@ public class PlayerController : MonoBehaviour
 
     private void RefreshPowerUpsUI(PlayerState newState)
     {
-        //        if (powerUpsChanged)
-        //      {
-
         List<PowerUpType> allTypes = new List<PowerUpType>() { PowerUpType.DoubleJump, PowerUpType.Ghost, PowerUpType.RewindTime };
 
         foreach (PowerUpType mytype in allTypes)
@@ -594,15 +517,55 @@ public class PlayerController : MonoBehaviour
             uiImage.SetActive(false);
         }
 
-        Debug.Log("inside updatepowerupsui, there are " + CollectedPowerUps.Count + " powerups");
+        //Debug.Log("inside updatepowerupsui, there are " + CollectedPowerUps.Count + " powerups");
 
-        foreach (PowerUpType mytype in newState.trick)// .CollectedPowerUps.Keys)
+
+
+
+        CollectedPowerUps.Clear();
+
+
+        foreach (PowerUpType mytype in newState.CollectedPowerUpTypes)// .CollectedPowerUps.Keys)
         {
             GameObject uiImage = GameObject.Find("UIcanvas").transform.Find(mytype.ToString() + "Image").gameObject; //(by convention we name the image as the powerup tag +"Image", eg GhostImage)
             uiImage.SetActive(true);
 
+
+
+
+
+
+
+            //PowerUpType poweruptype = (PowerUpType)Enum.Parse(typeof(PowerUpType), poweruptoadd);
+          //  if (CollectedPowerUps.ContainsKey(poweruptype) == false) //we don't have this powerup
+          //  {
+             //   Debug.Log("trap");
+
+                var powerupHandle = Activator.CreateInstance(null, mytype.ToString() + "PowerUp"); //(by convention we name the class as the powerup tag +"PowerUp", eg GhostPowerUp)
+                PowerUp powerup = (PowerUp)powerupHandle.Unwrap();
+
+
+                //  newState.CollectedPowerUps = HelperClass.CloneDictionary(CurrentState.CollectedPowerUps);
+                   CollectedPowerUps.Add(mytype, powerup);
+
+                //newState.CollectedPowerUpTypes.Add(poweruptype);
+
+                //GameObject uiImage = GameObject.Find("UIcanvas").transform.Find(poweruptoadd + "Image").gameObject; //(by convention we name the image as the powerup tag +"Image", eg GhostImage)
+                                                                                                                    //                  uiImage.SetActive(true);
+                                                                                                                    //UpdatePowerUpsUI();
+
+                uiImage.GetComponent<AudioSource>().Play();
+
+                if (powerup.IsActivatedImmediately) //eg Ghost
+                    powerup.Activate();
+           // }
+
+
+
+
+
         }
-        //}
+
     }
 
 
@@ -724,7 +687,7 @@ public class PlayerController : MonoBehaviour
 
                     Destroy(collision.gameObject);
 
-                    string secondpart = collision.gameObject.tag.Substring(8); //(to remove the PowerUp_ string from the tag)
+                    string secondpart = collision.gameObject.tag.Substring(8); //(to remove the "PowerUp_" string from the tag string)
 
                     poweruptoadd = secondpart;
 
@@ -734,7 +697,6 @@ public class PlayerController : MonoBehaviour
     }
 
     string poweruptoadd = null;
-    // public string poweruptoremove = null;
 
 
 
