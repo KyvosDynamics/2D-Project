@@ -437,25 +437,52 @@ public class PlayerController : MonoBehaviour
 
     private void RefreshPowerUps(PlayerState newState)
     {
-        List<PowerUpType> allTypes = new List<PowerUpType>() { PowerUpType.DoubleJump, PowerUpType.Ghost, PowerUpType.RewindTime };
 
-        foreach (PowerUpType mytype in allTypes)
+
+        //    List<PowerUpType> allTypes = new List<PowerUpType>() { PowerUpType.DoubleJump, PowerUpType.Ghost, PowerUpType.RewindTime };
+        //
+        //   foreach (PowerUpType mytype in allTypes)
+        //  {
+        //     GameObject uiImage = GameObject.Find("UIcanvas").transform.Find(mytype.ToString() + "Image").gameObject; //(by convention we name the image as the powerup tag +"Image", eg GhostImage)
+        //    uiImage.SetActive(false);
+        //}
+
+
+
+        // var copy = HelperClass.CloneTrick(CollectedPowerUps.Keys.ToList());
+        //CollectedPowerUps.Clear();
+
+        //1,2,3
+        //1,2
+        //->3
+        var hadButNoMore = new List<PowerUpType>(CollectedPowerUps.Keys.Except(newState.CollectedPowerUpTypes)); //clone otherwise it will result in out-of-sync
+
+        //1,2
+        //1,2,3
+        //->3
+        var hasButDidnt = new List<PowerUpType>(newState.CollectedPowerUpTypes.Except(CollectedPowerUps.Keys)); //clone otherwise it will result in out-of-sync
+
+
+
+
+
+        foreach (PowerUpType mytype in hadButNoMore)
         {
             GameObject uiImage = GameObject.Find("UIcanvas").transform.Find(mytype.ToString() + "Image").gameObject; //(by convention we name the image as the powerup tag +"Image", eg GhostImage)
             uiImage.SetActive(false);
+
+            //var powerupHandle = Activator.CreateInstance(null, mytype.ToString() + "PowerUp"); //(by convention we name the class as the powerup tag +"PowerUp", eg GhostPowerUp)
+            //PowerUp powerup = (PowerUp)powerupHandle.Unwrap();
+
+
+            CollectedPowerUps.Remove(mytype);//, powerup);
+
+
         }
-
-
-
-        var copy = HelperClass.CloneTrick(CollectedPowerUps.Keys.ToList());
-        CollectedPowerUps.Clear();
-
-
-        foreach (PowerUpType mytype in newState.CollectedPowerUpTypes)
+        foreach (PowerUpType mytype in hasButDidnt)
         {
             GameObject uiImage = GameObject.Find("UIcanvas").transform.Find(mytype.ToString() + "Image").gameObject; //(by convention we name the image as the powerup tag +"Image", eg GhostImage)
             uiImage.SetActive(true);
-
 
             var powerupHandle = Activator.CreateInstance(null, mytype.ToString() + "PowerUp"); //(by convention we name the class as the powerup tag +"PowerUp", eg GhostPowerUp)
             PowerUp powerup = (PowerUp)powerupHandle.Unwrap();
@@ -463,20 +490,33 @@ public class PlayerController : MonoBehaviour
 
             CollectedPowerUps.Add(mytype, powerup);
 
-            if (copy.Contains(mytype) == false)
-            {//it didn't have it before
 
-                if (StateGroupManager.IsRewinding == false)
+
+            //      if (copy.Contains(mytype) == false)
+            //  {//it didn't have it before
+
+            if (StateGroupManager.IsRewinding == false)
                 {//we don't want to activate powerups while rewinding
                     uiImage.GetComponent<AudioSource>().Play();
                     if (powerup.IsActivatedImmediately) //eg Ghost
                         powerup.Activate();
                 }
-            }
-
-
-
+       //     }
         }
+
+
+
+     //   foreach (PowerUpType mytype in newState.CollectedPowerUpTypes)
+       // {
+         //   GameObject uiImage = GameObject.Find("UIcanvas").transform.Find(mytype.ToString() + "Image").gameObject; //(by convention we name the image as the powerup tag +"Image", eg GhostImage)
+           // uiImage.SetActive(true);
+
+
+          
+
+
+
+       // }
 
     }
 
