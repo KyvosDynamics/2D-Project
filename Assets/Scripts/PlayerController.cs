@@ -29,6 +29,15 @@ public class ChangedFieldsCollection
 
 public enum PlayerColor { Transparent, Cyan, Green }
 
+
+public class WorldState
+{
+    public PlayerState PlayerState = new PlayerState();
+
+
+}
+
+
 public class PlayerState
 {
     public Vector3 Position;
@@ -175,10 +184,9 @@ public class PlayerController : MonoBehaviour
     public bool JumpFromGround = false;
 
     [HideInInspector]
-    public StateDeltasGroupManager StateGroupManager = new StateDeltasGroupManager();
+    public static StateDeltasGroupManager StateGroupManager = new StateDeltasGroupManager();
 
-    [HideInInspector]
-    public PlayerState CurrentState = new PlayerState();
+   
 
     [HideInInspector]
     public Dictionary<PowerUpType, PowerUp> CollectedPowerUps = new Dictionary<PowerUpType, PowerUp>();
@@ -319,7 +327,7 @@ public class PlayerController : MonoBehaviour
 
 
 
-        PlayerState newState = new PlayerState(CurrentState);
+        PlayerState newState = new PlayerState(StateManager.CurrentState.PlayerState);
         newState.Position = transform.position;
         newState.Velocity = new Vector2(Speed, yVel);
 
@@ -340,13 +348,13 @@ public class PlayerController : MonoBehaviour
         {//should create new stategroup
             _switchcolor = false;
 
-            if (CurrentState.PlayerColor == PlayerColor.Cyan)
+            if (StateManager.CurrentState.PlayerState.PlayerColor == PlayerColor.Cyan)
                 newState.PlayerColor = PlayerColor.Green;
-            else if (CurrentState.PlayerColor == PlayerColor.Green)
+            else if (StateManager.CurrentState.PlayerState.PlayerColor == PlayerColor.Green)
                 newState.PlayerColor = PlayerColor.Cyan;
             //else transparent!
 
-            newState.IsTrailCyan = !CurrentState.IsTrailCyan;
+            newState.IsTrailCyan = !StateManager.CurrentState.PlayerState.IsTrailCyan;
         }
 
 
@@ -384,24 +392,24 @@ public class PlayerController : MonoBehaviour
         bool powerUpsChanged = false;
 
 
-        if (CurrentState.Position != newState.Position)
+        if (StateManager.CurrentState.PlayerState.Position != newState.Position)
             playerPositionChanged = true;
 
-        if (CurrentState.Velocity != newState.Velocity)
+        if (StateManager.CurrentState.PlayerState.Velocity != newState.Velocity)
             playerVelocityChanged = true;
 
-        if (CurrentState.PlayerColor != newState.PlayerColor)
+        if (StateManager.CurrentState.PlayerState.PlayerColor != newState.PlayerColor)
             playerColorChanged = true;
 
         if (
-            CurrentState.IsTrailCyan != newState.IsTrailCyan
+            StateManager.CurrentState.PlayerState.IsTrailCyan != newState.IsTrailCyan
             ||
-            CurrentState.IsTrailInForeground != newState.IsTrailInForeground
+            StateManager.CurrentState.PlayerState.IsTrailInForeground != newState.IsTrailInForeground
            )
             trailChanged = true;
 
 
-        if (HelperClass.AreTheyDifferent(CurrentState.CollectedPowerUpTypes, newState.CollectedPowerUpTypes))
+        if (HelperClass.AreTheyDifferent(StateManager.CurrentState.PlayerState.CollectedPowerUpTypes, newState.CollectedPowerUpTypes))
             powerUpsChanged = true;
 
 
@@ -439,7 +447,7 @@ public class PlayerController : MonoBehaviour
 
 
 
-        CurrentState =newState; //no need to clone it because newstate was new and not a clone
+        StateManager.CurrentState.PlayerState = newState; //no need to clone it because newstate was new and not a clone
     }
 
 
@@ -464,6 +472,9 @@ public class PlayerController : MonoBehaviour
             uiImage.SetActive(false);
             CollectedPowerUps.Remove(type);
 
+
+
+            /*
             if (StateGroupManager.IsRewinding)
             {//time is going backwards and we just lost a powerup. This means that we haven't collected it yet!. So place it
 
@@ -484,8 +495,9 @@ public class PlayerController : MonoBehaviour
                 }
 
                 go.transform.position = go.transform.position + new Vector3(go.GetComponent<Collider2D>().bounds.extents.x, 0, 0) + new Vector3(this.GetComponent<Collider2D>().bounds.extents.x, 0, 0);
-
             }
+            */
+
         }
 
         foreach (PowerUpType type in hasButDidnt)
@@ -599,12 +611,12 @@ public class PlayerController : MonoBehaviour
         switch (collision.gameObject.tag)
         {
             case "CyanSaw":
-                if (CurrentState.PlayerColor == PlayerColor.Green)//  .IsCyan)
+                if (StateManager.CurrentState.PlayerState.PlayerColor == PlayerColor.Green)//  .IsCyan)
                     TryToKillPlayer();
                 break;
 
             case "GreenSaw":
-                if (CurrentState.PlayerColor == PlayerColor.Cyan)// .IsCyan)
+                if (StateManager.CurrentState.PlayerState.PlayerColor == PlayerColor.Cyan)// .IsCyan)
                     TryToKillPlayer();
                 break;
 
@@ -624,7 +636,10 @@ public class PlayerController : MonoBehaviour
                 if (collision.gameObject.tag.StartsWith("PowerUp_"))
                 {//we've triggered a powerup
 
-                    Destroy(collision.gameObject);
+
+                    collision.gameObject.GetComponent<StateMonitor>().Collected = true;
+
+                    //Destroy(collision.gameObject);
 
                     string secondpart = collision.gameObject.tag.Substring(8); //(to remove the "PowerUp_" string from the tag string)
 
@@ -694,7 +709,7 @@ public class RewindTimePowerUp : PowerUp
     public override void Activate()
     {
         base.Activate();
-        PlayerController.Instance.StateGroupManager.InitiateRewinding();
+        PlayerController.StateGroupManager.InitiateRewinding();
     }
 }
 

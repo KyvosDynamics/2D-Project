@@ -17,7 +17,7 @@ public class PlayerCenterController : MonoBehaviour
             Debug.Log("player center collided with sprite mask");
             //_playerController.StartBackgroundTronTrail();
 
-            PlayerController.Instance.CurrentState.IsTrailInForeground = false; //because we don't want the trail to pass on top of the portal effect!
+            StateManager.CurrentState.PlayerState.IsTrailInForeground = false; //because we don't want the trail to pass on top of the portal effect!
 //temporarily disabled            PlayerController.Instance.StartNewTrail();
 
         }
