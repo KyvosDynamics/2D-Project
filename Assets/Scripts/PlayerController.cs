@@ -186,7 +186,7 @@ public class PlayerController : MonoBehaviour
     [HideInInspector]
     public static StateDeltasGroupManager StateGroupManager = new StateDeltasGroupManager();
 
-   
+
 
     [HideInInspector]
     public Dictionary<PowerUpType, PowerUp> CollectedPowerUps = new Dictionary<PowerUpType, PowerUp>();
@@ -444,9 +444,6 @@ public class PlayerController : MonoBehaviour
             }
         }
 
-
-
-
         StateManager.CurrentState.PlayerState = newState; //no need to clone it because newstate was new and not a clone
     }
 
@@ -637,7 +634,7 @@ public class PlayerController : MonoBehaviour
                 {//we've triggered a powerup
 
 
-                    collision.gameObject.GetComponent<StateMonitor>().Collected = true;
+                    collision.gameObject.GetComponent<StateMonitor>().CollectedChanged = true;// .Collected = true;
 
                     //Destroy(collision.gameObject);
 

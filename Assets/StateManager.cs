@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class StateManager : MonoBehaviour
 {
@@ -10,7 +8,7 @@ public class StateManager : MonoBehaviour
 
     private void FixedUpdate()
     {
-        
+
     }
 
 
