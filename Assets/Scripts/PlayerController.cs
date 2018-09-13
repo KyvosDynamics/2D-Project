@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using UnityEngine;
 
 public enum ChangedFieldName { Position, Velocity, PlayerColor, IsTrailCyan, IsTrailInForeground, PowerUpTypes };
@@ -8,11 +9,15 @@ public struct ChangedField
 {
     public ChangedFieldName ChangedFieldName;
     public object OldValue;
+    public string Name;
+    public Type Type;
 
-    public ChangedField(ChangedFieldName changedFieldName, object oldValue)
+    public ChangedField(ChangedFieldName changedFieldName, object oldValue, string name, Type type)
     {
         ChangedFieldName = changedFieldName;
         OldValue = oldValue;
+        Name = name;
+        Type = type;
     }
 }
 
@@ -71,11 +76,24 @@ public class PlayerState
 
         foreach (ChangedField cf in cfc.ChangedFields)
         {
+            string name = cf.Name;
+            Type type = cf.Type;
+            //if (name == "IsTrailCyan")
+            // {
+            Type t = typeof(PlayerState);
+            FieldInfo pi = t.GetField(name);
+            pi.SetValue(clone, cf.OldValue);
+            //}
+
+            /*
             switch (cf.ChangedFieldName)
             {
-                case ChangedFieldName.IsTrailCyan:
-                    clone.IsTrailCyan = (bool)cf.OldValue;
-                    break;
+
+
+
+                //                case ChangedFieldName.IsTrailCyan:
+                //                  clone.IsTrailCyan = (bool)cf.OldValue;
+                //                break;
                 case ChangedFieldName.PlayerColor:
                     clone.PlayerColor = (PlayerColor)cf.OldValue;
                     break;
@@ -91,7 +109,7 @@ public class PlayerState
                 case ChangedFieldName.PowerUpTypes:
                     clone.CollectedPowerUpTypes = HelperClass.CloneTrick((List<PowerUpType>)cf.OldValue);
                     break;
-            }
+            }*/
 
         }
 
@@ -104,40 +122,29 @@ public class PlayerState
 
         if (IsTrailCyan != state.IsTrailCyan)
         {
-            result.AddChangedField(new ChangedField(ChangedFieldName.IsTrailCyan, IsTrailCyan));
+            result.AddChangedField(new ChangedField(ChangedFieldName.IsTrailCyan, IsTrailCyan, "IsTrailCyan", typeof(bool)));
         }
         if (PlayerColor != state.PlayerColor)
         {
-            ChangedField fd = new ChangedField(
-       ChangedFieldName.PlayerColor
-           , PlayerColor);
-            result.AddChangedField(fd);
+
+            result.AddChangedField(new ChangedField(ChangedFieldName.PlayerColor, PlayerColor, "PlayerColor", typeof(PlayerColor)));
         }
         if (IsTrailInForeground != state.IsTrailInForeground)
         {
-            ChangedField fd = new ChangedField(
-             ChangedFieldName.IsTrailInForeground,
-
-            IsTrailInForeground);
-            result.AddChangedField(fd);
+            result.AddChangedField(new ChangedField(ChangedFieldName.IsTrailInForeground, IsTrailInForeground, "IsTrailInForeground", typeof(bool)));
         }
         if (Position != state.Position)
         {
-            ChangedField fd = new ChangedField(
-             ChangedFieldName.Position,
-             Position);
-            result.AddChangedField(fd);
+
+            result.AddChangedField(new ChangedField(ChangedFieldName.Position, Position, "Position", typeof(Vector3)));
         }
         if (Velocity != state.Velocity)
         {
-            ChangedField fd = new ChangedField();
-            fd.ChangedFieldName = ChangedFieldName.Velocity;
-            fd.OldValue = Velocity;
-            result.AddChangedField(fd);
+            result.AddChangedField(new ChangedField(ChangedFieldName.Velocity, Velocity, "Velocity", typeof(Vector3)));
         }
 
         if (HelperClass.AreTheyDifferent(CollectedPowerUpTypes, state.CollectedPowerUpTypes))
-            result.AddChangedField(new ChangedField(ChangedFieldName.PowerUpTypes, HelperClass.CloneTrick(CollectedPowerUpTypes)));
+            result.AddChangedField(new ChangedField(ChangedFieldName.PowerUpTypes, HelperClass.CloneTrick(CollectedPowerUpTypes), "CollectedPowerUpTypes", typeof(List<PowerUpType>)));
 
 
         return result;

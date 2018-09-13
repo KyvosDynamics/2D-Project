@@ -19,7 +19,7 @@ public class PowerUpState
 public class StateMonitor : MonoBehaviour
 {
     List<PowerUpState> _states = new List<PowerUpState>();
-//    public bool Collected = false;
+    //    public bool Collected = false;
     public bool CollectedChanged = false;
 
     public PowerUpState CurrentState = new PowerUpState();
@@ -39,18 +39,18 @@ public class StateMonitor : MonoBehaviour
 
 
 
-        if(CollectedChanged)
+        if (CollectedChanged)
         {
             CollectedChanged = false;
 
             newState.Collected = !CurrentState.Collected;
         }
 
-//        PowerUpState pus = new PowerUpState()
-  //      {// Position = transform.position,
-    //        Collected = this.Collected
-      //  };
-    
+        //        PowerUpState pus = new PowerUpState()
+        //      {// Position = transform.position,
+        //        Collected = this.Collected
+        //  };
+
 
 
 
@@ -68,16 +68,24 @@ public class StateMonitor : MonoBehaviour
     }
 
 
-    private void PutObjectInState(PowerUpState pus)
+    private void PutObjectInState(PowerUpState newState)
     {
-        gameObject.GetComponent<SpriteRenderer>().enabled = !pus.Collected;
+        //check what changed
 
-        if (PlayerController. StateGroupManager.IsRewinding == false) //(don't add state while we are rewinding)
+
+        if(CurrentState.Collected!= newState.Collected)
         {
-            _states.Add(pus);
+            gameObject.GetComponent<SpriteRenderer>().enabled = !newState.Collected;
         }
 
-        CurrentState = pus;
+        
+
+        if (PlayerController.StateGroupManager.IsRewinding == false) //(don't add state while we are rewinding)
+        {
+            _states.Add(newState);
+        }
+
+        CurrentState = newState;
     }
 
 
