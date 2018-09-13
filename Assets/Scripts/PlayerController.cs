@@ -439,7 +439,7 @@ public class PlayerController : MonoBehaviour
 
 
 
-        CurrentState = new PlayerState(newState);
+        CurrentState =newState; //no need to clone it because newstate was new and not a clone
     }
 
 
@@ -464,23 +464,26 @@ public class PlayerController : MonoBehaviour
             uiImage.SetActive(false);
             CollectedPowerUps.Remove(type);
 
-            if(StateGroupManager.IsRewinding)
+            if (StateGroupManager.IsRewinding)
             {//time is going backwards and we just lost a powerup. This means that we haven't collected it yet!. So place it
 
-               
-                switch(type)
+                GameObject go = null;
+                switch (type)
                 {
                     case PowerUpType.DoubleJump:
-                        UnityEngine.Object.Instantiate(DoubleJumpPrefab, transform.position, Quaternion.identity);
+                       go= UnityEngine.Object.Instantiate(DoubleJumpPrefab, transform.position  , Quaternion.identity);
+
+                     
                         break;
                     case PowerUpType.Ghost:
-                        UnityEngine.Object.Instantiate(GhostPrefab, transform.position, Quaternion.identity);
+                        go = UnityEngine.Object.Instantiate(GhostPrefab, transform.position , Quaternion.identity);
                         break;
                     case PowerUpType.RewindTime:
-                        UnityEngine.Object.Instantiate(RewindTimePrefab, transform.position, Quaternion.identity);
+                        go = UnityEngine.Object.Instantiate(RewindTimePrefab, transform.position , Quaternion.identity);
                         break;
                 }
 
+                go.transform.position = go.transform.position + new Vector3(go.GetComponent<Collider2D>().bounds.extents.x, 0, 0) + new Vector3(this.GetComponent<Collider2D>().bounds.extents.x, 0, 0);
 
             }
         }
@@ -489,7 +492,7 @@ public class PlayerController : MonoBehaviour
         {
             GameObject uiImage = GameObject.Find("UIcanvas").transform.Find(type.ToString() + "Image").gameObject; //(by convention we name the image as the powerup tag +"Image", eg GhostImage)
             uiImage.SetActive(true);
-            
+
             PowerUp powerup = (PowerUp)Activator.CreateInstance(null, type.ToString() + "PowerUp").Unwrap(); //(by convention we name the class as the powerup tag +"PowerUp", eg GhostPowerUp)
             CollectedPowerUps.Add(type, powerup);
 
