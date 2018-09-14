@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using UnityEngine;
 
 public struct ChangedField
@@ -43,8 +44,14 @@ public class WorldState
 
 }
 
+public interface IState
+{
+    ChangedFieldsCollection FindChangedFieldsComparedTo(IState state);
 
-public class PlayerState
+    IState RetrievePreviousState(ChangedFieldsCollection cfc);
+}
+
+public class PlayerState:  IState
 {
     public Vector3 Position;
     public Vector3 Velocity;
@@ -70,7 +77,7 @@ public class PlayerState
     }
 
 
-    internal PlayerState RetrievePreviousState(ChangedFieldsCollection cfc)
+    public IState RetrievePreviousState(ChangedFieldsCollection cfc)
     {//it doesn't affect the original object, it creates a clone
 
         PlayerState clone = new PlayerState(this);
@@ -95,9 +102,19 @@ public class PlayerState
     }
 
 
-    internal ChangedFieldsCollection FindChangedFieldsComparedTo(PlayerState state)
+    public ChangedFieldsCollection FindChangedFieldsComparedTo(IState statef)// PlayerState state)
     {
         ChangedFieldsCollection result = new ChangedFieldsCollection();
+
+
+        PlayerState state = (PlayerState)statef;
+
+        //todo: dynamically find fields
+        //var fieldNames = typeof(PlayerState).GetFields()
+          //                  .Select(field => field.Name)
+            //                .ToList();
+
+
 
         if (IsTrailCyan != state.IsTrailCyan)
             result.AddChangedField(new ChangedField(IsTrailCyan, "IsTrailCyan", typeof(bool)));
@@ -123,6 +140,28 @@ public class PlayerState
 
 public static class HelperClass
 {
+    public static class MemberInfoGetting
+    {
+        public static string GetMemberName<T>(Expression<Func<T>> memberExpression)
+        {
+            MemberExpression expressionBody = (MemberExpression)memberExpression.Body;
+            return expressionBody.Member.Name;
+        }
+        /*
+         * To get name of a variable:
+
+string testVariable = "value";
+string nameOfTestVariable = MemberInfoGetting.GetMemberName(() => testVariable);
+To get name of a parameter:
+
+public class TestClass
+{
+    public void TestMethod(string param1, string param2)
+    {
+        string nameOfParam1 = MemberInfoGetting.GetMemberName(() => param1);
+    }
+}*/
+    }
 
     public static bool AreTheyDifferent(List<PowerUpType> trick1, List<PowerUpType> trick2)
     {//true if different
@@ -472,7 +511,7 @@ public class PlayerController : MonoBehaviour
             }
             */
 
-        }
+    }
 
         foreach (PowerUpType type in hasButDidnt)
         {

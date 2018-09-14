@@ -101,7 +101,7 @@ public class StateDeltasGroup
 
             ChangedFieldsCollection psd = _stateTransitions[_stateTransitions.Count - 1];
 
-            PlayerState previousState = StateManager.CurrentState.PlayerState.RetrievePreviousState(psd);// PlayerState.SubtractFromPlayerState(new PlayerState(), psd);
+            PlayerState previousState =(PlayerState) StateManager.CurrentState.PlayerState.RetrievePreviousState(psd);// PlayerState.SubtractFromPlayerState(new PlayerState(), psd);
 
 
 
