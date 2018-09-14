@@ -4,17 +4,14 @@ using System.Linq;
 using System.Reflection;
 using UnityEngine;
 
-public enum ChangedFieldName { Position, Velocity, PlayerColor, IsTrailCyan, IsTrailInForeground, PowerUpTypes };
 public struct ChangedField
 {
-    public ChangedFieldName ChangedFieldName;
     public object OldValue;
     public string Name;
     public Type Type;
 
-    public ChangedField(ChangedFieldName changedFieldName, object oldValue, string name, Type type)
+    public ChangedField(object oldValue, string name, Type type)
     {
-        ChangedFieldName = changedFieldName;
         OldValue = oldValue;
         Name = name;
         Type = type;
@@ -23,13 +20,19 @@ public struct ChangedField
 
 public class ChangedFieldsCollection
 {
+    public List<ChangedField> ChangedFields { get; private set; }
+
+    public ChangedFieldsCollection()
+    {
+        ChangedFields = new List<ChangedField>();
+    }
 
     public void AddChangedField(ChangedField fieldDelta)
     {
         ChangedFields.Add(fieldDelta);
     }
 
-    public List<ChangedField> ChangedFields = new List<ChangedField>();
+    //public List<ChangedField> ChangedFields = new List<ChangedField>();
 }
 
 public enum PlayerColor { Transparent, Cyan, Green }
@@ -76,33 +79,11 @@ public class PlayerState
 
         foreach (ChangedField cf in cfc.ChangedFields)
         {
-            string name = cf.Name;
-            Type type = cf.Type;
-            //if (name == "IsTrailCyan")
-            // {
-            Type t = typeof(PlayerState);
-            FieldInfo pi = t.GetField(name);
-            pi.SetValue(clone, cf.OldValue);
-            //}
+            typeof(PlayerState).GetField(cf.Name).SetValue(clone, cf.OldValue);
 
             /*
             switch (cf.ChangedFieldName)
             {
-
-
-
-                //                case ChangedFieldName.IsTrailCyan:
-                //                  clone.IsTrailCyan = (bool)cf.OldValue;
-                //                break;
-                case ChangedFieldName.PlayerColor:
-                    clone.PlayerColor = (PlayerColor)cf.OldValue;
-                    break;
-                case ChangedFieldName.IsTrailInForeground:
-                    clone.IsTrailInForeground = (bool)cf.OldValue;
-                    break;
-                case ChangedFieldName.Position:
-                    clone.Position = (Vector3)cf.OldValue;
-                    break;
                 case ChangedFieldName.Velocity:
                     clone.Velocity = (Vector3)cf.OldValue;
                     break;
@@ -110,42 +91,33 @@ public class PlayerState
                     clone.CollectedPowerUpTypes = HelperClass.CloneTrick((List<PowerUpType>)cf.OldValue);
                     break;
             }*/
-
         }
 
         return clone;
     }
 
-    internal ChangedFieldsCollection FindDeltasToState(PlayerState state)
+
+    internal ChangedFieldsCollection FindChangedFieldsComparedTo(PlayerState state)
     {
         ChangedFieldsCollection result = new ChangedFieldsCollection();
 
-        if (IsTrailCyan != state.IsTrailCyan)
-        {
-            result.AddChangedField(new ChangedField(ChangedFieldName.IsTrailCyan, IsTrailCyan, "IsTrailCyan", typeof(bool)));
-        }
-        if (PlayerColor != state.PlayerColor)
-        {
+        if (IsTrailCyan != state.IsTrailCyan)        
+            result.AddChangedField(new ChangedField(IsTrailCyan, "IsTrailCyan", typeof(bool)));
+        
+        if (PlayerColor != state.PlayerColor)        
+            result.AddChangedField(new ChangedField(PlayerColor, "PlayerColor", typeof(PlayerColor)));        
 
-            result.AddChangedField(new ChangedField(ChangedFieldName.PlayerColor, PlayerColor, "PlayerColor", typeof(PlayerColor)));
-        }
-        if (IsTrailInForeground != state.IsTrailInForeground)
-        {
-            result.AddChangedField(new ChangedField(ChangedFieldName.IsTrailInForeground, IsTrailInForeground, "IsTrailInForeground", typeof(bool)));
-        }
-        if (Position != state.Position)
-        {
-
-            result.AddChangedField(new ChangedField(ChangedFieldName.Position, Position, "Position", typeof(Vector3)));
-        }
-        if (Velocity != state.Velocity)
-        {
-            result.AddChangedField(new ChangedField(ChangedFieldName.Velocity, Velocity, "Velocity", typeof(Vector3)));
-        }
-
+        if (IsTrailInForeground != state.IsTrailInForeground)        
+            result.AddChangedField(new ChangedField(IsTrailInForeground, "IsTrailInForeground", typeof(bool)));
+        
+        if (Position != state.Position)        
+            result.AddChangedField(new ChangedField(Position, "Position", typeof(Vector3)));
+        
+        if (Velocity != state.Velocity)        
+            result.AddChangedField(new ChangedField(Velocity, "Velocity", typeof(Vector3)));
+       
         if (HelperClass.AreTheyDifferent(CollectedPowerUpTypes, state.CollectedPowerUpTypes))
-            result.AddChangedField(new ChangedField(ChangedFieldName.PowerUpTypes, HelperClass.CloneTrick(CollectedPowerUpTypes), "CollectedPowerUpTypes", typeof(List<PowerUpType>)));
-
+            result.AddChangedField(new ChangedField(HelperClass.CloneTrick(CollectedPowerUpTypes), "CollectedPowerUpTypes", typeof(List<PowerUpType>)));
 
         return result;
     }

@@ -136,30 +136,15 @@ public class StateDeltasGroup
 
 
 
-    public void AddState(PlayerState newState)// Vector3 position)
+    public void AddState(PlayerState newState)
     {
-        //       if(LastState==null)
-        //     {//initial state, no deltas to compute
-        //
-        //        LastState = state;
-        //    }
-        //   else
-        //   {
-        //      if (LastState == null)
-        //    {
-        //
-        //      //  _stateDeltas.Add(state.FindDeltasToState(state));//zero deltas
-        // }
-        //else
-
 
         if (_linePositions.Count > 0)
-            _stateTransitions.Add(StateManager.CurrentState.PlayerState.FindDeltasToState(newState));
+            _stateTransitions.Add(StateManager.CurrentState.PlayerState.FindChangedFieldsComparedTo(newState));
 
         _linePositions.Add(newState.Position);
 
 
-        //   LatestState = state;// new PlayerState(state);
 
         //it records one state per fixedupdate
         //time between fixedupdate calls is Time.fixedDeltaTime seconds
@@ -174,13 +159,6 @@ public class StateDeltasGroup
             _stateTransitions.RemoveAt(0);// pointsInTime.Count - 1);
             _linePositions.RemoveAt(0);
         }
-
-
-        //        _states.Add();// transform.rotation));
-        // state);// new State(position, false));
-        //     }
-
-
 
 
 

@@ -3,7 +3,6 @@ using UnityEngine;
 
 public class PowerUpState
 {
-    //    public Vector3 Position;
     public bool Collected;
 
     public PowerUpState()
@@ -19,9 +18,7 @@ public class PowerUpState
 public class StateMonitor : MonoBehaviour
 {
     List<PowerUpState> _states = new List<PowerUpState>();
-    //    public bool Collected = false;
     public bool CollectedChanged = false;
-
     public PowerUpState CurrentState = new PowerUpState();
 
 
@@ -46,16 +43,9 @@ public class StateMonitor : MonoBehaviour
             newState.Collected = !CurrentState.Collected;
         }
 
-        //        PowerUpState pus = new PowerUpState()
-        //      {// Position = transform.position,
-        //        Collected = this.Collected
-        //  };
-
-
 
 
         PutObjectInState(newState);
-        //gameObject.GetComponent<SpriteRenderer>().enabled = !Collected;
 
     }
 
@@ -73,12 +63,12 @@ public class StateMonitor : MonoBehaviour
         //check what changed
 
 
-        if(CurrentState.Collected!= newState.Collected)
+        if (CurrentState.Collected != newState.Collected)
         {
             gameObject.GetComponent<SpriteRenderer>().enabled = !newState.Collected;
         }
 
-        
+
 
         if (PlayerController.StateGroupManager.IsRewinding == false) //(don't add state while we are rewinding)
         {
