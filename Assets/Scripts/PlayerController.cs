@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using UnityEngine;
 
 public struct ChangedField
@@ -32,7 +31,6 @@ public class ChangedFieldsCollection
         ChangedFields.Add(fieldDelta);
     }
 
-    //public List<ChangedField> ChangedFields = new List<ChangedField>();
 }
 
 public enum PlayerColor { Transparent, Cyan, Green }
@@ -101,21 +99,21 @@ public class PlayerState
     {
         ChangedFieldsCollection result = new ChangedFieldsCollection();
 
-        if (IsTrailCyan != state.IsTrailCyan)        
+        if (IsTrailCyan != state.IsTrailCyan)
             result.AddChangedField(new ChangedField(IsTrailCyan, "IsTrailCyan", typeof(bool)));
-        
-        if (PlayerColor != state.PlayerColor)        
-            result.AddChangedField(new ChangedField(PlayerColor, "PlayerColor", typeof(PlayerColor)));        
 
-        if (IsTrailInForeground != state.IsTrailInForeground)        
+        if (PlayerColor != state.PlayerColor)
+            result.AddChangedField(new ChangedField(PlayerColor, "PlayerColor", typeof(PlayerColor)));
+
+        if (IsTrailInForeground != state.IsTrailInForeground)
             result.AddChangedField(new ChangedField(IsTrailInForeground, "IsTrailInForeground", typeof(bool)));
-        
-        if (Position != state.Position)        
+
+        if (Position != state.Position)
             result.AddChangedField(new ChangedField(Position, "Position", typeof(Vector3)));
-        
-        if (Velocity != state.Velocity)        
+
+        if (Velocity != state.Velocity)
             result.AddChangedField(new ChangedField(Velocity, "Velocity", typeof(Vector3)));
-       
+
         if (HelperClass.AreTheyDifferent(CollectedPowerUpTypes, state.CollectedPowerUpTypes))
             result.AddChangedField(new ChangedField(HelperClass.CloneTrick(CollectedPowerUpTypes), "CollectedPowerUpTypes", typeof(List<PowerUpType>)));
 

@@ -17,9 +17,8 @@ public class PowerUpState
 
 public class StateMonitor : MonoBehaviour
 {
-    List<PowerUpState> _states = new List<PowerUpState>();
     public bool CollectedChanged = false;
-    public PowerUpState CurrentState = new PowerUpState();
+  
 
 
     private void FixedUpdate()
@@ -32,7 +31,7 @@ public class StateMonitor : MonoBehaviour
 
 
 
-        PowerUpState newState = new PowerUpState(CurrentState);
+        PowerUpState newState = new PowerUpState(m2. CurrentState);
 
 
 
@@ -40,7 +39,7 @@ public class StateMonitor : MonoBehaviour
         {
             CollectedChanged = false;
 
-            newState.Collected = !CurrentState.Collected;
+            newState.Collected = !m2. CurrentState.Collected;
         }
 
 
@@ -51,8 +50,7 @@ public class StateMonitor : MonoBehaviour
 
     public void OneRewind()
     {
-        PowerUpState newState = _states[_states.Count - 1];
-        _states.RemoveAt(_states.Count - 1);
+      PowerUpState newState= m2.CurrentStateGroup.OneRewind();
 
         PutObjectInState(newState);
     }
@@ -63,7 +61,7 @@ public class StateMonitor : MonoBehaviour
         //check what changed
 
 
-        if (CurrentState.Collected != newState.Collected)
+        if (m2. CurrentState.Collected != newState.Collected)
         {
             gameObject.GetComponent<SpriteRenderer>().enabled = !newState.Collected;
         }
@@ -72,12 +70,44 @@ public class StateMonitor : MonoBehaviour
 
         if (PlayerController.StateGroupManager.IsRewinding == false) //(don't add state while we are rewinding)
         {
-            _states.Add(newState);
+            AddStateToCurrentGroup(newState);//  _states.Add(newState);
         }
 
-        CurrentState = newState;
+        m2. CurrentState = newState;
     }
 
 
+     void AddStateToCurrentGroup(PowerUpState myState)
+    {
+        if (m2.CurrentStateGroup != null)
+            m2.CurrentStateGroup.AddState(myState);
+    }
 
+
+    StateDeltasGroupManager2 m2 = new StateDeltasGroupManager2();
+    
+}
+public class StateDeltasGroupManager2
+{
+    public PowerUpStateGroup CurrentStateGroup = new PowerUpStateGroup();
+    public  PowerUpState CurrentState = new PowerUpState();
+}
+
+
+
+public class PowerUpStateGroup
+{
+    List<PowerUpState> _states = new List<PowerUpState>();
+
+    public PowerUpState OneRewind()
+    {
+        PowerUpState newState = _states[_states.Count - 1];
+        _states.RemoveAt(_states.Count - 1);
+        return newState;
+    }
+
+    public void AddState(PowerUpState state)
+    {
+        _states.Add(state);
+    }
 }
